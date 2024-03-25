@@ -17,6 +17,23 @@ Sand Game JS is a browser-based successor to [Sand Game 2](https://github.com/Ha
 ![Sand Game JS preview](https://files.harag.cz/www/app/sand-game-js/preview-with-gui.png)
 
 
+## API
+
+Public API – basic concepts and essential classes.
+
+**Tool** – Tools are what you can see above the canvas. There are brush tools, template tools...
+We can create custom tools using methods provided by Tools class.
+- [Tools](https://github.com/Hartrik/sand-game-js/blob/master/src/core/tool/Tools.js) – Factory methods.
+- [ToolDefs](https://github.com/Hartrik/sand-game-js/blob/master/src/def/ToolDefs.js) – Default tools.
+
+**Brush** – Brushes are used to create elements.
+We can create custom brushes by extending default brushes from BrushDefs class and/or using methods provided by Brushes class.
+- [Brushes](https://github.com/Hartrik/sand-game-js/blob/master/src/core/brush/Brushes.js) – Factory methods.
+- [BrushDefs](https://github.com/Hartrik/sand-game-js/blob/master/src/def/BrushDefs.js) – Default brushes.
+
+// TODO
+
+
 ## Development
 
 Dev build: https://harag.cz/app/sand-game-js?stage=dev (with test tools enabled, sometimes with experimental changes)
