@@ -14,7 +14,7 @@ import _ASSET_PALETTE_TEMPERATURE_COLORS from './assets/temperature.palette.csv'
  * WebGL renderer.
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2024-04-06
  */
 export default class RendererWebGL extends Renderer {
 
@@ -409,6 +409,9 @@ export default class RendererWebGL extends Renderer {
     #loadShader(gl, shaderSource, shaderType) {
         // Create the shader object
         const shader = gl.createShader(shaderType);
+        if (shader === null) {
+            throw 'Error compiling shader: cannot create shader';
+        }
 
         // Load the shader source
         gl.shaderSource(shader, shaderSource);

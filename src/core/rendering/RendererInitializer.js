@@ -6,12 +6,13 @@ import RenderingModeHeatmap from "./RenderingModeHeatmap";
 import RenderingModeElementType from "./RenderingModeElementType";
 import RendererWebGL from "./RendererWebGL";
 import RendererNull from "./RendererNull";
+import RenderingWebGLException from "./RenderingWebGLException";
 
 /**
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-10-11
+ * @version 2024-04-06
  */
 export default class RendererInitializer {
 
@@ -82,7 +83,11 @@ class RendererInitializerWebGL extends RendererInitializer {
     }
 
     initialize(elementArea, chunkSize, context) {
-        return new RendererWebGL(elementArea, chunkSize, context);
+        try {
+            return new RendererWebGL(elementArea, chunkSize, context);
+        } catch (e) {
+            throw new RenderingWebGLException(e);
+        }
     }
 }
 

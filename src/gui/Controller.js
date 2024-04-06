@@ -6,6 +6,7 @@ import SceneImplTmpResize from "../core/scene/SceneImplResize";
 import ServiceToolManager from "./ServiceToolManager";
 import ServiceIO from "./ServiceIO";
 import RendererInitializer from "../core/rendering/RendererInitializer";
+import RenderingWebGLException from "../core/rendering/RenderingWebGLException";
 import SceneImplSnapshot from "../core/scene/SceneImplSnapshot";
 import DomBuilder from "./DomBuilder";
 import Defaults from "../def/Defaults";
@@ -16,7 +17,7 @@ import Analytics from "../Analytics";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-24
+ * @version 2024-04-06
  */
 export default class Controller {
 
@@ -145,7 +146,7 @@ export default class Controller {
         try {
             promise = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
         } catch (e) {
-            this.#reportSeriousFailure('Initialization failed: ' + e);
+            this.#reportSeriousFailure('Initialization failed', e);
             return;
         }
 
@@ -158,7 +159,7 @@ export default class Controller {
 
             // start rendering
             this.#sandGame.addOnRenderingFailed((e) => {
-                this.#reportSeriousFailure('Rendering failure: ' + e);
+                this.#reportSeriousFailure('Rendering failure', e);
             });
             this.#sandGame.startRendering();
 
@@ -168,7 +169,15 @@ export default class Controller {
                 this.#onStarted.forEach(f => f());
             }
         }).catch(e => {
-            this.#reportSeriousFailure('Initialization failed: ' + e);
+            if (e instanceof RenderingWebGLException) {
+                setTimeout(() => {
+                    const cause = 'WebGL renderer initialization failed (' + e.getError() + '). '
+                            + 'Using fallback renderer; game performance and visuals will be affected!';
+                    this.#restartAfterInitializationRendererFailure(cause, scene);
+                }, 100);
+            } else {
+                this.#reportSeriousFailure('Initialization failed', e);
+            }
         });
     }
 
@@ -197,6 +206,10 @@ export default class Controller {
                 // GPU memory leak, GPU failure, etc.
                 // - to test this move the texture definition into rendering loop to create a memory leak
 
+                if (this.#sandGame !== null) {
+                    this.#sandGame.stopRendering();  // stop rendering immediately
+                }
+
                 if (!contextLossHandled) {
                     contextLossHandled = true;
                 } else {
@@ -206,7 +219,7 @@ export default class Controller {
                 const cause = 'WebGL context loss detected. Using fallback renderer; game performance and visuals will be affected';
                 e.preventDefault();
                 setTimeout(() => {
-                    this.restartAfterRenderingFailure(cause);
+                    this.#restartAfterRenderingFailure(cause);
                 }, 2000);
             }, false);
         }
@@ -346,7 +359,14 @@ export default class Controller {
         this.#onFailure.push(handler);
     }
 
-    restartAfterRenderingFailure(cause) {
+    #restartAfterInitializationRendererFailure(cause, scene) {
+        this.#reportFirstRenderingFailure(cause)
+        this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
+        this.#initialize(scene);
+        Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
+    }
+
+    #restartAfterRenderingFailure(cause) {
         this.#reportFirstRenderingFailure(cause)
         const snapshot = this.createSnapshot();
         this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
@@ -367,15 +387,21 @@ export default class Controller {
         toast.show(this.#dialogAnchor);
     }
 
-    #reportSeriousFailure(message) {
-        console.error(message);
+    #reportSeriousFailure(message, e) {
+        if (message instanceof RenderingWebGLException) {
+            message = message.getError();
+        }
+
+        console.error(message, e);
+
+        const fullMessage = message + ': ' + (typeof e === 'object' ? JSON.stringify(e) : e);
         for (let handler of this.#onFailure) {
-            handler('serious', message);
+            handler('serious', fullMessage);
         }
 
         let toast = DomBuilder.bootstrapToastBuilder();
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: red;' }, 'Error'));
-        toast.setBodyContent(DomBuilder.par(null, message));
+        toast.setBodyContent(DomBuilder.par(null, fullMessage));
         toast.show(this.#dialogAnchor);
     }
 
