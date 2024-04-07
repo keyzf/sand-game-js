@@ -10,7 +10,7 @@ import TemplateDefs from "./TemplateDefs";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-13
+ * @version 2024-04-07
  */
 export default class ToolDefs {
 
@@ -191,6 +191,35 @@ export default class ToolDefs {
         }
     }));
 
+    static EFFECT_TEMP_MINUS = Tools.roundBrushTool(Brushes.concat(BrushDefs.EFFECT_TEMP_0, BrushDefs.EFFECT_EXTINGUISH),
+            ToolDefs.DEFAULT_SIZE, new ToolInfo({
+
+        codeName: 'effect_temp_minus',
+        displayName: '°C −',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#63cffa',
+        }
+    }));
+
+    static EFFECT_TEMP_PLUS = Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_200, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'effect_temp_plus',
+        displayName: '°C +',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#fa9b4e',
+        }
+    }));
+
+    static EFFECT_TEMP_PLUS2 = Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_255, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'effect_temp_plus2',
+        displayName: '°C ⧺',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#fa9b4e',
+        }
+    }));
+
     /** @type Tool[] */
     static DEFAULT_TOOLS = [
         this.ERASE,
@@ -207,6 +236,9 @@ export default class ToolDefs {
         this.METAL_MOLTEN,
         this.FIRE,
         this.METEOR,
+        this.EFFECT_TEMP_MINUS,
+        this.EFFECT_TEMP_PLUS,
+        this.EFFECT_TEMP_PLUS2
     ];
 
     /** @type Tool[] */

@@ -26,7 +26,7 @@ import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palet
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-24
+ * @version 2024-04-07
  */
 export default class BrushDefs {
 
@@ -363,6 +363,7 @@ export default class BrushDefs {
     });
 
     static EFFECT_MOLTEN = Brushes.molten();
+    static EFFECT_EXTINGUISH = Brushes.extinguished();
 
     // --- SEARCH
 
@@ -384,13 +385,14 @@ export default class BrushDefs {
         meteor: BrushDefs.METEOR,
         meteor_l: BrushDefs.METEOR_FROM_LEFT,
         meteor_r: BrushDefs.METEOR_FROM_RIGHT,
-        effect_burnt: BrushDefs.EFFECT_BURNT,
         effect_temp_0: BrushDefs.EFFECT_TEMP_0,
         effect_temp_127: BrushDefs.EFFECT_TEMP_127,
         effect_temp_200: BrushDefs.EFFECT_TEMP_200,
         effect_temp_255: BrushDefs.EFFECT_TEMP_255,
+        effect_burnt: BrushDefs.EFFECT_BURNT,
         effect_wet: BrushDefs.EFFECT_WET,
-        effect_melt: BrushDefs.EFFECT_MOLTEN,
+        effect_molten: BrushDefs.EFFECT_MOLTEN,
+        effect_extinguished: BrushDefs.EFFECT_EXTINGUISH,
     }
 
     /**

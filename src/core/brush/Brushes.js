@@ -17,11 +17,12 @@ import CountingBrush from "./CountingBrush";
 import PredicateDefs from "../../def/PredicateDefs";
 import MeltingBrush from "./MeltingBrush";
 import SolidBodyBrush from "./SolidBodyBrush";
+import ExtinguishedBrush from "./ExtinguishedBrush";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-12
+ * @version 2024-04-07
  */
 export default class Brushes {
 
@@ -265,8 +266,22 @@ export default class Brushes {
         });
     }
 
-    static molten() {
-        return new MeltingBrush();
+    /**
+     *
+     * @param innerBrush {Brush|undefined}
+     * @returns {Brush}
+     */
+    static molten(innerBrush) {
+        return new MeltingBrush(innerBrush);
+    }
+
+    /**
+     *
+     * @param innerBrush {Brush|undefined}
+     * @returns {Brush}
+     */
+    static extinguished(innerBrush) {
+        return new ExtinguishedBrush(innerBrush)
     }
 
     /**

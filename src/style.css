@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-03-24
+ * @version 2024-04-07
  */
 
 .sand-game-component {
@@ -125,7 +125,8 @@
     margin-bottom: 4pt
 }
 
-.sand-game-component .sand-game-tools .btn-sand-game-tool.sand {
+.sand-game-component .sand-game-tools .btn-sand-game-tool.sand,
+.sand-game-component .sand-game-tools .btn-sand-game-tool.effect_temp_minus {
     margin-left: 0.4em;
 }
 
@@ -133,10 +134,7 @@
     outline: red solid 1px;
 }
 
-.sand-game-component .btn-sand-game-tool.fire.selected {
-    outline: black solid 1px;
-}
-
+.sand-game-component .btn-sand-game-tool.fire.selected,
 .sand-game-component .btn-sand-game-tool.meteor.selected {
     outline: black solid 1px;
 }
