@@ -12,11 +12,14 @@ import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
 import ProcessorModuleFish from "./ProcessorModuleFish.js";
 import ProcessorModuleTree from "./ProcessorModuleTree.js";
 import ProcessorModuleWater from "./ProcessorModuleWater";
+import ProcessorExtensionSpawnGrass from "./ProcessorExtensionSpawnGrass";
+import ProcessorExtensionSpawnTree from "./ProcessorExtensionSpawnTree";
+import ProcessorExtensionSpawnFish from "./ProcessorExtensionSpawnFish";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-23
+ * @version 2024-04-07
  */
 export default class Processor extends ProcessorContext {
 
@@ -80,6 +83,13 @@ export default class Processor extends ProcessorContext {
     /** @type ProcessorModuleTree */
     #moduleTree;
 
+    /** @type ProcessorExtensionSpawnGrass */
+    #spawningExtensionGrass;
+    /** @type ProcessorExtensionSpawnTree */
+    #spawningExtensionTree;
+    /** @type ProcessorExtensionSpawnFish */
+    #spawningExtensionFish;
+
     constructor(elementArea, chunkSize, random, processorDefaults, sceneMetadata) {
         super();
         this.#elementArea = elementArea;
@@ -114,6 +124,10 @@ export default class Processor extends ProcessorContext {
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, this);
         this.#moduleFish = new ProcessorModuleFish(elementArea, random, this);
         this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
+
+        this.#spawningExtensionGrass = new ProcessorExtensionSpawnGrass(elementArea, random, this);
+        this.#spawningExtensionTree = new ProcessorExtensionSpawnTree(elementArea, random, this);
+        this.#spawningExtensionFish = new ProcessorExtensionSpawnFish(elementArea, random, this);
 
         if (sceneMetadata) {
             this.#iteration = sceneMetadata.iteration;
@@ -320,6 +334,11 @@ export default class Processor extends ProcessorContext {
                 this.#changedChunks[i] = true;
             }
         }
+
+        // run spawning extensions
+        this.#spawningExtensionFish.run();
+        this.#spawningExtensionGrass.run();
+        this.#spawningExtensionTree.run();
 
         this.#iteration++;
     }

@@ -7,9 +7,6 @@ import ElementHead from "./ElementHead.js";
 import ElementTail from "./ElementTail.js";
 import ElementArea from "./ElementArea.js";
 import Processor from "./processing/Processor.js";
-import ProcessorExtensionSpawnFish from "./processing/ProcessorExtensionSpawnFish.js";
-import ProcessorExtensionSpawnGrass from "./processing/ProcessorExtensionSpawnGrass.js";
-import ProcessorExtensionSpawnTree from "./processing/ProcessorExtensionSpawnTree.js";
 import Renderer from "./rendering/Renderer.js";
 import RendererInitializer from "./rendering/RendererInitializer.js";
 import SandGameGraphics from "./SandGameGraphics.js";
@@ -23,7 +20,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-23
+ * @version 2024-04-07
  */
 export default class SandGame {
 
@@ -92,7 +89,6 @@ export default class SandGame {
         this.#scenario = new SandGameScenario();
 
         this.#initObjectives();
-        this.#initSpawningExtensions();
     }
 
     #initObjectives() {
@@ -113,15 +109,6 @@ export default class SandGame {
                 objective.getConfig().checkHandler(this.#processor.getIteration() - 1);
             }
         });
-    }
-
-    #initSpawningExtensions() {
-        let grassSpawningExt = new ProcessorExtensionSpawnGrass(this.#elementArea, this.#random, this.#processor);
-        this.#onProcessed.push(() => grassSpawningExt.run());
-        let treeSpawningExt = new ProcessorExtensionSpawnTree(this.#elementArea, this.#random, this.#processor);
-        this.#onProcessed.push(() => treeSpawningExt.run());
-        let fishSpawningExt = new ProcessorExtensionSpawnFish(this.#elementArea, this.#random, this.#processor);
-        this.#onProcessed.push(() => fishSpawningExt.run());
     }
 
     startProcessing() {
