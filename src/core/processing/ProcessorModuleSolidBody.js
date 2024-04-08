@@ -1,11 +1,12 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import ElementHead from "../ElementHead.js";
+import ElementHead from "../ElementHead";
+import ElementTail from "../ElementTail";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-23
+ * @version 2024-04-08
  */
 export default class ProcessorModuleSolidBody {
 
@@ -68,6 +69,12 @@ export default class ProcessorModuleSolidBody {
         const [
             originalCount, upperBorderStack, lowerBorderStack, lowerBorderMin, properties
         ] = this.#discoverBoundaries(x, y, elementHead, paintId);
+
+        if (this.#processorContext.isFallThroughEnabled()) {
+            if (this.#bodyFallthrough(lowerBorderStack.shadowClone(), paintId)) {
+                return true;
+            }
+        }
 
         const extendedCount = this.#extendUpperBoundaries(upperBorderStack, lowerBorderMin, paintId);
         const count = originalCount + extendedCount;
@@ -300,6 +307,36 @@ export default class ProcessorModuleSolidBody {
         }
 
         return [borderCount, borderCountCanMove];
+    }
+
+    #bodyFallthrough(lowerBorderStack, paintId) {
+        const w = this.#elementArea.getWidth();
+        const h = this.#elementArea.getHeight();
+
+        let applied = false;
+
+        let point;
+        while ((point = lowerBorderStack.pop()) !== null) {
+
+            const bx = point % w;
+            const by = Math.trunc(point / w);
+
+            if (by === h - 1) {
+                // destroy
+
+                let elementHead = this.#elementArea.getElementHead(bx, by);
+                elementHead = ElementHead.setType(elementHead, ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5));
+
+                let elementTail = this.#elementArea.getElementTail(bx, by);
+                elementTail = ElementTail.setBlurType(elementTail, ElementTail.BLUR_TYPE_1);
+
+                this.#elementArea.setElementHeadAndTail(bx, by, elementHead, elementTail);
+
+                applied = true;
+            }
+        }
+
+        return applied;
     }
 
     #extendUpperBoundaries(upperBorderStack, lowerBorderMinY, paintId) {
