@@ -12,7 +12,7 @@ import VisualEffects from "./VisualEffects";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-04-08
  */
 export default class ProcessorModuleTree {
 
@@ -434,29 +434,45 @@ export default class ProcessorModuleTree {
             }
         }
 
-        // approx one times per 5 seconds... check if it's not buried or levitating
-        if (this.#processorContext.getIteration() % ProcessorContext.OPT_CYCLES_PER_SECOND === 0) {
-            const random = this.#random.nextInt(5);
+        // once a while "transport" element from above/left/right/left-above/right-above if possible
+        if (this.#processorContext.getIteration() % 4 === 0 && this.#random.nextInt(10) === 0) {
 
-            if (random === 0) {
-                // - check if it's not buried
+            const directions = [[0, -1], [0, -1], [-1, 0], [1, 0], [-1, -1], [1, -1]];
+            const randomDirection = directions[this.#random.nextInt(directions.length)];
+            const sourceX = x + randomDirection[0];
+            const sourceY = y + randomDirection[1];
 
-                const directions = [[0, -1], [-1, -1], [1, -1], [-1, 0], [1, 0]];
-                const randomDirection = directions[this.#random.nextInt(directions.length)];
-                const targetX = x + randomDirection[0];
-                const targetY = y + randomDirection[1];
+            const sourceElementHead = this.#elementArea.getElementHeadOrNull(sourceX, sourceY);
+            if (sourceElementHead !== null
+                    && ElementHead.getTypeClass(sourceElementHead) >= ElementHead.TYPE_FLUID
+                    && ElementHead.getTypeClass(sourceElementHead) < ElementHead.TYPE_STATIC) {
 
-                if (this.#elementArea.isValidPosition(targetX, targetY)) {
-                    const elementHeadAbove = this.#elementArea.getElementHead(targetX, targetY);
-                    if (ElementHead.getTypeClass(elementHeadAbove) !== ElementHead.TYPE_STATIC
-                            && ElementHead.getTypeClass(elementHeadAbove) >= ElementHead.TYPE_FLUID) {
-                        this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
+                let destX = x;
+                let destY = y;
+                for (let step = 0; step < 25; step++) {
+                    destX += this.#random.nextInt(3) - 1;  // random walk
+                    destY += 1;
+
+                    const destElementHead = this.#elementArea.getElementHeadOrNull(destX, destY);
+                    if (destElementHead === null) {
+                        break;
                     }
+                    const destBehaviour = ElementHead.getBehaviour(destElementHead);
+                    if (destBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                        continue;
+                    }
+                    const destTypeClass = ElementHead.getTypeClass(destElementHead);
+                    if (destTypeClass <= ElementHead.TYPE_GAS) {
+                        this.#elementArea.swap(sourceX, sourceY, destX, destY);
+                        return;
+                    }
+                    break;
                 }
-            }
-            if (random === 1) {
-                // - check it's not levitating
-                // TODO
+
+                // destroy buried leaf
+                if (this.#random.nextInt(20) === 0) {
+                    this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
+                }
             }
         }
     }
