@@ -5,7 +5,7 @@ import ElementHead from "../ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-08
+ * @version 2024-03-23
  */
 export default class ProcessorModuleSolidBody {
 
@@ -174,7 +174,6 @@ export default class ProcessorModuleSolidBody {
                 elementHeadOld = this.#elementArea.getElementHead(bx, by + 1);
                 elementTailOld = this.#elementArea.getElementTail(bx, by + 1);
             }
-            // TODO fallthrough
 
             let i = 0;
             do {
@@ -246,7 +245,6 @@ export default class ProcessorModuleSolidBody {
     }
 
     triggerPowderElement(x, y) {
-        // TODO fallthrough
         if (this.#elementArea.isValidPosition(x, y)) {
             const elementHeadUnder = this.#elementArea.getElementHead(x, y);
             const typeUnder = ElementHead.getTypeClass(elementHeadUnder);
@@ -276,37 +274,28 @@ export default class ProcessorModuleSolidBody {
             const bx = point % w;
             const by = Math.trunc(point / w);
 
-            // handle canvas border
-            let byUnder;
             if (by + 1 < h) {
-                byUnder = by + 1;
-            } else {
-                if (!this.#processorContext.isFallThroughEnabled()) {
-                    borderCount++;
+                const elementHead = this.#elementArea.getElementHead(bx, by + 1);
+
+                // check whether is not connected with other "column" by extendUpperBoundaries
+                if (this.#elementAreaOverlay[bx + ((by + 1) * w)] === paintId) {
+                    lowerBorderStack.removePrevious();  // remove
                     continue;
-                } else {
-                    byUnder = by + 1 - h;
                 }
-            }
 
-            const elementHead = this.#elementArea.getElementHead(bx, byUnder);
+                borderCount++;
 
-            // check whether is not connected with other "column" by extendUpperBoundaries
-            if (this.#elementAreaOverlay[bx + (byUnder * w)] === paintId) {
-                lowerBorderStack.removePrevious();  // remove
-                continue;
-            }
-
-            borderCount++;
-
-            // can move here?
-            const typeClass = ElementHead.getTypeClass(elementHead);
-            switch (typeClass) {
-                case ElementHead.TYPE_AIR:
-                case ElementHead.TYPE_EFFECT:
-                case ElementHead.TYPE_GAS:
-                case ElementHead.TYPE_FLUID:
-                    borderCountCanMove++;
+                // can move here?
+                const typeClass = ElementHead.getTypeClass(elementHead);
+                switch (typeClass) {
+                    case ElementHead.TYPE_AIR:
+                    case ElementHead.TYPE_EFFECT:
+                    case ElementHead.TYPE_GAS:
+                    case ElementHead.TYPE_FLUID:
+                        borderCountCanMove++;
+                }
+            } else {
+                borderCount++;
             }
         }
 
@@ -442,27 +431,14 @@ export default class ProcessorModuleSolidBody {
     }
 
     #discoverNeighbour(x, y, pattern, matcher, stack, targetPaintId, properties) {
+        if (x < 0 || y < 0) {
+            return true;  // border
+        }
+
         const w = this.#elementArea.getWidth();
         const h = this.#elementArea.getHeight();
-
-        if (x < 0) {
+        if (x >= w || y >= h) {
             return true;  // border
-        }
-        if (y < 0) {
-            if (!this.#processorContext.isFallThroughEnabled()) {
-                return true;  // border
-            }
-            y += h;
-        }
-
-        if (x >= w) {
-            return true;  // border
-        }
-        if (y >= h) {
-            if (!this.#processorContext.isFallThroughEnabled()) {
-                return true;  // border
-            }
-            y -= h;
         }
 
         const point = x + (y * w);
