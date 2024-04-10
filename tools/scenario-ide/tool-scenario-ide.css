@@ -1,0 +1,41 @@
+
+/**
+ * @author Patrik Harag
+ * @version 2024-04-10
+ */
+
+.scenario-ide {
+    
+}
+
+.scenario-ide .control-panel {
+    
+}
+
+.scenario-ide .control-panel .CodeMirror {
+    font-family: 'Consolas', monospace;
+    font-size: 11pt;
+    margin-bottom: 1em;
+    height: 75vh;
+}
+
+.result-panel {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.result-panel .sand-game-wrapper:has(div) {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    border-left: 4px solid;
+    padding: 1rem;
+}
+
+.result-panel .sand-game-output:not(:empty) {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    border-left: 4px solid;
+    padding: 1rem;
+
+    color: red;
+}
