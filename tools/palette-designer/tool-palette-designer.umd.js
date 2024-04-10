@@ -1,8 +1,8 @@
 /* Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-        typeof define === 'function' && define.amd ? define(['exports'], factory) :
-            (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.SandGameJS_PaletteDesigner = {}));
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.SandGameJS_PaletteDesigner = {}));
 })(this, (function (exports) { 'use strict';
 
     const INIT_PALETTE = '137,86,89\n137,86,89\n137,86,89\n137,86,89\n137,86,89\n137,86,89\n125,70,72\n125,70,72\n147,93,96' +
@@ -11,7 +11,7 @@
     /**
      *
      * @author Patrik Harag
-     * @version 2024-03-12
+     * @version 2024-04-10
      */
     function init(root, externalConfig) {
         const sandGameRoot = document.createElement('div');
