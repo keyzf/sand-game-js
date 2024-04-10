@@ -14,10 +14,10 @@
   <script defer src="../../dist/sand-game-js.umd.js"></script>
 
   <link rel="stylesheet" type="text/css" href="tool-palette-designer.css" />
-  <script defer src="tool-palette-designer.js"></script>
+  <script defer src="tool-palette-designer.umd.js"></script>
   <script>
       document.addEventListener('DOMContentLoaded', () => {
-          initPaletteDesigner(document.getElementById('palette-designer-root'));
+          SandGameJS_PaletteDesigner.init(document.getElementById('palette-designer-root'), { sgjs: { version: 'DEV' } });
       });
   </script>
 </head>
