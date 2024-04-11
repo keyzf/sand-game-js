@@ -7,6 +7,7 @@ import terser from '@rollup/plugin-terser';
 import postcss from 'rollup-plugin-postcss';
 import header from "postcss-header";
 import cssnano from "cssnano";
+import copy from 'rollup-plugin-copy';
 import pkg from './package.json';
 
 const PLUGINS_COMMON = [
@@ -55,6 +56,27 @@ if (devBuild) {
     console.log('DEV build');
 } else {
     console.log('PROD build');
+
+    PLUGINS_COMMON.push(copy({
+        targets: [
+            {
+                src: 'tools/palette-designer/tool-palette-designer.umd.js',
+                dest: 'dist'
+            },
+            {
+                src: 'tools/palette-designer/tool-palette-designer.css',
+                dest: 'dist'
+            },
+            {
+                src: 'tools/scenario-ide/tool-scenario-ide.umd.js',
+                dest: 'dist'
+            },
+            {
+                src: 'tools/scenario-ide/tool-scenario-ide.css',
+                dest: 'dist'
+            }
+        ]
+    }));
 
     const PLUGINS_MIN = [
         terser({
