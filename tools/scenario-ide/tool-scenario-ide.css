@@ -9,7 +9,11 @@
 }
 
 .scenario-ide .control-panel {
-    
+
+}
+
+.scenario-ide .control-panel button {
+    margin-right: 2em;
 }
 
 .scenario-ide .control-panel .CodeMirror {

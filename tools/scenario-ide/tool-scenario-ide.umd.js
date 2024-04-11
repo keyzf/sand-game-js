@@ -43,7 +43,7 @@ return {
     /**
      *
      * @author Patrik Harag
-     * @version 2024-04-10
+     * @version 2024-04-11
      */
     function init(root, externalConfig) {
         const scenarioIDERoot = document.createElement('div');
@@ -81,16 +81,33 @@ return {
             return false;
         };
 
-        // -- description
+        // -- button
 
         const button = document.createElement('button');
         button.classList.add('btn', 'btn-primary');
-        button.textContent = 'Eval';
-
-        // ---
-
+        button.textContent = 'Refresh';
         controlPanel.appendChild(button);
-        
+
+        // -- checkbox
+
+        const formCheck = document.createElement("div");
+        formCheck.className = "form-check form-check-inline";
+
+        const debugCheckbox = document.createElement("input");
+        debugCheckbox.type = "checkbox";
+        debugCheckbox.className = "form-check-input";
+        debugCheckbox.id = "palette-designer-check";
+
+        const label = document.createElement("label");
+        label.className = "form-check-label";
+        label.htmlFor = "palette-designer-check";
+        label.textContent = "debug: true";
+
+        formCheck.appendChild(debugCheckbox);
+        formCheck.appendChild(label);
+
+        controlPanel.appendChild(formCheck);
+
         // result panel
 
         const resultPanel = document.createElement('div');
@@ -113,7 +130,9 @@ return {
         //
 
         button.onclick = function() {
-            _evaluate(sandGameWrapper, sandGameOutput, codeMirror.getDoc().getValue(), externalConfig);
+            const debug = debugCheckbox.checked;
+            const code = codeMirror.getDoc().getValue();
+            _evaluate(sandGameWrapper, sandGameOutput, code, externalConfig, debug);
         };
     }
 
@@ -122,7 +141,7 @@ return {
         sandGameOutput.innerHTML = '';
     }
 
-    function _evaluate(sandGameWrapper, sandGameOutput, code, externalConfig) {
+    function _evaluate(sandGameWrapper, sandGameOutput, code, externalConfig, debug) {
         _clean(sandGameWrapper, sandGameOutput);
 
         try {
@@ -133,7 +152,8 @@ return {
             }
 
             config.version = externalConfig.sgjs.version;
-    
+            config.debug = debug;
+
             _showSandGame(sandGameWrapper, sandGameOutput, config);
             
         } catch (error) {
