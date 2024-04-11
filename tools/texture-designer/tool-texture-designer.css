@@ -1,0 +1,18 @@
+
+/**
+ * @author Patrik Harag
+ * @version 2024-04-11
+ */
+
+.controls {
+    margin-top: -30%;
+    margin-left: 250px;
+    margin-right: -1px;
+}
+
+.controls .CodeMirror {
+    font-family: 'Consolas', monospace;
+    font-size: 11pt;
+    margin-bottom: 1em;
+    height: auto;
+}
