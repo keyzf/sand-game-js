@@ -40,6 +40,10 @@ return {
 }
 `;
 
+    const MODE_CONFIG_DEFINITION = 'config-definition';
+    const MODE_SCENARIO_BUILDER_UMD = 'scenario-builder-umd';
+    const MODE_SCENARIO_UMD = 'scenario-umd';
+
     /**
      *
      * @author Patrik Harag
@@ -54,6 +58,29 @@ return {
         const controlPanel = document.createElement('div');
         controlPanel.classList.add('control-panel');
         scenarioIDERoot.appendChild(controlPanel);
+
+        // -- combobox
+
+        const comboBox = document.createElement("select");
+        comboBox.className = "form-select";
+        comboBox.id = "comboBox";
+
+        const option1 = document.createElement("option");
+        option1.value = MODE_CONFIG_DEFINITION;
+        option1.textContent = "Config definition";
+        comboBox.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = MODE_SCENARIO_BUILDER_UMD;
+        option2.textContent = "SandSagaScenarioBuilder UMD";
+        comboBox.appendChild(option2);
+
+        const option3 = document.createElement("option");
+        option3.value = MODE_SCENARIO_UMD;
+        option3.textContent = "SandSaga UMD";
+        comboBox.appendChild(option3);
+
+        controlPanel.appendChild(comboBox);
 
         // -- code area
 
@@ -132,7 +159,8 @@ return {
         button.onclick = function() {
             const debug = debugCheckbox.checked;
             const code = codeMirror.getDoc().getValue();
-            _evaluate(sandGameWrapper, sandGameOutput, code, externalConfig, debug);
+            const mode = comboBox.value;
+            _evaluate(sandGameWrapper, sandGameOutput, mode, code, externalConfig, debug);
         };
     }
 
@@ -141,38 +169,80 @@ return {
         sandGameOutput.innerHTML = '';
     }
 
-    function _evaluate(sandGameWrapper, sandGameOutput, code, externalConfig, debug) {
+    function _evaluate(sandGameWrapper, sandGameOutput, mode, code, externalConfig, debug) {
         _clean(sandGameWrapper, sandGameOutput);
 
-        try {
-            const config = eval("(function(){" + code + "})();");
-
-            if (typeof config !== "object") {
-                throw 'Unexpected result type: ' + typeof config;
-            }
-
+        function enhanceConfig(config) {
             config.version = externalConfig.sgjs.version;
             config.debug = debug;
+        }
 
-            _showSandGame(sandGameWrapper, sandGameOutput, config);
-            
+        try {
+            if (mode === MODE_CONFIG_DEFINITION) {
+
+                const config = eval("(function(){" + code + "})();");
+
+                if (typeof config !== "object") {
+                    throw 'Unexpected result type: ' + typeof config;
+                }
+
+                enhanceConfig(config);
+                _showSandGame(window.SandGameJS, sandGameWrapper, sandGameOutput, config);
+
+            } else if (mode === MODE_SCENARIO_BUILDER_UMD) {
+                eval(code);
+
+                if (window.SandSagaScenarioBuilder === undefined) {
+                    throw 'SandSagaScenarioBuilder not found';
+                }
+                if (window.SandSagaScenarioBuilder.createConfig === undefined) {
+                    throw 'SandSagaScenarioBuilder.createConfig() not found';
+                }
+
+                const config = window.SandSagaScenarioBuilder.createConfig();
+
+                if (typeof config !== "object") {
+                    throw 'Unexpected result type: ' + typeof config;
+                }
+
+                enhanceConfig(config);
+                _showSandGame(window.SandGameJS, sandGameWrapper, sandGameOutput, config);
+
+            } else if (mode === MODE_SCENARIO_UMD) {
+                eval(code);
+
+                if (window.SandSaga === undefined) {
+                    throw 'SandSaga not found';
+                }
+                if (window.SandSaga.init === undefined) {
+                    throw 'SandSaga.init() not found';
+                }
+
+                const config = {};
+                enhanceConfig(config);
+                _showSandGame(window.SandSaga, sandGameWrapper, sandGameOutput, config);
+
+            } else {
+                throw 'Mode not supported: ' + mode;
+            }
+
         } catch (error) {
             // Display any errors that occurred during evaluation
-            sandGameOutput.innerText = "Error: " + error.message;
+            sandGameOutput.innerText = "Error: " + error;
             console.error(error);
         }
     }
 
-    function _showSandGame(sandGameWrapper, sandGameOutput, config) {
+    function _showSandGame(runner, sandGameWrapper, sandGameOutput, config) {
         const sandGameRoot = document.createElement('div');
         sandGameWrapper.appendChild(sandGameRoot);
 
         const SandGameJS = window.SandGameJS;
         if (SandGameJS !== undefined) {
             try {
-                SandGameJS.init(sandGameRoot, config);
+                runner.init(sandGameRoot, config);
             } catch (e) {
-                sandGameOutput.innerText = "Error: " + e.message;
+                sandGameOutput.innerText = "Error: " + e;
                 console.error(e);
             }
         } else {
