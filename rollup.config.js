@@ -68,6 +68,14 @@ if (devBuild) {
                 dest: 'dist'
             },
             {
+                src: 'tools/texture-designer/tool-texture-designer.umd.js',
+                dest: 'dist'
+            },
+            {
+                src: 'tools/texture-designer/tool-texture-designer.css',
+                dest: 'dist'
+            },
+            {
                 src: 'tools/scenario-ide/tool-scenario-ide.umd.js',
                 dest: 'dist'
             },
