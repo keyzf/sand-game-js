@@ -9,15 +9,17 @@ import Tool from "./Tool";
  */
 export default class PointBrushTool extends Tool {
 
-    /** @type Brush */
-    #brush;
+    /** @type {{dx: number, dy: number, brush: Brush}[]} */
+    #points;
 
-    constructor(info, brush) {
+    constructor(info, points) {
         super(info);
-        this.#brush = brush;
+        this.#points = points;
     }
 
     applyPoint(x, y, graphics, aldModifier) {
-        graphics.draw(x, y, this.#brush);
+        for (const {dx, dy, brush} of this.#points) {
+            graphics.draw(x + dx, y + dy, brush);
+        }
     }
 }

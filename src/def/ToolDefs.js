@@ -253,7 +253,7 @@ export default class ToolDefs {
             displayName: 'Tree',
             category: ToolDefs.CATEGORY_BRUSH,
         })),
-        Tools.point2BrushTool(BrushDefs.FISH_HEAD, BrushDefs.FISH_BODY, new ToolInfo({
+        Tools.multiPointBrushTool([{ dx: 0, dy: 0, brush: BrushDefs.FISH_HEAD }, { dx: 1, dy: 0, brush: BrushDefs.FISH_BODY }], new ToolInfo({
             codeName: 'fish',
             displayName: 'Fish',
             category: ToolDefs.CATEGORY_BRUSH,

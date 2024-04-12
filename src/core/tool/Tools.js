@@ -4,7 +4,6 @@ import ToolInfo from "./ToolInfo";
 import RoundBrushTool from "./RoundBrushTool";
 import RoundBrushToolForSolidBody from "./RoundBrushToolForSolidBody";
 import PointBrushTool from "./PointBrushTool";
-import Point2BrushTool from "./Point2BrushTool";
 import MeteorTool from "./MeteorTool";
 import InsertElementAreaTool from "./InsertElementAreaTool";
 import InsertRandomSceneTool from "./InsertRandomSceneTool";
@@ -62,19 +61,17 @@ export default class Tools {
      * @return {Tool}
      */
     static pointBrushTool(brush, info) {
-        return new PointBrushTool(Tools.#info(info), brush);
+        return new PointBrushTool(Tools.#info(info), { dx: 0, dy: 0, brush: brush });
     }
 
-    // TODO: generalize
     /**
      *
-     * @param brush1
-     * @param brush2
+     * @param points {{dx: number, dy: number, brush: Brush}[]}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
      */
-    static point2BrushTool(brush1, brush2, info) {
-        return new Point2BrushTool(Tools.#info(info), brush1, brush2);
+    static multiPointBrushTool(points, info) {
+        return new PointBrushTool(Tools.#info(info), points);
     }
 
     /**
