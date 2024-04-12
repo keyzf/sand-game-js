@@ -182,7 +182,7 @@ export default class ToolDefs {
         }
     }));
 
-    static METEOR = Tools.meteorTool(new ToolInfo({
+    static METEOR = Tools.meteorTool(BrushDefs.METEOR, BrushDefs.METEOR_FROM_LEFT, BrushDefs.METEOR_FROM_RIGHT, new ToolInfo({
         codeName: 'meteor',
         displayName: 'Meteor',
         category: ToolDefs.CATEGORY_BRUSH,

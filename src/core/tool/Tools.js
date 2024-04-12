@@ -16,7 +16,7 @@ import GlobalActionTool from "./GlobalActionTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-08
+ * @version 2024-04-12
  */
 export default class Tools {
 
@@ -79,11 +79,14 @@ export default class Tools {
 
     /**
      *
+     * @param meteor {Brush}
+     * @param meteorFromLeft {Brush}
+     * @param meteorFromRight {Brush}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
      */
-    static meteorTool(info) {
-        return new MeteorTool(Tools.#info(info));
+    static meteorTool(meteor, meteorFromLeft, meteorFromRight, info) {
+        return new MeteorTool(Tools.#info(info), meteor, meteorFromLeft, meteorFromRight);
     }
 
     /**
