@@ -7,9 +7,17 @@ import Brush from "../brush/Brush.js";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-17
+ * @version 2024-04-12
  */
 export default class ProcessorDefaults {
+
+    /**
+     *
+     * @return BrushCollection
+     */
+    getBrushCollection() {
+        throw 'Not implemented';
+    }
 
     /**
      * @return Element
@@ -45,6 +53,41 @@ export default class ProcessorDefaults {
      * @return Brush
      */
     getBrushTree() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushTreeWood() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushTreeWoodDark() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushTreeRoot() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushTreeLeaf() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushTreeLeafDark() {
         throw 'Not implemented';
     }
 

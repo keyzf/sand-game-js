@@ -28,6 +28,7 @@ import ActionIOExport from "./gui/action/ActionIOExport";
 import ServiceToolManager from "./gui/ServiceToolManager";
 import ComponentButtonReport from "./gui/component/ComponentButtonReport";
 import Resources from "./io/Resources";
+import ProcessorDefaultsImpl from "./def/ProcessorDefaultsImpl";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -58,6 +59,7 @@ export const tools = ToolDefs._LIST;
  *     autoStart: undefined|boolean,
  *     scene: undefined|string|{init:(function(SandGame, Controller):Promise<any>|any)},
  *     scenes: undefined|Scene[]|Object.<string,Scene>,
+ *     brushes: undefined|Object.<string,Brush>,
  *     tools: undefined|(string|Tool)[],
  *     primaryTool: undefined|string|Tool,
  *     secondaryTool: undefined|string|Tool,
@@ -73,7 +75,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-03-24
+ * @version 2024-04-12
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -102,6 +104,17 @@ export function init(root, config) {
     const enableUserErrorReporting = config.errorReporter !== undefined;
 
     const errorReporter = config.errorReporter;
+
+    // resolve processor defaults (brushes)
+
+    let processorDefaults;
+    if (typeof config.brushes === 'object') {
+        processorDefaults = new ProcessorDefaultsImpl(config.brushes);
+    } else if (config.brushes === undefined) {
+        processorDefaults = new ProcessorDefaultsImpl();
+    } else {
+        throw "config.brushes - wrong type, expected object";
+    }
 
     // resolve scene list
 
@@ -210,7 +223,7 @@ export function init(root, config) {
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
     document.body.prepend(dialogAnchorNode);
     const toolManager = new ServiceToolManager(primaryTool, secondaryTool, tertiaryTool);
-    controller = new Controller(init, dialogAnchorNode, toolManager);
+    controller = new Controller(init, dialogAnchorNode, toolManager, processorDefaults);
 
     // init error reporting
 

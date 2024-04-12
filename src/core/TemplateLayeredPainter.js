@@ -4,14 +4,13 @@ import Spline from "cubic-spline";
 import { createNoise2D } from "simplex-noise";
 import ProcessorModuleGrass from "./processing/ProcessorModuleGrass.js";
 import ProcessorModuleTree from "./processing/ProcessorModuleTree.js";
-import BrushDefs from "../def/BrushDefs";
 import DeterministicRandom from "./DeterministicRandom";
 import ElementHead from "./ElementHead";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-18
+ * @version 2024-04-12
  */
 export default class TemplateLayeredPainter {
 
@@ -245,8 +244,10 @@ export default class TemplateLayeredPainter {
         if (y < 0 || y >= this.#elementArea.getHeight()) {
             return this;  // out of bounds
         }
-        this.#elementArea.setElement(x, y, BrushDefs.FISH_HEAD.apply(0, 0, this.#random, null));
-        this.#elementArea.setElement(x + 1, y, BrushDefs.FISH_BODY.apply(0, 0, this.#random, null));
+        const brushFishHead = this.#processorContext.getDefaults().getBrushFishHead();
+        this.#elementArea.setElement(x, y, brushFishHead.apply(0, 0, this.#random, null));
+        const brushFishBody = this.#processorContext.getDefaults().getBrushFishBody();
+        this.#elementArea.setElement(x + 1, y, brushFishBody.apply(0, 0, this.#random, null));
 
         // TODO: update lastLevel
         return this;

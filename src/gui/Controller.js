@@ -9,7 +9,7 @@ import RendererInitializer from "../core/rendering/RendererInitializer";
 import RenderingWebGLException from "../core/rendering/RenderingWebGLException";
 import SceneImplSnapshot from "../core/scene/SceneImplSnapshot";
 import DomBuilder from "./DomBuilder";
-import Defaults from "../def/Defaults";
+import ProcessorDefaultsImpl from "../def/ProcessorDefaultsImpl";
 import Tools from "../core/tool/Tools";
 import ToolInfo from "../core/tool/ToolInfo";
 import Analytics from "../Analytics";
@@ -17,7 +17,7 @@ import Analytics from "../Analytics";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-06
+ * @version 2024-04-12
  */
 export default class Controller {
 
@@ -37,6 +37,8 @@ export default class Controller {
 
     /** @type SandGame */
     #sandGame = null;
+    /** @type ProcessorDefaults */
+    #processorDefaults;
     /** @type string */
     #imageRendering = 'pixelated';
     /** @type function[] */
@@ -71,14 +73,16 @@ export default class Controller {
      * @param init
      * @param dialogAnchor
      * @param toolManager
+     * @param processorDefaults {ProcessorDefaults}
      */
-    constructor(init, dialogAnchor, toolManager) {
+    constructor(init, dialogAnchor, toolManager, processorDefaults) {
         if (init) {
             this.#init = init;
         }
 
         this.#dialogAnchor = dialogAnchor;
         this.#serviceToolManager = toolManager;
+        this.#processorDefaults = processorDefaults;
 
         this.#currentWidthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
         this.#currentHeightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
@@ -139,12 +143,11 @@ export default class Controller {
         }
 
         // init game
-        const defaults = new Defaults();
         const context = this.#initializeContext();
         this.#sandGame = null;
         let promise;
         try {
-            promise = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
+            promise = scene.createSandGame(w, h, this.#processorDefaults, context, this.#rendererInitializer);
         } catch (e) {
             this.#reportSeriousFailure('Initialization failed', e);
             return;
@@ -152,7 +155,7 @@ export default class Controller {
 
         promise.then(sandGame => {
             this.#sandGame = sandGame;
-            this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaults.getDefaultElement());
+            this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, this.#processorDefaults.getDefaultElement());
 
             // handlers
             this.#onInitialized.forEach(f => f(this.#sandGame));

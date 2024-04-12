@@ -9,7 +9,7 @@ import TemplateDefs from "./TemplateDefs";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-04-12
  */
 export default class SceneDefs {
 
@@ -29,12 +29,17 @@ export default class SceneDefs {
         description: 'Boxed mode',
         apply: async function (sandGame) {
             sandGame.setBoxedMode();
+
+            const soil = sandGame.getBrushCollection().byCodeName('soil');
+            const sand = sandGame.getBrushCollection().byCodeName('sand');
+            const water = sandGame.getBrushCollection().byCodeName('water');
+
             const m = 40;
             let layeredPainter = sandGame.layeredTemplate()
                 .layerSpline([[0, 35], [60, 35], [40 + m, 40], [60 + m, 50], [80 + m, 40], [200 + m, 20], [400 + m, 20], [1000 + m, 20]],
-                    true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG))
+                    true, Brushes.concat(soil, BrushDefs.EFFECT_NOISE_LG))
                 .layerSpline([[0, 0], [90 + m, 0], [110 + m, 10], [150 + m, 10], [250 + m, 0]],
-                        true, BrushDefs.SAND, 2)
+                        true, sand, 2)
                 .tool(30, 17, await Resources.parseToolDefinition(TemplateDefs.CABIN))
                 .tool(120 + m, 5, await Resources.parseToolDefinition(TemplateDefs.SAND_CASTLE))
                 .tree(60 + m, 1, 200)
@@ -58,14 +63,14 @@ export default class SceneDefs {
                         '          ',
                     ])
                     .withBrushes({
-                        w: Brushes.withIntensity(0.5, BrushDefs.WATER),
-                        1: BrushDefs.SAND
+                        w: Brushes.withIntensity(0.5, water),
+                        1: sand
                     })
                     .paint();
             } else {
                 layeredPainter
-                    .layer(26, false, BrushDefs.WATER)
-                    .layer(27, false, Brushes.withIntensity(0.33, BrushDefs.WATER));
+                    .layer(26, false, water)
+                    .layer(27, false, Brushes.withIntensity(0.33, water));
             }
         }
     });
@@ -75,16 +80,22 @@ export default class SceneDefs {
         description: 'Boxed mode',
         apply: function (sandGame) {
             sandGame.setBoxedMode();
+
+            const water = sandGame.getBrushCollection().byCodeName('water');
+            const sand = sandGame.getBrushCollection().byCodeName('sand');
+            const soil = sandGame.getBrushCollection().byCodeName('soil');
+            const gravel = sandGame.getBrushCollection().byCodeName('gravel');
+
             sandGame.layeredTemplate()
                 .layerSpline([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
-                    true, Brushes.concat(BrushDefs.GRAVEL, BrushDefs.EFFECT_NOISE_LG))
+                    true, Brushes.concat(gravel, BrushDefs.EFFECT_NOISE_LG))
                 .layerSpline([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
                         [370, 50], [400, 45], [500, 40], [1250, 40]],
-                    true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG), 30)
+                    true, Brushes.concat(soil, BrushDefs.EFFECT_NOISE_LG), 30)
                 .layerSpline([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
-                    true, BrushDefs.SAND, 5)
-                .layer(35, false, BrushDefs.WATER)
-                .layer(36, false, Brushes.withIntensity(0.33, BrushDefs.WATER))
+                    true, sand, 5)
+                .layer(35, false, water)
+                .layer(36, false, Brushes.withIntensity(0.33, water))
                 .fish(150, -8)
                 .grass()
                 .tree(16, 6)
@@ -102,19 +113,24 @@ export default class SceneDefs {
         description: 'Fall-through mode',
         apply: function (sandGame) {
             sandGame.setFallThroughMode();
+
+            const wall = sandGame.getBrushCollection().byCodeName('wall');
+            const water = sandGame.getBrushCollection().byCodeName('water');
+            const sand = sandGame.getBrushCollection().byCodeName('sand');
+
             const graphics = sandGame.graphics();
             const xo = Math.trunc((sandGame.getWidth() - 150) / 2 - 15);
             const yo = Math.trunc((sandGame.getHeight() - 150) / 2);
-            graphics.drawRectangle(40 + xo, 20 + yo, 60 + xo, 40 + yo, BrushDefs.WATER);
-            graphics.drawLine(30 + xo, 30 + yo, 30 + xo, 50 + yo, 5, BrushDefs.WALL, true);
-            graphics.drawLine(30 + xo, 50 + yo, 70 + xo, 80 + yo, 5, BrushDefs.WALL, true);
-            graphics.drawLine(65 + xo, 90 + yo, 100 + xo, 100 + yo, 5, BrushDefs.WALL, true);
-            graphics.drawLine(55 + xo, 140 + yo, 125 + xo, 140 + yo, 10, BrushDefs.WALL, false);
-            graphics.drawLine(55 + xo, 130 + yo, 55 + xo, 140 + yo, 10, BrushDefs.WALL, false);
-            graphics.drawLine(70 + xo, 125 + yo, 90 + xo, 125 + yo, 10, BrushDefs.SAND, false);
-            graphics.draw(120 + xo, 130 + yo, BrushDefs.SAND);
-            graphics.drawLine(150 + xo, 10 + yo, 80 + xo, 35 + yo, 5, BrushDefs.WALL, true);
-            graphics.drawLine(80 + xo, 35 + yo, 80 + xo, 15 + yo, 5, BrushDefs.WALL, true);
+            graphics.drawRectangle(40 + xo, 20 + yo, 60 + xo, 40 + yo, water);
+            graphics.drawLine(30 + xo, 30 + yo, 30 + xo, 50 + yo, 5, wall, true);
+            graphics.drawLine(30 + xo, 50 + yo, 70 + xo, 80 + yo, 5, wall, true);
+            graphics.drawLine(65 + xo, 90 + yo, 100 + xo, 100 + yo, 5, wall, true);
+            graphics.drawLine(55 + xo, 140 + yo, 125 + xo, 140 + yo, 10, wall, false);
+            graphics.drawLine(55 + xo, 130 + yo, 55 + xo, 140 + yo, 10, wall, false);
+            graphics.drawLine(70 + xo, 125 + yo, 90 + xo, 125 + yo, 10, sand, false);
+            graphics.draw(120 + xo, 130 + yo, sand);
+            graphics.drawLine(150 + xo, 10 + yo, 80 + xo, 35 + yo, 5, wall, true);
+            graphics.drawLine(80 + xo, 35 + yo, 80 + xo, 15 + yo, 5, wall, true);
         }
     });
 
@@ -124,6 +140,10 @@ export default class SceneDefs {
         description: 'Erasing mode',
         apply: function (sandGame) {
             sandGame.setErasingMode();
+
+            const sand = sandGame.getBrushCollection().byCodeName('sand');
+            const wall = sandGame.getBrushCollection().byCodeName('wall');
+
             sandGame.blockTemplate()
                 .withBlueprint([
                     '          ',
@@ -137,8 +157,8 @@ export default class SceneDefs {
                     '          ',
                 ])
                 .withBrushes({
-                    w: BrushDefs.SAND,
-                    s: BrushDefs.WALL
+                    w: sand,
+                    s: wall
                 })
                 .paint();
         }

@@ -20,7 +20,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-07
+ * @version 2024-04-12
  */
 export default class SandGame {
 
@@ -109,6 +109,10 @@ export default class SandGame {
                 objective.getConfig().checkHandler(this.#processor.getIteration() - 1);
             }
         });
+    }
+
+    getBrushCollection() {
+        return this.#processor.getDefaults().getBrushCollection();
     }
 
     startProcessing() {
