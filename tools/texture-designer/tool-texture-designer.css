@@ -1,13 +1,15 @@
 
 /**
  * @author Patrik Harag
- * @version 2024-04-11
+ * @version 2024-04-13
  */
 
 .controls {
     margin-top: -30%;
     margin-left: 250px;
     margin-right: -1px;
+    position: relative;
+    z-index: 1000;
 }
 
 .controls .CodeMirror {
@@ -15,4 +17,16 @@
     font-size: 11pt;
     margin-bottom: 1em;
     height: auto;
+}
+
+.controls .result {
+    margin-top: 1em;
+}
+
+.controls .result pre {
+    display: none;
+}
+
+.controls .result pre:not(:empty) {
+    display: initial;
 }

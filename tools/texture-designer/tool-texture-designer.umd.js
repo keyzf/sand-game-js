@@ -29,7 +29,7 @@
     /**
      *
      * @author Patrik Harag
-     * @version 2024-04-11
+     * @version 2024-04-13
      */
     function init(root, externalConfig) {
         const sandGameRoot = document.createElement("div");
@@ -58,7 +58,7 @@
 
         const resultPre = document.createElement("pre");
         const resultDiv = document.createElement("div");
-        resultDiv.className = "mt-3";
+        resultDiv.className = 'result';
         resultDiv.appendChild(resultPre);
         controls.appendChild(resultDiv);
 
@@ -88,7 +88,7 @@
         if (SandGameJS !== undefined) {
 
             const config = {
-                version: 'dev',
+                version: externalConfig.sgjs.version,
                 debug: false,
                 scene: {
                     init: (s) => {
