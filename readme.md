@@ -1,23 +1,31 @@
 # Sand Game JS
 
-Sand Game JS is a fast, free and open-source falling-sand game for desktop & mobile browsers.
+Sand Game JS is a fast, free and open-source falling-sand game engine for desktop & mobile browsers.
 It allows players to experiment with various elements, such as sand, soil, water and fire.
-With grass and trees growing on soil, and other natural processes, it offers a unique experience.
-
-**You can play it here: https://harag.cz/app/sand-game-js**
-
 It is primarily tested on Google Chrome and Google Chrome for Android.
 WebGL 2 is utilized for fast rendering.
 
-Sand Game JS is a browser-based successor to [Sand Game 2](https://github.com/Hartrik/Sand-Game-2), which was originally developed in Java (JavaFX) from 2014 to 2016~17.
+**You can play it here: https://sandsaga.com**
+
+The engine itself contains 5 scenes and some tools (see image below).
+But it allows for defining custom elements, tools, templates, scenes, objectives, and customization of various settings.
+
+Engine web page: https://harag.cz/app/sand-game-js
+
+Dev build: https://harag.cz/app/sand-game-js?stage=dev (with test tools enabled, sometimes with experimental changes)
+
+Note: Sand Game JS is a browser-based successor to [Sand Game 2](https://github.com/Hartrik/Sand-Game-2), which was originally developed in Java (JavaFX) from 2014 to 2016~17.
 
 
 ## Preview
 
 ![Sand Game JS preview](https://files.harag.cz/www/app/sand-game-js/preview-with-gui.png)
 
+With grass and trees growing on soil, and other natural processes, it offers a unique experience.
 
 ## API
+
+**Read the [manual](http://localhost:8080/manual#goto-content-creation) first!**
 
 Public API – basic concepts and essential classes.
 
@@ -36,11 +44,13 @@ We can create custom brushes by extending default brushes from BrushDefs class a
 
 ## Development
 
-Dev build: https://harag.cz/app/sand-game-js?stage=dev (with test tools enabled, sometimes with experimental changes)
+**Read the [manual](http://localhost:8080/manual#goto-content-creation) and the license before forking!**
 
 ### Build
 
 Install [Node](https://nodejs.org/en) which contains npm.
+
+`npm install` downloads dependencies..
 
 `npm run build` builds the library to `dist`.
 
