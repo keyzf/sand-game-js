@@ -230,6 +230,8 @@ return {
             // Display any errors that occurred during evaluation
             sandGameOutput.innerText = "Error: " + error;
             console.error(error);
+        } finally {
+            sandGameOutput.scrollIntoView(false);
         }
     }
 
