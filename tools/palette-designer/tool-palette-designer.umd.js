@@ -37,7 +37,7 @@
         // -- description
 
         const codeAreaDescription = document.createElement('p');
-        codeAreaDescription.textContent = 'Drag & drop supported â€“ palette CSV or image';
+        codeAreaDescription.textContent = 'Drag & drop supported – palette CSV or image';
 
         controlPanel.appendChild(codeArea);
         controlPanel.appendChild(codeAreaDescription);
@@ -68,10 +68,10 @@
 
         root.appendChild(paletteDesignerRoot);
 
-        _initSandGame(sandGameRoot, externalConfig, codeArea, checkbox);
+        _initSandGame(sandGameRoot, controlPanel, externalConfig, codeArea, checkbox);
     }
 
-    function _initSandGame(sandGameRoot, externalConfig, codeArea, checkbox) {
+    function _initSandGame(sandGameRoot, controlPanel, externalConfig, codeArea, checkbox) {
         let sandGame = null;
 
         function update() {
@@ -110,7 +110,7 @@
             });
 
             // init drag and drop
-            document.getElementById('main').ondrop = function(e) {
+            controlPanel.ondrop = function(e) {
                 e.preventDefault();
 
                 let reader = new FileReader();
