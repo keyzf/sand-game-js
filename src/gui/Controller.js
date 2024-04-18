@@ -391,13 +391,21 @@ export default class Controller {
     }
 
     #reportSeriousFailure(message, e) {
-        if (message instanceof RenderingWebGLException) {
-            message = message.getError();
+        // normalize exception
+        if (e instanceof RenderingWebGLException) {
+            e = e.getError();
+        }
+        if (typeof e === 'object') {
+            if (e.message !== undefined) {
+                e = '' + e.message;
+            } else {
+                e = JSON.stringify(e);
+            }
         }
 
         console.error(message, e);
 
-        const fullMessage = message + ': ' + (typeof e === 'object' ? JSON.stringify(e) : e);
+        const fullMessage = message + ': ' + e;
         for (let handler of this.#onFailure) {
             handler('serious', fullMessage);
         }
