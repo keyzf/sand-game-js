@@ -44,10 +44,13 @@ return {
     const MODE_SCENARIO_BUILDER_UMD = 'scenario-builder-umd';
     const MODE_SCENARIO_UMD = 'scenario-umd';
 
+    /** @type {Controller|null} */
+    let controller = null;
+
     /**
      *
      * @author Patrik Harag
-     * @version 2024-04-11
+     * @version 2024-04-18
      */
     function init(root, externalConfig) {
         const scenarioIDERoot = document.createElement('div');
@@ -165,6 +168,13 @@ return {
     }
 
     function _clean(sandGameWrapper, sandGameOutput) {
+        if (controller !== null) {
+            let sandGame = controller.getSandGame();
+            if (sandGame !== null) {
+                sandGame.stopRendering();
+                sandGame.stopProcessing();
+            }
+        }
         sandGameWrapper.innerHTML = '';
         sandGameOutput.innerHTML = '';
     }
@@ -242,7 +252,7 @@ return {
         const SandGameJS = window.SandGameJS;
         if (SandGameJS !== undefined) {
             try {
-                runner.init(sandGameRoot, config);
+                controller = runner.init(sandGameRoot, config);
             } catch (e) {
                 sandGameOutput.innerText = "Error: " + e;
                 console.error(e);
