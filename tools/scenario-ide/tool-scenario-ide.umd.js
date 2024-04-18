@@ -94,7 +94,12 @@ return {
             mode: 'javascript'
         });
         setTimeout(function() {
-            codeMirror.getDoc().setValue(INITIAL);
+            const savedCode = localstorageGetCode();
+            let initialCode = INITIAL;
+            if (localstorageIsAutosaveEnabled() && savedCode !== null) {
+                initialCode = savedCode;
+            }
+            codeMirror.getDoc().setValue(initialCode);
         }, 0);
         
         controlPanel.ondrop = function(e) {
@@ -118,25 +123,56 @@ return {
         button.textContent = 'Refresh';
         controlPanel.appendChild(button);
 
-        // -- checkbox
+        // -- debug checkbox
 
-        const formCheck = document.createElement("div");
-        formCheck.className = "form-check form-check-inline";
+        const formCheckDebug = document.createElement("div");
+        formCheckDebug.className = "form-check form-check-inline";
 
         const debugCheckbox = document.createElement("input");
         debugCheckbox.type = "checkbox";
         debugCheckbox.className = "form-check-input";
-        debugCheckbox.id = "palette-designer-check";
+        debugCheckbox.id = "palette-designer-check-debug";
 
-        const label = document.createElement("label");
-        label.className = "form-check-label";
-        label.htmlFor = "palette-designer-check";
-        label.textContent = "debug: true";
+        const debugLabel = document.createElement("label");
+        debugLabel.className = "form-check-label";
+        debugLabel.htmlFor = "palette-designer-check-debug";
+        debugLabel.textContent = "Set 'debug: true'";
 
-        formCheck.appendChild(debugCheckbox);
-        formCheck.appendChild(label);
+        formCheckDebug.appendChild(debugCheckbox);
+        formCheckDebug.appendChild(debugLabel);
 
-        controlPanel.appendChild(formCheck);
+        controlPanel.appendChild(formCheckDebug);
+
+        // -- save
+
+        if (window.localStorage !== undefined) {
+            const formCheckSave = document.createElement("div");
+            formCheckSave.className = "form-check form-check-inline";
+
+            const saveCheckbox = document.createElement("input");
+            saveCheckbox.type = "checkbox";
+            saveCheckbox.className = "form-check-input";
+            saveCheckbox.id = "palette-designer-check-save";
+            saveCheckbox.checked = localstorageIsAutosaveEnabled();
+            saveCheckbox.addEventListener('change', (event) => {
+                localstorageSetAutosave(saveCheckbox.checked);
+                if (saveCheckbox.checked === false) {
+                    localstorageSetCode(null);
+                } else if (saveCheckbox.checked === true) {
+                    localstorageSetCode(codeMirror.getDoc().getValue());
+                }
+            });
+
+            const saveLabel = document.createElement("label");
+            saveLabel.className = "form-check-label";
+            saveLabel.htmlFor = "palette-designer-check-save";
+            saveLabel.textContent = "Autosave";
+
+            formCheckSave.appendChild(saveCheckbox);
+            formCheckSave.appendChild(saveLabel);
+
+            controlPanel.appendChild(formCheckSave);
+        }
 
         // result panel
 
@@ -163,6 +199,11 @@ return {
             const debug = debugCheckbox.checked;
             const code = codeMirror.getDoc().getValue();
             const mode = comboBox.value;
+
+            if (localstorageIsAutosaveEnabled()) {
+                localstorageSetCode(code);
+            }
+
             _evaluate(sandGameWrapper, sandGameOutput, mode, code, externalConfig, debug);
         };
     }
@@ -259,6 +300,35 @@ return {
             }
         } else {
             sandGameRoot.innerHTML = '<p style="color: red; font-weight: bold;">Failed to load the SandGameJS.</p>';
+        }
+    }
+
+    function localstorageIsAutosaveEnabled() {
+        if (window.localStorage !== undefined) {
+            return localStorage.getItem('scenario-ide_enable-autosave') === 'true';
+        }
+        return null;
+    }
+
+    function localstorageSetAutosave(autosave) {
+        if (window.localStorage !== undefined) {
+            localStorage.setItem('scenario-ide_enable-autosave', '' + autosave);
+        }
+    }
+
+    function localstorageSetCode(code) {
+        if (window.localStorage !== undefined) {
+            if (code === null) {
+                localStorage.removeItem('scenario-ide_code');
+            } else {
+                localStorage.setItem('scenario-ide_code', code);
+            }
+        }
+    }
+
+    function localstorageGetCode() {
+        if (window.localStorage !== undefined) {
+            return localStorage.getItem('scenario-ide_code');
         }
     }
 
