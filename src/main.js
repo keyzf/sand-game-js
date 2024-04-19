@@ -70,12 +70,13 @@ export const tools = ToolDefs._LIST;
  *     disableExport: undefined|boolean,
  *     disableSizeChange: undefined|boolean,
  *     disableSceneSelection: undefined|boolean,
+ *     disableGlobalShortcuts: undefined|boolean,
  *     errorReporter: undefined|function(type:string,message:string,controller:Controller),
  * }}
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-19
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -101,6 +102,7 @@ export function init(root, config) {
     const enableExport = !(config.disableExport === true);
     const enableSizeChange = !(config.disableSizeChange === true);
     const enableSceneSelection = !(config.disableSceneSelection === true);
+    const enableGlobalShortcuts = !(config.disableGlobalShortcuts === true);
     const enableUserErrorReporting = config.errorReporter !== undefined;
 
     const errorReporter = config.errorReporter;
@@ -270,7 +272,9 @@ export function init(root, config) {
     if (enableImport) {
         controller.getIOManager().initFileDragAndDrop(node);
     }
-    controller.enableGlobalShortcuts();
+    if (enableGlobalShortcuts) {
+        controller.enableGlobalShortcuts();
+    }
     if (enableAutoStart) {
         controller.start();
     }
