@@ -391,6 +391,8 @@ export default class Controller {
     }
 
     #reportSeriousFailure(message, e) {
+        console.error(message, e);
+
         // normalize exception
         if (e instanceof RenderingWebGLException) {
             e = e.getError();
@@ -402,8 +404,6 @@ export default class Controller {
                 e = JSON.stringify(e);
             }
         }
-
-        console.error(message, e);
 
         const fullMessage = message + ': ' + e;
         for (let handler of this.#onFailure) {
