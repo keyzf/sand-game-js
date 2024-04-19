@@ -210,11 +210,7 @@ return {
 
     function _clean(sandGameWrapper, sandGameOutput) {
         if (controller !== null) {
-            let sandGame = controller.getSandGame();
-            if (sandGame !== null) {
-                sandGame.stopRendering();
-                sandGame.stopProcessing();
-            }
+            controller.close();
         }
         sandGameWrapper.innerHTML = '';
         sandGameOutput.innerHTML = '';
@@ -226,6 +222,7 @@ return {
         function enhanceConfig(config) {
             config.version = externalConfig.sgjs.version;
             config.debug = debug;
+            config.disableGlobalShortcuts = true;
         }
 
         try {
