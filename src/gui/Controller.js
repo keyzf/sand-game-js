@@ -229,7 +229,7 @@ export default class Controller {
         return canvasDomNode.getContext(contextId);
     }
 
-    #close() {
+    close() {
         if (this.#sandGame !== null) {
             this.#sandGame.stopProcessing();
             this.#sandGame.stopRendering();
@@ -460,7 +460,7 @@ export default class Controller {
         for (let handler of this.#onBeforeNewSceneLoaded) {
             handler(scene);
         }
-        this.#close();
+        this.close();
 
         this.#initialize(scene);
     }
@@ -517,7 +517,7 @@ export default class Controller {
             throw 'Incorrect scale';
         }
 
-        this.#close();
+        this.close();
 
         this.#currentWidthPoints = width;
         this.#currentHeightPoints = height;
@@ -552,7 +552,7 @@ export default class Controller {
     setRendererInitializer(initializer) {
         this.#rendererInitializer = initializer;
         if (this.#sandGame) {
-            this.#close();
+            this.close();
             this.#initialize(new SceneImplTmpResize(this.#sandGame));
         }
     }
