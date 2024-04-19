@@ -6,6 +6,7 @@ import Element from "./Element.js";
 import ElementHead from "./ElementHead.js";
 import ElementTail from "./ElementTail.js";
 import ElementArea from "./ElementArea.js";
+import EntityManager from "./entity/EntityManager";
 import Processor from "./processing/Processor.js";
 import Renderer from "./rendering/Renderer.js";
 import RendererInitializer from "./rendering/RendererInitializer.js";
@@ -20,7 +21,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-19
  */
 export default class SandGame {
 
@@ -32,6 +33,9 @@ export default class SandGame {
 
     /** @type number */
     #height;
+
+    /** @type EntityManager */
+    #entityManager;
 
     /** @type DeterministicRandom */
     #random;
@@ -78,6 +82,7 @@ export default class SandGame {
      */
     constructor(elementArea, sceneMetadata, processorDefaults, context, rendererInitializer) {
         this.#elementArea = elementArea;
+        this.#entityManager = new EntityManager();
         this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
@@ -109,6 +114,10 @@ export default class SandGame {
                 objective.getConfig().checkHandler(this.#processor.getIteration() - 1);
             }
         });
+    }
+
+    addEntity(entity) {
+        this.#entityManager.addEntity(entity);
     }
 
     getBrushCollection() {
@@ -146,7 +155,10 @@ export default class SandGame {
     }
 
     doProcessing() {
+        this.#entityManager.performBeforeProcessing(this.#elementArea, this.#random, this.#processor.getDefaults());
         this.#processor.next();
+        this.#entityManager.performAfterProcessing(this.#elementArea, this.#random, this.#processor.getDefaults());
+
         const t = Date.now();
         this.#iterationsCounter.tick(t);
         for (let func of this.#onProcessed) {

@@ -5,11 +5,12 @@ import BrushDefs from "./BrushDefs.js";
 import SceneImplHardcoded from "../core/scene/SceneImplHardcoded.js";
 import Resources from "../io/Resources";
 import TemplateDefs from "./TemplateDefs";
+import Entities from "../core/entity/Entities";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-20
  */
 export default class SceneDefs {
 
@@ -72,6 +73,14 @@ export default class SceneDefs {
                     .layer(26, false, water)
                     .layer(27, false, Brushes.withIntensity(0.33, water));
             }
+
+            // TODO: relative positioning
+            sandGame.addEntity(Entities.bird(70, 200));
+            sandGame.addEntity(Entities.bird(65, 230));
+            sandGame.addEntity(Entities.bird(64, 210));
+            sandGame.addEntity(Entities.bird(71, 215));
+            sandGame.addEntity(Entities.bird(100, 150));
+            sandGame.addEntity(Entities.bird(120, 155));
         }
     });
 
