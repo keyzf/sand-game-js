@@ -4,7 +4,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-04-20
  */
 export default class Scene {
 
@@ -35,5 +35,15 @@ export default class Scene {
      */
     createElementArea(prefWidth, prefHeight, defaultElement) {
         throw 'Not implemented';
+    }
+
+    /**
+     * Creates entities in serialized state.
+     * It may not be supported, but it doesn't mean that there are none - they man be generated in createSandGame.
+     *
+     * @returns {object[]}
+     */
+    createEntities() {
+        return null;
     }
 }

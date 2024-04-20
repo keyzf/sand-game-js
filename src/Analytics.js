@@ -4,7 +4,7 @@ import ToolDefs from "./def/ToolDefs.js";
 
 /**
  *
- * @version 2024-01-21
+ * @version 2024-04-20
  * @author Patrik Harag
  */
 export default class Analytics {
@@ -39,8 +39,10 @@ export default class Analytics {
 
 
     static triggerToolUsed(tool) {
+        // Note: better feature name would be tool_xxx, but we will keep backward compatibility
+
         const category = tool.getInfo().getCategory();
-        if (category === ToolDefs.CATEGORY_BRUSH) {
+        if (category === ToolDefs.CATEGORY_BRUSH || category === ToolDefs.CATEGORY_ENTITY) {
             const feature = 'brush_' + tool.getInfo().getCodeName();
             Analytics.triggerFeatureUsed(feature);
         } else if (category === ToolDefs.CATEGORY_TEMPLATE) {

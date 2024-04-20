@@ -21,7 +21,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-19
+ * @version 2024-04-20
  */
 export default class SandGame {
 
@@ -66,6 +66,9 @@ export default class SandGame {
     /** @type function(number)[] */
     #onProcessed = [];
 
+    /** @type SandGameGraphics */
+    #graphics;
+
     /** @type SandGameOverlay */
     #overlay;
 
@@ -75,14 +78,17 @@ export default class SandGame {
     /**
      *
      * @param elementArea {ElementArea}
+     * @param serializedEntities {object[]}
      * @param sceneMetadata {SnapshotMetadata|null}
      * @param processorDefaults {ProcessorDefaults}
      * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
      */
-    constructor(elementArea, sceneMetadata, processorDefaults, context, rendererInitializer) {
+    constructor(elementArea, serializedEntities, sceneMetadata, processorDefaults,
+            context, rendererInitializer) {
+
         this.#elementArea = elementArea;
-        this.#entityManager = new EntityManager();
+        this.#entityManager = new EntityManager(serializedEntities);
         this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
@@ -90,6 +96,10 @@ export default class SandGame {
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
+        this.#graphics = new SandGameGraphics(this.#elementArea, this.#entityManager, this.#random, processorDefaults, (x, y) => {
+            this.#processor.trigger(x, y);
+            this.#renderer.trigger(x, y);
+        });
         this.#overlay = new SandGameOverlay(elementArea.getWidth(), elementArea.getHeight());
         this.#scenario = new SandGameScenario();
 
@@ -114,10 +124,6 @@ export default class SandGame {
                 objective.getConfig().checkHandler(this.#processor.getIteration() - 1);
             }
         });
-    }
-
-    addEntity(entity) {
-        this.#entityManager.addEntity(entity);
     }
 
     getBrushCollection() {
@@ -190,11 +196,7 @@ export default class SandGame {
      * @returns {SandGameGraphics}
      */
     graphics() {
-        const defaults = this.#processor.getDefaults();
-        return new SandGameGraphics(this.#elementArea, this.#random, defaults, (x, y) => {
-            this.#processor.trigger(x, y);
-            this.#renderer.trigger(x, y);
-        });
+        return this.#graphics;
     }
 
     /**
@@ -280,29 +282,6 @@ export default class SandGame {
         return 16;
     }
 
-    copyStateTo(targetSandGame) {
-        let sourceY0;
-        let targetY0;
-        if (targetSandGame.#height >= this.#height) {
-            sourceY0 = 0;
-            targetY0 = targetSandGame.#height - this.#height
-        } else {
-            sourceY0 = this.#height - targetSandGame.#height;
-            targetY0 = 0;
-        }
-
-        for (let y = 0; y < Math.min(this.#height, targetSandGame.#height); y++) {
-            for (let x = 0; x < Math.min(this.#width, targetSandGame.#width); x++) {
-                let elementHead = this.#elementArea.getElementHead(x, y + sourceY0);
-                let elementTail = this.#elementArea.getElementTail(x, y + sourceY0);
-                targetSandGame.#elementArea.setElementHead(x, targetY0 + y, elementHead);
-                targetSandGame.#elementArea.setElementTail(x, targetY0 + y, elementTail);
-            }
-        }
-        targetSandGame.#processor.setFallThroughEnabled(this.#processor.isFallThroughEnabled());
-        targetSandGame.#processor.setErasingEnabled(this.#processor.isErasingEnabled());
-    }
-
     /**
      * @returns {Snapshot}
      */
@@ -321,6 +300,7 @@ export default class SandGame {
         snapshot.metadata = metadata;
         snapshot.dataHeads = this.#elementArea.getDataHeads();
         snapshot.dataTails = this.#elementArea.getDataTails();
+        snapshot.serializedEntities = this.#entityManager.serializeEntities();
         return snapshot;
     }
 

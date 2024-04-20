@@ -32,8 +32,9 @@ export default class SceneImplModFlip extends Scene {
 
     async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
-        return new SandGame(elementArea, null, defaults, context, rendererInitializer);
+        return new SandGame(elementArea, [], null, defaults, context, rendererInitializer);
         // TODO: sceneMetadata not set
+        // TODO: entities support
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {

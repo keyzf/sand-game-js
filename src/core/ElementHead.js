@@ -22,7 +22,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2024-03-23
+ * @version 2024-04-20
  */
 export default class ElementHead {
 
@@ -52,6 +52,7 @@ export default class ElementHead {
     static BEHAVIOUR_FIRE_SOURCE = 0xA;
     static BEHAVIOUR_METEOR = 0xB;
     static BEHAVIOUR_WATER = 0xC;
+    static BEHAVIOUR_ENTITY = 0xD;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 

@@ -2,14 +2,16 @@
 
 import ElementHead from "../ElementHead";
 import ElementTail from "../ElementTail";
+import ElementArea from "../ElementArea";
+import Element from "../Element";
 import Entity from "./Entity";
 import Brushes from "../brush/Brushes";
-import Element from "../Element";
+import DeterministicRandom from "../DeterministicRandom";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-19
+ * @version 2024-04-20
  */
 export default class BirdEntity extends Entity {
 
@@ -19,7 +21,7 @@ export default class BirdEntity extends Entity {
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(0),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_ENTITY),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE))
     ]));
@@ -30,10 +32,82 @@ export default class BirdEntity extends Entity {
     #y = 0;
     #state = 0;
 
-    constructor(x, y) {
+    constructor(serialized) {
         super();
-        this.#x = x;
-        this.#y = y;
+        if (serialized.iteration !== undefined) {
+            this.#iteration = serialized.iteration;
+        }
+        if (serialized.x !== undefined) {
+            this.#x = serialized.x;
+        }
+        if (serialized.y !== undefined) {
+            this.#y = serialized.y;
+        }
+        if (serialized.state !== undefined) {
+            this.#state = serialized.state;
+        } else {
+            // random state by default
+            this.#state = DeterministicRandom.DEFAULT.nextInt(8);
+        }
+    }
+
+    serialize() {
+        return {
+            entity: 'bird',
+            iteration: this.#iteration,
+            x: this.#x,
+            y: this.#y,
+            state: this.#state,
+        };
+    }
+
+    initialize(elementArea, random, defaults) {
+        this.#repaint(this.#x, this.#y, elementArea, random);
+    }
+
+    performBeforeProcessing(elementArea, random, defaults) {
+        // no action
+    }
+
+    performAfterProcessing(elementArea, random, defaults) {
+        this.#iteration++;
+
+        if (this.#iteration % 11 === 0) {
+            // random move
+            const xChange = random.nextInt(3) - 1;
+            const yChange = random.nextInt(3) - 1;
+            const [nx, ny] = this.#tryMove(this.#x, this.#y, xChange, yChange, elementArea);
+
+            if (nx !== this.#x || ny !== this.#y) {
+                // erase
+                this.#iterate(this.#state, this.#x, this.#y, (x, y) => {
+                    elementArea.setElement(x, y, defaults.getDefaultElement());
+                });
+
+                this.#x = nx;
+                this.#y = ny;
+
+                // repaint
+                this.#repaint(this.#x, this.#y, elementArea, random);
+            }
+        }
+
+        if (this.#iteration % 10 === 0) {
+            // increment state
+
+            // erase
+            this.#iterate(this.#state, this.#x, this.#y, (x, y) => {
+                elementArea.setElement(x, y, defaults.getDefaultElement());
+            });
+
+            this.#state++;
+            if (this.#state === 8) {
+                this.#state = 0;
+            }
+
+            // repaint
+            this.#repaint(this.#x, this.#y, elementArea, random);
+        }
     }
 
     #iterate(state, x, y, handler) {
@@ -70,51 +144,6 @@ export default class BirdEntity extends Entity {
         handler(x - 2, y + part3, 3);
         handler(x + 3, y + part4, 4);
         handler(x - 3, y + part4, 4);
-    }
-
-    performBeforeProcessing(elementArea, random, defaults) {
-        this.#repaint(elementArea, random);
-    }
-
-    performAfterProcessing(elementArea, random, defaults) {
-        this.#iteration++;
-
-        if (this.#iteration % 11 === 0) {
-            // random move
-            const xChange = random.nextInt(3) - 1;
-            const yChange = random.nextInt(3) - 1;
-            const [nx, ny] = this.#tryMove(this.#x, this.#y, xChange, yChange, elementArea);
-
-            if (nx !== this.#x || ny !== this.#y) {
-                // erase
-                this.#iterate(this.#state, this.#x, this.#y, (x, y) => {
-                    elementArea.setElement(x, y, defaults.getDefaultElement());
-                });
-
-                this.#x = nx;
-                this.#y = ny;
-
-                // repaint
-                this.#repaint(elementArea, random);
-            }
-        }
-
-        if (this.#iteration % 10 === 0) {
-            // increment state
-
-            // erase
-            this.#iterate(this.#state, this.#x, this.#y, (x, y) => {
-                elementArea.setElement(x, y, defaults.getDefaultElement());
-            });
-
-            this.#state++;
-            if (this.#state === 8) {
-                this.#state = 0;
-            }
-
-            // repaint
-            this.#repaint(elementArea, random);
-        }
     }
 
     #tryMove(x, y, xChange, yChange, elementArea) {
@@ -170,17 +199,23 @@ export default class BirdEntity extends Entity {
         return [x + xChange, y + yChange];
     }
 
-    #repaint(elementArea, random) {
-        this.#iterate(this.#state, this.#x, this.#y, (x, y, part) => {
-            const element = BirdEntity.#BIRD.apply(x, y, random);
+    #repaint(x, y, elementArea, random) {
+        this.#iterate(this.#state, x, y, (ex, ey, part) => {
+            const element = BirdEntity.#BIRD.apply(ex, ey, random);
             if (part < 3) {
-                elementArea.setElement(x, y, element);
+                elementArea.setElement(ex, ey, element);
             } else {
                 // add motion blur - ends of wings only
                 const elementHead = element.elementHead;
                 const elementTail = ElementTail.setBlurType(element.elementTail, ElementTail.BLUR_TYPE_1);
-                elementArea.setElementHeadAndTail(x, y, elementHead, elementTail);
+                elementArea.setElementHeadAndTail(ex, ey, elementHead, elementTail);
             }
         });
+    }
+
+    asElementArea() {
+        const elementArea = ElementArea.create(9, 9, ElementArea.TRANSPARENT_ELEMENT);
+        this.#repaint(4, 5, elementArea, DeterministicRandom.DEFAULT);
+        return elementArea;
     }
 }

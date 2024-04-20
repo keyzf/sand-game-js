@@ -16,6 +16,8 @@ import Brushes from "../brush/Brushes";
  */
 export default class MoveTool extends Tool {
 
+    // TODO: support entities
+
     /** @type number */
     #size;
 
@@ -52,7 +54,7 @@ export default class MoveTool extends Tool {
     #createInsertToolAt(x, y, graphics) {
         const elementArea = this.#copyElementsAt(x, y, graphics);
         return (elementArea !== null)
-                ? new InsertElementAreaTool(new ToolInfo(), elementArea)
+                ? new InsertElementAreaTool(new ToolInfo(), elementArea, [])
                 : null;
     }
 
@@ -103,7 +105,7 @@ export default class MoveTool extends Tool {
     #createInsertTool(x1, y1, x2, y2, graphics) {
         const elementArea = this.#copyElements(x1, y1, x2, y2, graphics);
         return (elementArea !== null)
-            ? new InsertElementAreaTool(new ToolInfo(), elementArea)
+            ? new InsertElementAreaTool(new ToolInfo(), elementArea, [])
             : null;
     }
 

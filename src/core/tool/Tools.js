@@ -11,11 +11,12 @@ import ActionTool from "./ActionTool";
 import MoveTool from "./MoveTool";
 import TemplateSelectionFakeTool from "./TemplateSelectionFakeTool";
 import GlobalActionTool from "./GlobalActionTool";
+import InsertEntityTool from "./InsertEntityTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-20
  */
 export default class Tools {
 
@@ -95,8 +96,11 @@ export default class Tools {
      */
     static insertScenesTool(scenes, handler, info) {
         if (scenes.length === 1) {
-            const elementArea = InsertElementAreaTool.asElementArea(scenes[0]);
-            return new InsertElementAreaTool(Tools.#info(info), elementArea, handler);
+            const scene = scenes[0];
+            const elementArea = InsertElementAreaTool.asElementArea(scene);
+            const serializedEntitiesOrNull = scene.createEntities();
+            const serializedEntities = serializedEntitiesOrNull !== null ? serializedEntitiesOrNull : [];
+            return new InsertElementAreaTool(Tools.#info(info), elementArea, serializedEntities, handler);
         } else {
             return new InsertRandomSceneTool(Tools.#info(info), scenes, handler);
         }
@@ -140,5 +144,15 @@ export default class Tools {
      */
     static templateSelectionTool(templateDefinitions, info) {
         return new TemplateSelectionFakeTool(Tools.#info(info), templateDefinitions);
+    }
+
+    /**
+     *
+     * @param entityFactory {function(x:number, y:number):Entity}
+     * @param info {ToolInfo|object|undefined}
+     * @return {Tool}
+     */
+    static insertEntityTool(entityFactory, info) {
+        return new InsertEntityTool(Tools.#info(info), entityFactory);
     }
 }

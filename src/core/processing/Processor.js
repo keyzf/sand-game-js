@@ -19,7 +19,7 @@ import ProcessorExtensionSpawnFish from "./ProcessorExtensionSpawnFish";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-07
+ * @version 2024-04-20
  */
 export default class Processor extends ProcessorContext {
 
@@ -553,6 +553,10 @@ export default class Processor extends ProcessorContext {
                 break;
             case ElementHead.BEHAVIOUR_FISH_BODY:
                 this.#moduleFish.behaviourFishBody(elementHead, x, y);
+                active = true;
+                break;
+            case ElementHead.BEHAVIOUR_ENTITY:
+                processTemperature = false;
                 active = true;
                 break;
             default:

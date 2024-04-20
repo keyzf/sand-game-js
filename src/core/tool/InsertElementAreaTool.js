@@ -8,7 +8,7 @@ import Tool from "./Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-28
+ * @version 2024-04-20
  */
 export default class InsertElementAreaTool extends Tool {
 
@@ -23,12 +23,15 @@ export default class InsertElementAreaTool extends Tool {
 
     /** @type ElementArea */
     #elementArea;
+    /** @type object[] */
+    #serializedEntities;
     /** @type function */
     #onInsertHandler;
 
-    constructor(info, elementArea, onInsertHandler) {
+    constructor(info, elementArea, serializedEntities, onInsertHandler) {
         super(info);
         this.#elementArea = elementArea;
+        this.#serializedEntities = serializedEntities;
         this.#onInsertHandler = onInsertHandler;
     }
 
@@ -37,6 +40,7 @@ export default class InsertElementAreaTool extends Tool {
         const offsetX = x - Math.trunc(elementArea.getWidth() / 2);
         const offsetY = y - Math.trunc(elementArea.getHeight() / 2);
 
+        // apply elements
         let brush = Brushes.custom((tx, ty) => {
             const element = elementArea.getElement(tx - offsetX, ty - offsetY);
             if (element.elementHead !== ElementArea.TRANSPARENT_ELEMENT.elementHead
@@ -64,6 +68,19 @@ export default class InsertElementAreaTool extends Tool {
 
                 graphics.draw(tx, ty, brush);
             }
+        }
+
+        // apply entities
+        for (const serializedEntity of this.#serializedEntities) {
+            const serializedClone = Object.assign({}, serializedEntity);
+            // map entity position
+            if (typeof serializedClone.x === 'number') {
+                serializedClone.x += offsetX;
+            }
+            if (typeof serializedClone.y === 'number') {
+                serializedClone.y += offsetY;
+            }
+            graphics.insertEntity(serializedClone);
         }
 
         if (this.#onInsertHandler !== undefined) {

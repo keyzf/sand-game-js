@@ -3,7 +3,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-10-11
+ * @version 2024-04-20
  */
 export default class Snapshot {
 
@@ -15,4 +15,8 @@ export default class Snapshot {
 
     /** @type ArrayBuffer */
     dataTails;
+
+    /** @type object[] */
+    serializedEntities;
+
 }

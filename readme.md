@@ -1,6 +1,6 @@
 # Sand Game JS
 
-Sand Game JS is a fast, free and open-source falling-sand game engine for desktop & mobile browsers.
+Sand Game JS is a fast and powerful falling-sand game engine for desktop & mobile browsers.
 It allows players to experiment with various elements, such as sand, soil, water and fire.
 It is primarily tested on Google Chrome and Google Chrome for Android.
 WebGL 2 is utilized for fast rendering.

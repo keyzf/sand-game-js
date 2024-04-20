@@ -30,7 +30,7 @@ export default class SceneImplHardcoded extends Scene {
 
     async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
-        let sandGame = new SandGame(elementArea, null, defaults, context, rendererInitializer);
+        let sandGame = new SandGame(elementArea, [], null, defaults, context, rendererInitializer);
         await this.#apply(sandGame);
         return sandGame;
     }

@@ -6,16 +6,20 @@ import ElementArea from "./ElementArea.js";
 import Brush from "./brush/Brush.js";
 import CircleIterator from "./CircleIterator.js";
 import Marker from "./Marker";
+import Entity from "./entity/Entity";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-13
+ * @version 2024-04-20
  */
 export default class SandGameGraphics {
 
     /** @type ElementArea */
     #elementArea;
+
+    /** @type EntityManager */
+    #entityManager;
 
     /** @type DeterministicRandom */
     #random;
@@ -26,8 +30,9 @@ export default class SandGameGraphics {
     /** @type {function(number,number)} */
     #triggerFunction;
 
-    constructor(elementArea, random, defaults, triggerFunction) {
+    constructor(elementArea, entityManager, random, defaults, triggerFunction) {
         this.#elementArea = elementArea;
+        this.#entityManager = entityManager;
         this.#random = random;
         this.#defaults = defaults;
         this.#triggerFunction = triggerFunction;
@@ -227,6 +232,44 @@ export default class SandGameGraphics {
         for (let x = 0; x < width; x++) {
             for (let yd = 0; yd < halfHeight; yd++) {
                 this.swap(x, yd, x, height - yd - 1);
+            }
+        }
+    }
+
+    insertEntity(serializedEntity) {
+        if (serializedEntity instanceof Entity) {
+            throw 'Entity instance not supported here';
+        }
+
+        // check is not out of bounds
+        if (typeof serializedEntity.y === 'number') {
+            if (serializedEntity.y < 0 || serializedEntity.y >= this.getHeight()) {
+                return;  // out of bounds
+            }
+        }
+        if (typeof serializedEntity.x === 'number') {
+            if (serializedEntity.x < 0 || serializedEntity.x >= this.getWidth()) {
+                return;  // out of bounds
+            }
+        }
+
+        const entity = this.#entityManager.addSerializedEntity(serializedEntity);
+        entity.initialize(this.#elementArea, this.#random, this.#defaults);
+
+        if (typeof serializedEntity.x === 'number' && typeof serializedEntity.y === 'number') {
+            this.#triggerFunction(serializedEntity.x, serializedEntity.y);
+        }
+    }
+
+    insertElementArea(elementArea, offsetX = 0, offsetY = 0) {
+        for (let y = 0; y < elementArea.getHeight(); y++) {
+            for (let x = 0; x < elementArea.getWidth(); x++) {
+                if (this.#elementArea.isValidPosition(x + offsetX, y + offsetY)) {
+                    const elementHead = elementArea.getElementHead(x, y);
+                    const elementTail = elementArea.getElementTail(x, y);
+                    this.#elementArea.setElementHeadAndTail(x + offsetX, y + offsetY, elementHead, elementTail);
+                    this.#triggerFunction(x + offsetX, y + offsetY);
+                }
             }
         }
     }

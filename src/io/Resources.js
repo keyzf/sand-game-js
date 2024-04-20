@@ -38,20 +38,13 @@ export default class Resources {
             return JSON.parse(strFromU8(zip[fileName]));
         }
 
-        if (zip[ResourceSnapshot.METADATA_JSON_NAME]) {
-            // snapshot
-            const metadataJson = parseJson(ResourceSnapshot.METADATA_JSON_NAME);
-            const snapshot = ResourceSnapshot.parse(metadataJson, zip);
-            return new SceneImplSnapshot(snapshot);
-        }
-        if (zip[ResourceSnapshot.LEGACY_METADATA_JSON_NAME]) {
-            // legacy snapshot
-            const metadataJson = parseJson(ResourceSnapshot.LEGACY_METADATA_JSON_NAME);
-            const snapshot = ResourceSnapshot.parse(metadataJson, zip);
+        if (zip[ResourceSnapshot.METADATA_JSON_NAME] || zip[ResourceSnapshot.LEGACY_METADATA_JSON_NAME]) {
+            // snapshot | legacy snapshot
+            const snapshot = ResourceSnapshot.parse(zip);
             return new SceneImplSnapshot(snapshot);
         }
         if (zip[ResourceTool.METADATA_JSON_NAME]) {
-            // legacy snapshot
+            // tool
             const metadataJson = parseJson(ResourceTool.METADATA_JSON_NAME);
             return await ResourceTool.parse(metadataJson, zip);
         }

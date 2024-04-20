@@ -1,6 +1,6 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import { strToU8, zipSync } from "fflate";
+import { strFromU8, strToU8, zipSync } from "fflate";
 import Snapshot from "../core/Snapshot";
 import SnapshotMetadata from "../core/SnapshotMetadata";
 import ElementArea from "../core/ElementArea";
@@ -9,7 +9,7 @@ import ElementHead from "../core/ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-01
+ * @version 2024-04-20
  */
 export default class ResourceSnapshot {
 
@@ -23,22 +23,38 @@ export default class ResourceSnapshot {
      */
     static createZip(snapshot) {
         const metadata = strToU8(JSON.stringify(snapshot.metadata, null, 2));
+        const entities = strToU8(JSON.stringify(snapshot.serializedEntities, null, 2));
 
         let zipData = {
             'snapshot.json': metadata,
             'data-heads.bin': new Uint8Array(snapshot.dataHeads),
-            'data-tails.bin': new Uint8Array(snapshot.dataTails)
+            'data-tails.bin': new Uint8Array(snapshot.dataTails),
+            'data-entities.json': entities,
         };
         return zipSync(zipData, {level: 9});
     }
 
     /**
      *
-     * @param metadataJson {any}
      * @param zip {{[path: string]: Uint8Array}}
      * @returns Snapshot
      */
-    static parse(metadataJson, zip) {
+    static parse(zip) {
+        function parseJson(fileName) {
+            return JSON.parse(strFromU8(zip[fileName]));
+        }
+
+        // load metadata
+        let metadataJson;
+        if (zip[ResourceSnapshot.METADATA_JSON_NAME]) {
+            // snapshot | legacy snapshot
+            metadataJson = parseJson(ResourceSnapshot.METADATA_JSON_NAME);
+        } else if (zip[ResourceSnapshot.LEGACY_METADATA_JSON_NAME]) {
+            // legacy snapshot
+            metadataJson = parseJson(ResourceSnapshot.LEGACY_METADATA_JSON_NAME);
+        } else {
+            throw 'Metadata not found';
+        }
         let snapshot = new Snapshot();
         snapshot.metadata = Object.assign(new SnapshotMetadata(), metadataJson);
 
@@ -87,6 +103,16 @@ export default class ResourceSnapshot {
             snapshot.dataTails = dataRawTails.buffer;
         }
 
+        // load entities
+        if (snapshot.metadata.formatVersion > 6) {
+            snapshot.serializedEntities = parseJson('data-entities.json');
+            if (!Array.isArray(snapshot.serializedEntities)) {
+                throw 'Entities corrupted';
+            }
+        } else {
+            snapshot.serializedEntities = [];
+        }
+
         // ensure backward compatibility
         if (snapshot.metadata.formatVersion === 1) {
             // after 23w32a first byte of element head was changed (powder elements reworked)
@@ -111,6 +137,10 @@ export default class ResourceSnapshot {
             // conductivity, flammability... >> heat mod index
             ResourceSnapshot.#convertToV6(snapshot);
             snapshot.metadata.formatVersion = 6;
+        }
+        if (snapshot.metadata.formatVersion === 6) {
+            // entities
+            snapshot.metadata.formatVersion = 7;
         }
 
         return snapshot;

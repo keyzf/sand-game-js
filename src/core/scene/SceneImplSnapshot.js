@@ -7,7 +7,7 @@ import ElementArea from "../ElementArea.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-04-20
  */
 export default class SceneImplSnapshot extends Scene {
 
@@ -30,8 +30,10 @@ export default class SceneImplSnapshot extends Scene {
     }
 
     async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
-        let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
-        return new SandGame(elementArea, this.#snapshot.metadata, defaults, context, rendererInitializer);
+        const elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
+        const serializedEntities = this.createEntities();
+        const metadata = this.#snapshot.metadata;
+        return new SandGame(elementArea, serializedEntities, metadata, defaults, context, rendererInitializer);
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {
@@ -40,5 +42,9 @@ export default class SceneImplSnapshot extends Scene {
                 this.#snapshot.metadata.height,
                 this.#snapshot.dataHeads,
                 this.#snapshot.dataTails);
+    }
+
+    createEntities() {
+        return this.#snapshot.serializedEntities;
     }
 }

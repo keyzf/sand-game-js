@@ -6,17 +6,19 @@ import Tools from "../core/tool/Tools";
 import BrushDefs from "./BrushDefs";
 import ToolInfo from "../core/tool/ToolInfo";
 import TemplateDefs from "./TemplateDefs";
+import Entities from "../core/entity/Entities";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-07
+ * @version 2024-04-20
  */
 export default class ToolDefs {
 
     static DEFAULT_SIZE = 6;
 
     static CATEGORY_BRUSH = 'brush';
+    static CATEGORY_ENTITY = 'entity';
     static CATEGORY_GLOBAL = 'global';
     static CATEGORY_TEMPLATE = 'template';
     static CATEGORY_SELECTION = 'selection';
@@ -241,6 +243,12 @@ export default class ToolDefs {
         this.EFFECT_TEMP_PLUS2
     ];
 
+    static BIRD = Tools.insertEntityTool(() => Entities.bird(0, 0), new ToolInfo({
+        codeName: 'bird',
+        displayName: 'Bird',
+        category: ToolDefs.CATEGORY_ENTITY,
+    }));
+
     /** @type Tool[] */
     static TEST_TOOLS = [
         Tools.pointBrushTool(BrushDefs.GRASS, new ToolInfo({
@@ -258,6 +266,7 @@ export default class ToolDefs {
             displayName: 'Fish',
             category: ToolDefs.CATEGORY_BRUSH,
         })),
+        ToolDefs.BIRD,
         Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE, new ToolInfo({
             codeName: 'effect_burnt',
             displayName: 'Burnt',

@@ -7,7 +7,7 @@ import Tool from "./Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-29
+ * @version 2024-04-20
  */
 export default class InsertRandomSceneTool extends Tool {
 
@@ -34,7 +34,9 @@ export default class InsertRandomSceneTool extends Tool {
         const i = DeterministicRandom.DEFAULT.nextInt(this.#scenes.length);
         const scene = this.#scenes[i];
         const elementArea = InsertElementAreaTool.asElementArea(scene);
-        this.#currentTool = new InsertElementAreaTool(this.getInfo(), elementArea, this.#onInsertHandler);
+        const serializedEntitiesOrNull = scene.createEntities();
+        const serializedEntities = serializedEntitiesOrNull !== null ? serializedEntitiesOrNull : [];
+        this.#currentTool = new InsertElementAreaTool(this.getInfo(), elementArea, serializedEntities, this.#onInsertHandler);
     }
 
     applyPoint(x, y, graphics, aldModifier) {

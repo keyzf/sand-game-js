@@ -523,7 +523,7 @@ export default class Controller {
         this.#currentHeightPoints = height;
         this.#currentScale = scale;
 
-        this.#initialize(new SceneImplTmpResize(this.#sandGame));
+        this.#initialize(new SceneImplTmpResize(this.#sandGame.createSnapshot()));
     }
 
     // controller / options
@@ -553,7 +553,7 @@ export default class Controller {
         this.#rendererInitializer = initializer;
         if (this.#sandGame) {
             this.close();
-            this.#initialize(new SceneImplTmpResize(this.#sandGame));
+            this.#initialize(new SceneImplSnapshot(this.#sandGame.createSnapshot()));
         }
     }
 

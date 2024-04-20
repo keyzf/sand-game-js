@@ -7,18 +7,18 @@ import ElementArea from "../ElementArea.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-04-20
  */
 export default class SceneImplTmpResize extends Scene {
 
     /**
-     * @type SandGame
+     * @type Snapshot
      */
-    #sandGame;
+    #snapshot;
 
-    constructor(sandGame) {
+    constructor(snapshot) {
         super();
-        this.#sandGame = sandGame;
+        this.#snapshot = snapshot;
     }
 
     countSize(prefWidth, prefHeight) {
@@ -26,10 +26,40 @@ export default class SceneImplTmpResize extends Scene {
     }
 
     async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
-        let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
-        let sandGame = new SandGame(elementArea, null, defaults, context, rendererInitializer);
-        this.#sandGame.copyStateTo(sandGame);
-        return sandGame;
+        const oldWidth = this.#snapshot.metadata.width;
+        const oldHeight = this.#snapshot.metadata.height;
+        const oldMetadata = this.#snapshot.metadata;
+        const oldElementArea = ElementArea.from(oldWidth, oldHeight, this.#snapshot.dataHeads, this.#snapshot.dataTails);
+        const oldSerializedEntities = this.#snapshot.serializedEntities;
+
+        const newElementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
+        const newSandGame = new SandGame(newElementArea, [], oldMetadata, defaults, context, rendererInitializer);
+
+        let offsetY;
+        if (prefHeight === oldHeight) {
+            offsetY = 0;
+        } else if (prefHeight > oldHeight) {
+            offsetY = prefHeight - oldHeight;
+        } else {
+            offsetY = -(oldHeight - prefHeight);
+        }
+
+        // copy elements
+        newSandGame.graphics().insertElementArea(oldElementArea, 0, offsetY);
+
+        // copy entities
+        for (let serializedEntity of oldSerializedEntities) {
+            // map entity position
+            const serializedClone = Object.assign({}, serializedEntity);
+            if (offsetY !== 0) {
+                if (typeof serializedClone.y === 'number') {
+                    serializedClone.y += offsetY;
+                }
+            }
+            newSandGame.graphics().insertEntity(serializedClone);
+        }
+
+        return newSandGame;
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {
