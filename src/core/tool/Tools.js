@@ -128,12 +128,13 @@ export default class Tools {
 
     /**
      *
-     * @param size
+     * @param size {number}
+     * @param solidBodyMaxArea {number}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
      */
-    static moveTool(size, info) {
-        return new MoveTool(Tools.#info(info), size);
+    static moveTool(size, solidBodyMaxArea, info) {
+        return new MoveTool(Tools.#info(info), size, solidBodyMaxArea);
     }
 
     /**

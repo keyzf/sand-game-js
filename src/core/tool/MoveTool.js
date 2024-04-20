@@ -6,13 +6,14 @@ import ElementArea from "../ElementArea";
 import ElementHead from "../ElementHead";
 import InsertElementAreaTool from "./InsertElementAreaTool";
 import Brushes from "../brush/Brushes";
+import CopyUtils from "./CopyUtils";
 
 /**
  * It can be used to move elements from one place to another.
  * This tool works in three modes: click-click, drag-drop and selection-click.
  *
  * @author Patrik Harag
- * @version 2023-12-29
+ * @version 2024-04-20
  */
 export default class MoveTool extends Tool {
 
@@ -20,13 +21,16 @@ export default class MoveTool extends Tool {
 
     /** @type number */
     #size;
+    /** @type number */
+    #solidBodyMaxArea;
 
     /** @type InsertElementAreaTool */
     #insertScene = null;
 
-    constructor(info, size) {
+    constructor(info, size, solidBodyMaxArea) {
         super(info);
         this.#size = size;
+        this.#solidBodyMaxArea = solidBodyMaxArea;
     }
 
     // POINT & DRAG AND DROP ACTION
@@ -52,44 +56,22 @@ export default class MoveTool extends Tool {
     }
 
     #createInsertToolAt(x, y, graphics) {
-        const elementArea = this.#copyElementsAt(x, y, graphics);
+        const elementArea = this.#copySingleElementsAt(x, y, graphics);
         return (elementArea !== null)
                 ? new InsertElementAreaTool(new ToolInfo(), elementArea, [])
                 : null;
     }
 
-    #copyElementsAt(x, y, graphics) {
-        const elementArea = ElementArea.create(this.#size, this.#size, ElementArea.TRANSPARENT_ELEMENT);
-        const p = Math.trunc(this.#size / 2);
-
+    #copySingleElementsAt(x, y, graphics) {
         const defaultElement = graphics.getDefaults().getDefaultElement();
-        let empty = true;
-        const brush = Brushes.custom((tx, ty, r, element) => {
-            if (this.#canBeCopied(element.elementHead)) {
-                const dx = tx - x;
-                const dy = ty - y;
-                elementArea.setElement(dx + p, dy + p, element);
-                empty = false;
-                return defaultElement;  // remove
-            }
-            return null;  // ignore
-        });
 
-        graphics.drawLine(x, y, x, y, this.#size, brush, true);
+        const graphicsCommands = (brush) => graphics.drawLine(x, y, x, y, this.#size, brush, true);
+        const elements = [
+            ...CopyUtils.copySingleElements(graphicsCommands, defaultElement),
+            ...CopyUtils.copySolidBodies(graphicsCommands, graphics, this.#solidBodyMaxArea, defaultElement)
+        ];
 
-        return (empty) ? null : elementArea;
-    }
-
-    #canBeCopied(elementHead) {
-        const elementTypeClass = ElementHead.getTypeClass(elementHead);
-        if (elementTypeClass > ElementHead.TYPE_AIR && elementTypeClass < ElementHead.TYPE_STATIC) {
-            return true;
-        }
-        const behaviour = ElementHead.getBehaviour(elementHead);
-        if (behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
-            return true;
-        }
-        return false;
+        return CopyUtils.asTrimmedElementArea(elements);
     }
 
     // AREA ACTION

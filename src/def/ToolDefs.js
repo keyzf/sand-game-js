@@ -39,7 +39,7 @@ export default class ToolDefs {
         }
     }));
 
-    static MOVE = Tools.moveTool(13, new ToolInfo({
+    static MOVE = Tools.moveTool(13, 2048, new ToolInfo({
         codeName: 'move',
         displayName: 'Move',
         category: ToolDefs.CATEGORY_BRUSH,
