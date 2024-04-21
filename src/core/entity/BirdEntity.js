@@ -11,13 +11,15 @@ import DeterministicRandom from "../DeterministicRandom";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-21
  */
 export default class BirdEntity extends Entity {
 
     static #WORLD_BOUNDARY = 10;
 
-    static #BIRD = Brushes.color(0, 0, 0, Brushes.random([
+    static #MAX_AVG_TEMPERATURE = 50
+
+    static #BIRD_BRUSH = Brushes.color(0, 0, 0, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
@@ -25,6 +27,40 @@ export default class BirdEntity extends Entity {
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE))
     ]));
+
+    static #STATES = [
+        [[0, 0], [1, -1], [-1, -1], [2, -1], [-2, -1], [3, -1], [-3, -1]],
+        [[0, 0], [1, -1], [-1, -1], [2, -1], [-2, -1], [3, -2], [-3, -2]],
+        [[0, 0], [1, -1], [-1, -1], [2, -2], [-2, -2], [3, -2], [-3, -2]],
+        [[0, 0], [1, -1], [-1, -1], [2, -2], [-2, -2], [3, -1], [-3, -1]],
+        [[0, 0], [1, -1], [-1, -1], [2, -1], [-2, -1], [3, -1], [-3, -1]],
+        [[0, 0], [1, -1], [-1, -1], [2,  0], [-2,  0], [3,  0], [-3,  0]],
+        [[0, 0], [1, -1], [-1, -1], [2,  0], [-2,  0], [3,  1], [-3,  1]],
+        [[0, 0], [1, -1], [-1, -1], [2,  0], [-2,  0], [3,  0], [-3,  0]],
+    ];
+
+    static #createStateTransition(stateFrom, stateTo) {
+        const transitions = [];
+        for (let i = 0; i < stateFrom.length; i++) {
+            const [ax, ay] = stateFrom[i];
+            const [bx, by] = stateTo[i];
+            if (ax === bx && ay === by) {
+                continue;  // no change
+            }
+            transitions.push([[ax, ay], [bx, by]]);
+        }
+        return transitions;
+    }
+
+    static #createStateTransitionTable(states) {
+        const stateTransitions = [];
+        for (let i = 0; i < states.length; i++) {
+            stateTransitions.push(BirdEntity.#createStateTransition(states[i], states[i + 1 < states.length ? i + 1 : 0]));
+        }
+        return stateTransitions;
+    }
+
+    static #STATE_TRANSITIONS = BirdEntity.#createStateTransitionTable(BirdEntity.#STATES);
 
 
     #iteration = 0;
@@ -62,91 +98,90 @@ export default class BirdEntity extends Entity {
     }
 
     initialize(elementArea, random, defaults) {
-        this.#repaint(this.#x, this.#y, elementArea, random);
+        this.#paintAt(this.#x, this.#y, elementArea, random);
     }
 
     performBeforeProcessing(elementArea, random, defaults) {
-        // no action
+        return this.#state !== -1;
     }
 
     performAfterProcessing(elementArea, random, defaults) {
         this.#iteration++;
+        let isActive = this.#state !== -1;
 
-        if (this.#iteration % 11 === 0) {
+        if (isActive) {
+            // check state
+
+            const x = this.#x;
+            const y = this.#y;
+            const points = BirdEntity.#STATES[this.#state];
+
+            let totalTemperature = 0;
+            for (const [dx, dy] of points) {
+                const ex = x + dx;
+                const ey = y + dy;
+
+                let elementHead = elementArea.getElementHeadOrNull(ex, ey);
+                if (elementHead === null) {
+                    // lost body part / out of bounds
+                    return this.#kill(elementArea);
+                }
+
+                if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
+                    // lost body part
+                    return this.#kill(elementArea);
+                }
+
+                totalTemperature += ElementHead.getTemperature(elementHead);
+            }
+
+            if (totalTemperature / points.length > BirdEntity.#MAX_AVG_TEMPERATURE) {
+                // killed by temperature
+                return this.#kill(elementArea);
+            }
+        }
+
+        if (isActive && this.#iteration % 11 === 0) {
             // random move
+
+            const x = this.#x;
+            const y = this.#y;
+
             const xChange = random.nextInt(3) - 1;
             const yChange = random.nextInt(3) - 1;
-            const [nx, ny] = this.#tryMove(this.#x, this.#y, xChange, yChange, elementArea);
+            const [nx, ny] = this.#countNewPosition(x, y, xChange, yChange, elementArea);
 
-            if (nx !== this.#x || ny !== this.#y) {
-                // erase
-                this.#iterate(this.#state, this.#x, this.#y, (x, y) => {
-                    elementArea.setElement(x, y, defaults.getDefaultElement());
-                });
+            if (nx !== x || ny !== y) {
+                // move
+
+                this.#relocate(elementArea, BirdEntity.#STATES[this.#state], x, y, nx, ny);
 
                 this.#x = nx;
                 this.#y = ny;
-
-                // repaint
-                this.#repaint(this.#x, this.#y, elementArea, random);
             }
         }
 
-        if (this.#iteration % 10 === 0) {
+        if (isActive && this.#iteration % 10 === 0) {
             // increment state
 
-            // erase
-            this.#iterate(this.#state, this.#x, this.#y, (x, y) => {
-                elementArea.setElement(x, y, defaults.getDefaultElement());
-            });
+            const x = this.#x;
+            const y = this.#y;
 
-            this.#state++;
-            if (this.#state === 8) {
-                this.#state = 0;
+            const transitions = BirdEntity.#STATE_TRANSITIONS[this.#state];
+            for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
+                elementArea.swap(x + dx1, y + dy1, x + dx2, y + dy2);
             }
 
-            // repaint
-            this.#repaint(this.#x, this.#y, elementArea, random);
-        }
-    }
-
-    #iterate(state, x, y, handler) {
-        let part3; let part4;
-        switch (state) {
-            case 0:
-            case 4:
-                part3 = -1; part4 = -1;
-                break;
-            case 1:
-                part3 = -1; part4 = -2;
-                break;
-            case 2:
-                part3 = -2; part4 = -2;
-                break;
-            case 3:
-                part3 = -2; part4 = -1;
-                break;
-            case 5:
-            case 7:
-                part3 = 0; part4 = 0;
-                break;
-            case 6:
-                part3 = 0; part4 = 1;
-                break;
-            default:
-                part3 = -1; part4 = -1;
+            this.#state++;
+            if (this.#state === BirdEntity.#STATES.length) {
+                this.#state = 0;
+            }
         }
 
-        handler(x, y, 1);
-        handler(x + 1, y - 1, 2);
-        handler(x - 1, y - 1, 2);
-        handler(x + 2, y + part3, 3);
-        handler(x - 2, y + part3, 3);
-        handler(x + 3, y + part4, 4);
-        handler(x - 3, y + part4, 4);
+        return isActive;
     }
 
-    #tryMove(x, y, xChange, yChange, elementArea) {
+    #countNewPosition(x, y, xChange, yChange, elementArea) {
         // check boundaries
 
         if (x + xChange < BirdEntity.#WORLD_BOUNDARY && xChange < 0) {
@@ -199,10 +234,60 @@ export default class BirdEntity extends Entity {
         return [x + xChange, y + yChange];
     }
 
-    #repaint(x, y, elementArea, random) {
-        this.#iterate(this.#state, x, y, (ex, ey, part) => {
-            const element = BirdEntity.#BIRD.apply(ex, ey, random);
-            if (part < 3) {
+    #relocate(elementArea, state, x, y, nx, ny) {
+        const sortedPoints = [...state];
+
+        if (nx > x) {
+            sortedPoints.sort((a, b) => b[0] - a[0]);
+        } else if (nx < x) {
+            sortedPoints.sort((a, b) => a[0] - b[0]);
+        }
+        if (ny > y) {
+            sortedPoints.sort((a, b) => b[1] - a[1]);
+        } else if (ny < y) {
+            sortedPoints.sort((a, b) => a[1] - b[1]);
+        }
+
+        for (const [dx, dy] of sortedPoints) {
+            elementArea.swap(x + dx, y + dy, nx + dx, ny + dy);
+        }
+    }
+
+    #kill(elementArea) {
+        const x = this.#x;
+        const y = this.#y;
+
+        for (const [dx, dy] of BirdEntity.#STATES[this.#state]) {
+            const ex = x + dx;
+            const ey = y + dy;
+
+            const elementHead = elementArea.getElementHeadOrNull(ex, ey);
+            if (elementHead === null) {
+                continue;
+            }
+
+            if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
+                continue;
+            }
+
+            let newElementHead = elementHead;
+            newElementHead = ElementHead.setType(newElementHead, ElementHead.type8Solid(ElementHead.TYPE_STATIC, 4, true));
+            newElementHead = ElementHead.setBehaviour(newElementHead, ElementHead.BEHAVIOUR_NONE);
+            newElementHead = ElementHead.setSpecial(newElementHead, 0);
+            elementArea.setElementHead(ex, ey, newElementHead);
+        }
+
+        this.#state = -1;
+        return false;  // not active
+    }
+
+    #paintAt(x, y, elementArea, random) {
+        for (const [dx, dy] of BirdEntity.#STATES[this.#state]) {
+            const ex = x + dx;
+            const ey = y + dy;
+
+            const element = BirdEntity.#BIRD_BRUSH.apply(ex, ey, random);
+            if (Math.abs(dx) < 2) {
                 elementArea.setElement(ex, ey, element);
             } else {
                 // add motion blur - ends of wings only
@@ -210,12 +295,12 @@ export default class BirdEntity extends Entity {
                 const elementTail = ElementTail.setBlurType(element.elementTail, ElementTail.BLUR_TYPE_1);
                 elementArea.setElementHeadAndTail(ex, ey, elementHead, elementTail);
             }
-        });
+        }
     }
 
     asElementArea() {
         const elementArea = ElementArea.create(9, 9, ElementArea.TRANSPARENT_ELEMENT);
-        this.#repaint(4, 5, elementArea, DeterministicRandom.DEFAULT);
+        this.#paintAt(4, 5, elementArea, DeterministicRandom.DEFAULT);
         return elementArea;
     }
 }

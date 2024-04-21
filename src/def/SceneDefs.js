@@ -74,7 +74,6 @@ export default class SceneDefs {
                     .layer(27, false, Brushes.withIntensity(0.33, water));
             }
 
-            layeredPainter.tool(64, 40, ToolDefs.BIRD);
             layeredPainter.tool(65, 45, ToolDefs.BIRD);
             layeredPainter.tool(70, 70, ToolDefs.BIRD);
             layeredPainter.tool(71, 75, ToolDefs.BIRD);

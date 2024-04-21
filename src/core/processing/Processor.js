@@ -556,7 +556,7 @@ export default class Processor extends ProcessorContext {
                 active = true;
                 break;
             case ElementHead.BEHAVIOUR_ENTITY:
-                processTemperature = false;
+                processTemperature = true;
                 active = true;
                 break;
             default:

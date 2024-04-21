@@ -4,7 +4,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-21
  */
 export default class Entity {
 
@@ -24,7 +24,7 @@ export default class Entity {
      * @param elementArea {ElementArea}
      * @param random {DeterministicRandom}
      * @param defaults {ProcessorDefaults}
-     * @returns {void}
+     * @returns {boolean} alive
      */
     performBeforeProcessing(elementArea, random, defaults) {
         throw 'Not implemented';
@@ -35,7 +35,7 @@ export default class Entity {
      * @param elementArea {ElementArea}
      * @param random {DeterministicRandom}
      * @param defaults {ProcessorDefaults}
-     * @returns {void}
+     * @returns {boolean} alive
      */
     performAfterProcessing(elementArea, random, defaults) {
         throw 'Not implemented';

@@ -6,7 +6,7 @@ import Entity from "./Entity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-21
  */
 export default class EntityManager {
 
@@ -43,14 +43,31 @@ export default class EntityManager {
     }
 
     performBeforeProcessing(elementArea, random, defaults) {
-        for (let entity of this.#entities) {
+        for (let i = 0; i < this.#entities.length; i++) {
+            const entity = this.#entities[i];
             entity.performBeforeProcessing(elementArea, random, defaults);
         }
     }
 
     performAfterProcessing(elementArea, random, defaults) {
-        for (let entity of this.#entities) {
-            entity.performAfterProcessing(elementArea, random, defaults);
+        let toDelete = null;
+
+        for (let i = 0; i < this.#entities.length; i++) {
+            const entity = this.#entities[i];
+            const active = entity.performAfterProcessing(elementArea, random, defaults);
+            if (active === false) {
+                if (toDelete === null) {
+                    toDelete = [];
+                }
+                toDelete.push();
+            }
+        }
+
+        if (toDelete !== null) {
+            for (let i = toDelete.length - 1; i >= 0; i--) {
+                const j = toDelete[i];
+                this.#entities.splice(j, 1);
+            }
         }
     }
 
