@@ -33,10 +33,10 @@ export default class InsertEntityTool extends Tool {
     }
 
     hasCursor() {
-        return this.#nextEntity.asElementArea() !== null;
+        return this.#nextEntity.asElementArea(2) !== null;
     }
 
     createCursor() {
-        return new CursorDefinitionElementArea(this.#nextEntity.asElementArea());
+        return new CursorDefinitionElementArea(this.#nextEntity.asElementArea(2));
     }
 }

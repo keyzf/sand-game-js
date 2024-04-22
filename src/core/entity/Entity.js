@@ -53,7 +53,7 @@ export default class Entity {
      *
      * @returns {ElementArea}
      */
-    asElementArea() {
+    asElementArea(bounds = 0) {
         return null;  // unsupported by default
     }
 }
