@@ -13,11 +13,9 @@ import CopyUtils from "./CopyUtils";
  * This tool works in three modes: click-click, drag-drop and selection-click.
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-24
  */
 export default class MoveTool extends Tool {
-
-    // TODO: support entities
 
     /** @type number */
     #size;
@@ -56,22 +54,26 @@ export default class MoveTool extends Tool {
     }
 
     #createInsertToolAt(x, y, graphics) {
-        const elementArea = this.#copySingleElementsAt(x, y, graphics);
+        const [elementArea, entities] = this.#copySingleElementsAt(x, y, graphics);
         return (elementArea !== null)
-                ? new InsertElementAreaTool(new ToolInfo(), elementArea, [])
+                ? new InsertElementAreaTool(new ToolInfo(), elementArea, entities)
                 : null;
     }
 
     #copySingleElementsAt(x, y, graphics) {
         const defaultElement = graphics.getDefaults().getDefaultElement();
-
         const graphicsCommands = (brush) => graphics.drawLine(x, y, x, y, this.#size, brush, true);
-        const elements = [
-            ...CopyUtils.copySingleElements(graphicsCommands, defaultElement),
-            ...CopyUtils.copySolidBodies(graphicsCommands, graphics, this.#solidBodyMaxArea, defaultElement)
-        ];
 
-        return CopyUtils.asTrimmedElementArea(elements);
+        const elements = [];
+
+        elements.push(...CopyUtils.copyNonSolidElements(graphicsCommands, defaultElement));
+
+        elements.push(...CopyUtils.copySolidBodies(graphicsCommands, graphics, this.#solidBodyMaxArea, defaultElement));
+
+        const [entities, entitiesElements] = CopyUtils.copyEntities(graphicsCommands, graphics, defaultElement);
+        elements.push(...entitiesElements);
+
+        return CopyUtils.trimmed(elements, entities);
     }
 
     // AREA ACTION
@@ -85,9 +87,9 @@ export default class MoveTool extends Tool {
     }
 
     #createInsertTool(x1, y1, x2, y2, graphics) {
-        const elementArea = this.#copyElements(x1, y1, x2, y2, graphics);
+        const [elementArea, entities] = this.#copyElements(x1, y1, x2, y2, graphics);
         return (elementArea !== null)
-            ? new InsertElementAreaTool(new ToolInfo(), elementArea, [])
+            ? new InsertElementAreaTool(new ToolInfo(), elementArea, entities)
             : null;
     }
 
@@ -95,10 +97,22 @@ export default class MoveTool extends Tool {
         const w = Math.abs(x1 - x2) + 1;
         const h = Math.abs(y1 - y2) + 1;
         const elementArea = ElementArea.create(w, h, ElementArea.TRANSPARENT_ELEMENT);
+        const entities = [];
 
+        const entityLookup = graphics.createEntityPositionLookup();
         const defaultElement = graphics.getDefaults().getDefaultElement();
         let empty = true;
         const brush = Brushes.custom((tx, ty, r, element) => {
+
+            // process entities
+            for (const entity of entityLookup.getAt(tx, ty)) {
+                if (entity.isActive()) {
+                    const [serializedEntity] = entity.extract(defaultElement, x1, y1);
+                    entities.push(serializedEntity);
+                }
+            }
+
+            // process elements
             if (ElementHead.getTypeClass(element.elementHead) > ElementHead.TYPE_AIR) {
                 let x = tx - Math.min(x1, x2);
                 let y = ty - Math.min(y1, y2);
@@ -111,7 +125,7 @@ export default class MoveTool extends Tool {
 
         graphics.drawRectangle(x1, y1, x2, y2, brush, false);
 
-        return (empty) ? null : elementArea;
+        return (empty) ? null : [elementArea, entities];
     }
 
     // SECONDARY ACTION

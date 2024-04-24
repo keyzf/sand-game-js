@@ -5,27 +5,15 @@ import BirdEntity from "./BirdEntity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-24
  */
 export default class Entities {
 
-    static bird(x, y) {
-        return new BirdEntity({ x: x, y: y });
+    static bird(x = undefined, y = undefined) {
+        return { entity: 'bird', x: x, y: y };
     }
 
-    /**
-     *
-     * @param serialized {object}
-     * @return {Entity}
-     */
-    static deserialize(serialized) {
-        if (typeof serialized !== 'object') {
-            throw 'Serialized entity must be an object';
-        }
-        switch (serialized.entity) {
-            case 'bird':
-                return new BirdEntity(serialized);
-        }
-        throw 'Entity not recognized';
+    static birdEntity(x, y, elementArea, random, processorContext) {
+        return new BirdEntity(Entities.bird(x, y), elementArea, random, processorContext)
     }
 }

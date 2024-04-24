@@ -2,11 +2,14 @@
 
 import Tool from "./Tool";
 import CursorDefinitionElementArea from "./CursorDefinitionElementArea";
+import ElementArea from "../ElementArea";
+import DeterministicRandom from "../DeterministicRandom";
+import ProcessorContext from "../processing/ProcessorContext";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-24
  */
 export default class InsertEntityTool extends Tool {
 
@@ -19,7 +22,15 @@ export default class InsertEntityTool extends Tool {
     constructor(info, entityFactory) {
         super(info);
         this.#entityFactory = entityFactory;
-        this.#nextEntity = this.#entityFactory();
+
+        this.#createEntity();
+    }
+
+    #createEntity() {
+        const tmpElementArea = ElementArea.create(1, 1, ElementArea.TRANSPARENT_ELEMENT);
+        const tmpRandom = DeterministicRandom.DEFAULT;
+        const tmpProcessorContext = new ProcessorContext();
+        this.#nextEntity = this.#entityFactory(0, 0, tmpElementArea, tmpRandom, tmpProcessorContext);
     }
 
     applyPoint(x, y, graphics, aldModifier) {
@@ -29,14 +40,21 @@ export default class InsertEntityTool extends Tool {
 
         graphics.insertEntity(serialized);
 
-        this.#nextEntity = this.#entityFactory();
+        this.#createEntity();
     }
 
     hasCursor() {
-        return this.#nextEntity.asElementArea(2) !== null;
+        return true;
     }
 
     createCursor() {
-        return new CursorDefinitionElementArea(this.#nextEntity.asElementArea(2));
+        const boundaries = 2;
+        const [w, h] = this.#nextEntity.countMaxBoundaries();
+        const defaultElement = ElementArea.TRANSPARENT_ELEMENT;
+        const tmpElementArea = ElementArea.create(w + 2 * boundaries, h + 2 * boundaries, defaultElement);
+        const centerX = Math.trunc(tmpElementArea.getWidth() / 2);
+        const centerY = Math.trunc(tmpElementArea.getHeight() / 2);
+        this.#nextEntity.paint(centerX, centerY, tmpElementArea, DeterministicRandom.DEFAULT);
+        return new CursorDefinitionElementArea(tmpElementArea);
     }
 }

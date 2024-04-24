@@ -7,6 +7,7 @@ import BrushDefs from "./BrushDefs";
 import ToolInfo from "../core/tool/ToolInfo";
 import TemplateDefs from "./TemplateDefs";
 import Entities from "../core/entity/Entities";
+import BirdEntity from "../core/entity/BirdEntity";
 
 /**
  *
@@ -243,7 +244,7 @@ export default class ToolDefs {
         this.EFFECT_TEMP_PLUS2
     ];
 
-    static BIRD = Tools.insertEntityTool(() => Entities.bird(0, 0), new ToolInfo({
+    static BIRD = Tools.insertEntityTool(Entities.birdEntity, new ToolInfo({
         codeName: 'bird',
         displayName: 'Bird',
         category: ToolDefs.CATEGORY_ENTITY,

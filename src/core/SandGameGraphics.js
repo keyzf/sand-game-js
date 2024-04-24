@@ -11,7 +11,7 @@ import Entity from "./entity/Entity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-24
  */
 export default class SandGameGraphics {
 
@@ -254,7 +254,7 @@ export default class SandGameGraphics {
         }
 
         const entity = this.#entityManager.addSerializedEntity(serializedEntity);
-        entity.initialize(this.#elementArea, this.#random, this.#defaults);
+        entity.initialize();
 
         if (typeof serializedEntity.x === 'number' && typeof serializedEntity.y === 'number') {
             this.#triggerFunction(serializedEntity.x, serializedEntity.y);
@@ -272,6 +272,10 @@ export default class SandGameGraphics {
                 }
             }
         }
+    }
+
+    createEntityPositionLookup() {
+        return this.#entityManager.createPositionLookup(this.#elementArea.getWidth(), this.#elementArea.getHeight());
     }
 
     getWidth() {

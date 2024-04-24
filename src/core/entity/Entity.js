@@ -4,40 +4,28 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2024-04-21
+ * @version 2024-04-24
  */
 export default class Entity {
 
     /**
-     *
-     * @param elementArea {ElementArea}
-     * @param random {DeterministicRandom}
-     * @param defaults {ProcessorDefaults}
-     * @returns {void}
+     * @return {number}
      */
-    initialize(elementArea, random, defaults) {
+    getX() {
         throw 'Not implemented';
     }
 
     /**
-     *
-     * @param elementArea {ElementArea}
-     * @param random {DeterministicRandom}
-     * @param defaults {ProcessorDefaults}
-     * @returns {boolean} alive
+     * @return {number}
      */
-    performBeforeProcessing(elementArea, random, defaults) {
+    getY() {
         throw 'Not implemented';
     }
 
     /**
-     *
-     * @param elementArea {ElementArea}
-     * @param random {DeterministicRandom}
-     * @param defaults {ProcessorDefaults}
-     * @returns {boolean} alive
+     * @returns {boolean}
      */
-    performAfterProcessing(elementArea, random, defaults) {
+    isActive() {
         throw 'Not implemented';
     }
 
@@ -51,9 +39,47 @@ export default class Entity {
 
     /**
      *
-     * @returns {ElementArea}
+     * @returns {void}
      */
-    asElementArea(bounds = 0) {
-        return null;  // unsupported by default
+    initialize() {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @returns {boolean} alive
+     */
+    performBeforeProcessing() {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @returns {boolean} alive
+     */
+    performAfterProcessing() {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @param defaultElement {Element}
+     * @param rx {number} relative x
+     * @param ry {number} relative y
+     */
+    extract(defaultElement, rx, ry) {
+        throw 'Not implemented';
+    }
+
+    paint(x, y, elementArea, random) {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @returns {[number, number]}
+     */
+    countMaxBoundaries() {
+        throw 'Not implemented';
     }
 }

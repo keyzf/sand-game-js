@@ -1,14 +1,22 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import Entities from "./Entities";
 import Entity from "./Entity";
+import EntityPositionLookup from "./EntityPositionLookup";
+import BirdEntity from "./BirdEntity";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-21
+ * @version 2024-04-24
  */
 export default class EntityManager {
+
+    /** @type ElementArea */
+    #elementArea;
+    /** @type DeterministicRandom */
+    #random;
+    /** @type ProcessorContext */
+    #processorContext;
 
     /** @type Entity[] */
     #entities = [];
@@ -16,8 +24,15 @@ export default class EntityManager {
     /**
      *
      * @param serializedEntities {object[]}
+     * @param elementArea
+     * @param random
+     * @param processorContext
      */
-    constructor(serializedEntities) {
+    constructor(serializedEntities, elementArea, random, processorContext) {
+        this.#elementArea = elementArea;
+        this.#random = random;
+        this.#processorContext = processorContext;
+
         for (let serializedEntity of serializedEntities) {
             this.addSerializedEntity(serializedEntity);
         }
@@ -33,7 +48,7 @@ export default class EntityManager {
 
     addSerializedEntity(serializedEntity) {
         try {
-            const entity = Entities.deserialize(serializedEntity);
+            const entity = this.#deserialize(serializedEntity);
             this.#entities.push(entity);
             return entity;
         } catch (e) {
@@ -42,19 +57,35 @@ export default class EntityManager {
         }
     }
 
-    performBeforeProcessing(elementArea, random, defaults) {
+    /**
+     *
+     * @param serialized {object}
+     * @return {Entity}
+     */
+    #deserialize(serialized) {
+        if (typeof serialized !== 'object') {
+            throw 'Serialized entity must be an object';
+        }
+        switch (serialized.entity) {
+            case 'bird':
+                return new BirdEntity(serialized, this.#elementArea, this.#random, this.#processorContext);
+        }
+        throw 'Entity not recognized';
+    }
+
+    performBeforeProcessing() {
         for (let i = 0; i < this.#entities.length; i++) {
             const entity = this.#entities[i];
-            entity.performBeforeProcessing(elementArea, random, defaults);
+            entity.performBeforeProcessing();
         }
     }
 
-    performAfterProcessing(elementArea, random, defaults) {
+    performAfterProcessing() {
         let toDelete = null;
 
         for (let i = 0; i < this.#entities.length; i++) {
             const entity = this.#entities[i];
-            const active = entity.performAfterProcessing(elementArea, random, defaults);
+            const active = entity.performAfterProcessing();
             if (active === false) {
                 if (toDelete === null) {
                     toDelete = [];
@@ -77,5 +108,9 @@ export default class EntityManager {
             list.push(entity.serialize());
         }
         return list;
+    }
+
+    createPositionLookup(width, height) {
+        return new EntityPositionLookup(this.#entities, width, height);
     }
 }

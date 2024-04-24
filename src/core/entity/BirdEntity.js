@@ -8,6 +8,7 @@ import Entity from "./Entity";
 import Brushes from "../brush/Brushes";
 import DeterministicRandom from "../DeterministicRandom";
 import CyclicStateDefinition from "./CyclicStateProvider";
+import PositionedElement from "../PositionedElement";
 
 // TODO: waypoint(x, y)
 // TODO: support collisions with other entities
@@ -20,7 +21,7 @@ import CyclicStateDefinition from "./CyclicStateProvider";
  * The [0, 0] must be centered horizontally.
  *
  * @author Patrik Harag
- * @version 2024-04-22
+ * @version 2024-04-24
  */
 export default class BirdEntity extends Entity {
 
@@ -49,6 +50,13 @@ export default class BirdEntity extends Entity {
     ]));
 
 
+    /** @type ElementArea */
+    #elementArea;
+    /** @type DeterministicRandom */
+    #random;
+    /** @type ProcessorContext */
+    #processorContext;
+
     /** @type CyclicStateDefinition */
     #stateDefinition;
 
@@ -57,15 +65,18 @@ export default class BirdEntity extends Entity {
     #y = 0;
     #state = 0;
 
-    constructor(serialized) {
+    constructor(serialized, elementArea, random, processorContext) {
         super();
         this.#stateDefinition = BirdEntity.#BIRD_STATE_DEFINITION;
+        this.#elementArea = elementArea;
+        this.#random = random;
+        this.#processorContext = processorContext;
 
         if (serialized.iteration !== undefined) {
             this.#iteration = serialized.iteration;
         } else {
             // set randomly; so state change will not be on the same time
-            this.#iteration = DeterministicRandom.DEFAULT.nextInt(this.#stateDefinition.getStatesCount());
+            this.#iteration = random.nextInt(this.#stateDefinition.getStatesCount());
         }
         if (serialized.x !== undefined) {
             this.#x = serialized.x;
@@ -77,7 +88,7 @@ export default class BirdEntity extends Entity {
             this.#state = serialized.state;
         } else {
             // random state by default
-            this.#state = DeterministicRandom.DEFAULT.nextInt(this.#stateDefinition.getStatesCount());
+            this.#state = random.nextInt(this.#stateDefinition.getStatesCount());
         }
     }
 
@@ -91,15 +102,27 @@ export default class BirdEntity extends Entity {
         };
     }
 
-    initialize(elementArea, random, defaults) {
-        this.#paintAt(this.#x, this.#y, elementArea, random);
+    getX() {
+        return this.#x;
     }
 
-    performBeforeProcessing(elementArea, random, defaults) {
+    getY() {
+        return this.#y;
+    }
+
+    isActive() {
         return this.#state !== -1;
     }
 
-    performAfterProcessing(elementArea, random, defaults) {
+    initialize() {
+        this.paint(this.#x, this.#y, this.#elementArea, this.#random);
+    }
+
+    performBeforeProcessing() {
+        return this.#state !== -1;
+    }
+
+    performAfterProcessing() {
         this.#iteration++;
         let isActive = this.#state !== -1;
 
@@ -115,15 +138,15 @@ export default class BirdEntity extends Entity {
                 const ex = x + dx;
                 const ey = y + dy;
 
-                let elementHead = elementArea.getElementHeadOrNull(ex, ey);
+                let elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
                 if (elementHead === null) {
                     // lost body part / out of bounds
-                    return this.#kill(elementArea);
+                    return this.#kill();
                 }
 
                 if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
                     // lost body part
-                    return this.#kill(elementArea);
+                    return this.#kill();
                 }
 
                 totalTemperature += ElementHead.getTemperature(elementHead);
@@ -131,7 +154,7 @@ export default class BirdEntity extends Entity {
 
             if (totalTemperature / points.length > BirdEntity.#MAX_AVG_TEMPERATURE) {
                 // killed by temperature
-                return this.#kill(elementArea);
+                return this.#kill();
             }
         }
 
@@ -141,14 +164,14 @@ export default class BirdEntity extends Entity {
             const x = this.#x;
             const y = this.#y;
 
-            const xChange = random.nextInt(3) - 1;
-            const yChange = random.nextInt(3) - 1;
-            const [nx, ny] = this.#countNewPosition(x, y, xChange, yChange, elementArea);
+            const xChange = this.#random.nextInt(3) - 1;
+            const yChange = this.#random.nextInt(3) - 1;
+            const [nx, ny] = this.#countNewPosition(x, y, xChange, yChange);
 
             if (nx !== x || ny !== y) {
                 // move
 
-                this.#relocate(elementArea, this.#stateDefinition.getStates()[this.#state], x, y, nx, ny);
+                this.#relocate(this.#stateDefinition.getStates()[this.#state], x, y, nx, ny);
 
                 this.#x = nx;
                 this.#y = ny;
@@ -165,7 +188,8 @@ export default class BirdEntity extends Entity {
 
             let allowed = true;
             for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
-                if (!elementArea.isValidPosition(x + dx1, y + dy1) || !this.#checkIsSpace(x + dx2, y + dy2, elementArea)) {
+                if (!this.#elementArea.isValidPosition(x + dx1, y + dy1) || !this.#checkIsSpace(x + dx2, y + dy2)) {
+
                     allowed = false;
                     break;
                 }
@@ -173,7 +197,7 @@ export default class BirdEntity extends Entity {
 
             if (allowed) {
                 for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
-                    elementArea.swap(x + dx1, y + dy1, x + dx2, y + dy2);
+                    this.#elementArea.swap(x + dx1, y + dy1, x + dx2, y + dy2);
                 }
 
                 this.#state++;
@@ -186,20 +210,20 @@ export default class BirdEntity extends Entity {
         return isActive;
     }
 
-    #countNewPosition(x, y, xChange, yChange, elementArea) {
+    #countNewPosition(x, y, xChange, yChange) {
         // check boundaries
 
         if (x + xChange < BirdEntity.#WORLD_BOUNDARY && xChange < 0) {
             xChange = 0;
         }
-        if (x + xChange > elementArea.getWidth() - BirdEntity.#WORLD_BOUNDARY && xChange > 0) {
+        if (x + xChange > this.#elementArea.getWidth() - BirdEntity.#WORLD_BOUNDARY && xChange > 0) {
             xChange = 0;
         }
 
         if (y + yChange < BirdEntity.#WORLD_BOUNDARY && yChange < 0) {
             yChange = 0;
         }
-        if (y + yChange > elementArea.getHeight() - BirdEntity.#WORLD_BOUNDARY && yChange > 0) {
+        if (y + yChange > this.#elementArea.getHeight() - BirdEntity.#WORLD_BOUNDARY && yChange > 0) {
             yChange = 0;
         }
 
@@ -210,7 +234,7 @@ export default class BirdEntity extends Entity {
         // test right | right
         if (xChange > 0 || xChange < 0) {
             for (let yy = this.#stateDefinition.getMinY() - EXTRA; yy <= this.#stateDefinition.getMaxY() + EXTRA; yy++) {
-                if (!this.#checkIsSpace(x + (xChange * 5), y + yChange + yy, elementArea)) {
+                if (!this.#checkIsSpace(x + (xChange * 5), y + yChange + yy)) {
                     xChange = 0;
                     break;
                 }
@@ -220,7 +244,7 @@ export default class BirdEntity extends Entity {
         // test above | below
         if (yChange > 0 || yChange < 0) {
             for (let xx = this.#stateDefinition.getMinX() - EXTRA; xx <= this.#stateDefinition.getMaxX() + EXTRA; xx++) {
-                if (!this.#checkIsSpace(x + xChange + xx, y + (yChange * 5), elementArea)) {
+                if (!this.#checkIsSpace(x + xChange + xx, y + (yChange * 5))) {
                     yChange = 0;
                     break;
                 }
@@ -230,7 +254,7 @@ export default class BirdEntity extends Entity {
         // check close obstacles
 
         for (const [dx, dy] of this.#stateDefinition.getStates()[this.#state]) {
-            if (!this.#checkIsSpace(x + xChange + dx, y + yChange + dy, elementArea)) {
+            if (!this.#checkIsSpace(x + xChange + dx, y + yChange + dy)) {
                 xChange = 0;
                 yChange = 0;
                 break;
@@ -240,7 +264,7 @@ export default class BirdEntity extends Entity {
         return [x + xChange, y + yChange];
     }
 
-    #relocate(elementArea, state, x, y, nx, ny) {
+    #relocate(state, x, y, nx, ny) {
         const sortedPoints = [...state];
 
         if (nx > x) {
@@ -255,12 +279,12 @@ export default class BirdEntity extends Entity {
         }
 
         for (const [dx, dy] of sortedPoints) {
-            elementArea.swap(x + dx, y + dy, nx + dx, ny + dy);
+            this.#elementArea.swap(x + dx, y + dy, nx + dx, ny + dy);
         }
     }
 
-    #checkIsSpace(tx, ty, elementArea) {
-        const targetElementHead = elementArea.getElementHeadOrNull(tx, ty);
+    #checkIsSpace(tx, ty) {
+        const targetElementHead = this.#elementArea.getElementHeadOrNull(tx, ty);
         if (targetElementHead === null) {
             return false;
         }
@@ -273,7 +297,7 @@ export default class BirdEntity extends Entity {
         return true;
     }
 
-    #kill(elementArea) {
+    #kill() {
         const x = this.#x;
         const y = this.#y;
 
@@ -281,7 +305,7 @@ export default class BirdEntity extends Entity {
             const ex = x + dx;
             const ey = y + dy;
 
-            const elementHead = elementArea.getElementHeadOrNull(ex, ey);
+            const elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
             if (elementHead === null) {
                 continue;
             }
@@ -294,14 +318,14 @@ export default class BirdEntity extends Entity {
             newElementHead = ElementHead.setType(newElementHead, ElementHead.type8Solid(ElementHead.TYPE_STATIC, 4, true));
             newElementHead = ElementHead.setBehaviour(newElementHead, ElementHead.BEHAVIOUR_NONE);
             newElementHead = ElementHead.setSpecial(newElementHead, 0);
-            elementArea.setElementHead(ex, ey, newElementHead);
+            this.#elementArea.setElementHead(ex, ey, newElementHead);
         }
 
         this.#state = -1;
         return false;  // not active
     }
 
-    #paintAt(x, y, elementArea, random) {
+    paint(x, y, elementArea, random) {
         for (const [dx, dy] of this.#stateDefinition.getStates()[this.#state]) {
             const ex = x + dx;
             const ey = y + dy;
@@ -322,11 +346,41 @@ export default class BirdEntity extends Entity {
         }
     }
 
-    asElementArea(bounds = 0) {
-        const w = Math.abs(this.#stateDefinition.getMinX() - this.#stateDefinition.getMaxX()) + 1 + (2 * bounds);
-        const h = Math.abs(this.#stateDefinition.getMinY() - this.#stateDefinition.getMaxY()) + 1 + (2 * bounds);
-        const elementArea = ElementArea.create(w, h, ElementArea.TRANSPARENT_ELEMENT);
-        this.#paintAt(Math.trunc(w / 2), Math.trunc(h / 2), elementArea, DeterministicRandom.DEFAULT);
-        return elementArea;
+    extract(defaultElement, rx, ry) {
+        const x = this.#x;
+        const y = this.#y;
+
+        const positionedElements = [];
+        for (const [dx, dy] of this.#stateDefinition.getStates()[this.#state]) {
+            const ex = x + dx;
+            const ey = y + dy;
+
+            const elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
+            if (elementHead === null) {
+                continue;  // out of bounds
+            }
+            if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
+                continue;
+            }
+
+            const elementTail = this.#elementArea.getElementTail(ex, ey);
+            positionedElements.push(new PositionedElement(ex, ey, elementHead, elementTail));
+
+            this.#elementArea.setElement(ex, ey, defaultElement);
+        }
+
+        const serializedEntity = this.serialize();
+        // relativize entity position
+        serializedEntity.x -= rx;
+        serializedEntity.y -= ry;
+
+        this.#state = -1;
+        return [serializedEntity, positionedElements];
+    }
+
+    countMaxBoundaries() {
+        const w = Math.abs(this.#stateDefinition.getMinX() - this.#stateDefinition.getMaxX()) + 1;
+        const h = Math.abs(this.#stateDefinition.getMinY() - this.#stateDefinition.getMaxY()) + 1;
+        return [w, h];
     }
 }

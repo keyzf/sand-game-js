@@ -87,15 +87,15 @@ export default class SandGame {
     constructor(elementArea, serializedEntities, sceneMetadata, processorDefaults,
             context, rendererInitializer) {
 
-        this.#elementArea = elementArea;
-        this.#entityManager = new EntityManager(serializedEntities);
         this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
+        this.#elementArea = elementArea;
+        this.#width = elementArea.getWidth();
+        this.#height = elementArea.getHeight();
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
         this.#processor = new Processor(this.#elementArea, 16, this.#random, processorDefaults, sceneMetadata);
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
-        this.#width = elementArea.getWidth();
-        this.#height = elementArea.getHeight();
+        this.#entityManager = new EntityManager(serializedEntities, elementArea, this.#random, this.#processor);
         this.#graphics = new SandGameGraphics(this.#elementArea, this.#entityManager, this.#random, processorDefaults, (x, y) => {
             this.#processor.trigger(x, y);
             this.#renderer.trigger(x, y);
@@ -161,9 +161,9 @@ export default class SandGame {
     }
 
     doProcessing() {
-        this.#entityManager.performBeforeProcessing(this.#elementArea, this.#random, this.#processor.getDefaults());
+        this.#entityManager.performBeforeProcessing();
         this.#processor.next();
-        this.#entityManager.performAfterProcessing(this.#elementArea, this.#random, this.#processor.getDefaults());
+        this.#entityManager.performAfterProcessing();
 
         const t = Date.now();
         this.#iterationsCounter.tick(t);

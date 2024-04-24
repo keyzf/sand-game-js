@@ -9,15 +9,27 @@ import FloodFillPainter from "../FloodFillPainter";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-24
  */
 export default class CopyUtils {
 
-    static copySingleElements(graphicsCommands, replacementElement = null) {
+    static copyNonSolidElements(graphicsCommands, replacementElement = null) {
         const elements = [];
 
+        function canBeCopiedAsNonSolidElement(elementHead) {
+            const elementTypeClass = ElementHead.getTypeClass(elementHead);
+            if (elementTypeClass > ElementHead.TYPE_AIR && elementTypeClass < ElementHead.TYPE_STATIC) {
+                return true;
+            }
+            const behaviour = ElementHead.getBehaviour(elementHead);
+            if (behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
+                return true;
+            }
+            return false;
+        }
+
         const brush = Brushes.custom((tx, ty, r, element) => {
-            if (CopyUtils.#canBeCopiedAsSingleElement(element.elementHead)) {
+            if (canBeCopiedAsNonSolidElement(element.elementHead)) {
                 elements.push(new PositionedElement(tx, ty, element.elementHead, element.elementTail));
                 return replacementElement;  // remove
             }
@@ -27,18 +39,6 @@ export default class CopyUtils {
         graphicsCommands(brush);
 
         return elements;
-    }
-
-    static #canBeCopiedAsSingleElement(elementHead) {
-        const elementTypeClass = ElementHead.getTypeClass(elementHead);
-        if (elementTypeClass > ElementHead.TYPE_AIR && elementTypeClass < ElementHead.TYPE_STATIC) {
-            return true;
-        }
-        const behaviour = ElementHead.getBehaviour(elementHead);
-        if (behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
-            return true;
-        }
-        return false;
     }
 
     static copySolidBodies(graphicsCommands, graphics, maxArea, replacementElement) {
@@ -78,7 +78,29 @@ export default class CopyUtils {
         return solidBodyElements;
     }
 
-    static asTrimmedElementArea(elements) {
+    static copyEntities(graphicsCommands, graphics, defaultElement) {
+        const elements = [];
+        const entities = [];
+
+        const entityLookup = graphics.createEntityPositionLookup();
+
+        const brush = Brushes.custom((tx, ty, r, element) => {
+            for (const entity of entityLookup.getAt(tx, ty)) {
+                if (entity.isActive()) {
+                    const [extractedSerializedEntity, extractedElements] = entity.extract(defaultElement, 0, 0);
+                    entities.push(extractedSerializedEntity);
+                    elements.push(...extractedElements);
+                }
+            }
+            return null;  // ignore
+        });
+
+        graphicsCommands(brush);
+
+        return [entities, elements];
+    }
+
+    static trimmed(elements, entities) {
         if (elements.length === 0) {
             return null;
         }
@@ -96,12 +118,24 @@ export default class CopyUtils {
         const w = maxX - minX + 1;
         const h = maxY - minY + 1;
 
+        // create element area
         const elementArea = ElementArea.create(w, h, ElementArea.TRANSPARENT_ELEMENT);
         for (const element of elements) {
             const tx = element.x - minX;
             const ty = element.y - minY;
             elementArea.setElement(tx, ty, element);
         }
-        return elementArea;
+
+        // map entities
+        for (let serializedEntity of entities) {
+            if (typeof serializedEntity.x === 'number') {
+                serializedEntity.x -= minX;
+            }
+            if (typeof serializedEntity.y === 'number') {
+                serializedEntity.y -= minY;
+            }
+        }
+
+        return [elementArea, entities];
     }
 }
