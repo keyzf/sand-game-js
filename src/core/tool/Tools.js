@@ -62,7 +62,7 @@ export default class Tools {
      * @return {Tool}
      */
     static pointBrushTool(brush, info) {
-        return new PointBrushTool(Tools.#info(info), { dx: 0, dy: 0, brush: brush });
+        return new PointBrushTool(Tools.#info(info), [{ dx: 0, dy: 0, brush: brush }]);
     }
 
     /**
