@@ -6,6 +6,7 @@ import DeterministicRandom from "../DeterministicRandom.js";
 import ProcessorContext from "./ProcessorContext.js";
 import ProcessorDefaults from "./ProcessorDefaults.js";
 import ProcessorModuleSolidBody from "./ProcessorModuleSolidBody";
+import ProcessorModuleEntity from "./ProcessorModuleEntity";
 import ProcessorModuleFire from "./ProcessorModuleFire.js";
 import ProcessorModuleMeteor from "./ProcessorModuleMeteor.js";
 import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
@@ -19,7 +20,7 @@ import ProcessorExtensionSpawnFish from "./ProcessorExtensionSpawnFish";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-25
  */
 export default class Processor extends ProcessorContext {
 
@@ -70,6 +71,8 @@ export default class Processor extends ProcessorContext {
 
     /** @type ProcessorModuleSolidBody */
     #moduleSolidBody;
+    /** @type ProcessorModuleEntity */
+    #moduleEntity;
     /** @type ProcessorModuleWater */
     #moduleWater;
     /** @type ProcessorModuleFire */
@@ -118,6 +121,7 @@ export default class Processor extends ProcessorContext {
         this.#processorDefaults = processorDefaults;
 
         this.#moduleSolidBody = new ProcessorModuleSolidBody(elementArea, random, this);
+        this.#moduleEntity = new ProcessorModuleEntity(elementArea, random, this);
         this.#moduleWater = new ProcessorModuleWater(elementArea, random, this);
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, this);
         this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, this);
@@ -556,6 +560,7 @@ export default class Processor extends ProcessorContext {
                 active = true;
                 break;
             case ElementHead.BEHAVIOUR_ENTITY:
+                this.#moduleEntity.behaviourEntity(elementHead, x, y);
                 processTemperature = true;
                 active = true;
                 break;

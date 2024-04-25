@@ -2,26 +2,22 @@
 
 import ElementHead from "../ElementHead";
 import ElementTail from "../ElementTail";
-import ElementArea from "../ElementArea";
 import Element from "../Element";
 import Entity from "./Entity";
 import Brushes from "../brush/Brushes";
-import DeterministicRandom from "../DeterministicRandom";
 import CyclicStateDefinition from "./CyclicStateProvider";
 import PositionedElement from "../PositionedElement";
 
 // TODO: waypoint(x, y)
-// TODO: support collisions with other entities
+// TODO: support collisions/interleaving with other entities
 // TODO: support flammability
-// TODO: handle solid body / powder above
-// TODO: handle cannot change state for a long time
 
 /**
  * Simple bird-like entity.
  * The [0, 0] must be centered horizontally.
  *
  * @author Patrik Harag
- * @version 2024-04-24
+ * @version 2024-04-25
  */
 export default class BirdEntity extends Entity {
 
@@ -38,13 +34,15 @@ export default class BirdEntity extends Entity {
 
     static #WORLD_BOUNDARY = 10;
 
-    static #MAX_AVG_TEMPERATURE = 50
+    static #MAX_AVG_TEMPERATURE = 50;
+
+    static #MAX_STUCK_COUNT = 15;
 
     static #BIRD_BRUSH = Brushes.color(0, 0, 0, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_ENTITY),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_ENTITY, 0),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE))
     ]));
@@ -64,6 +62,7 @@ export default class BirdEntity extends Entity {
     #x = 0;
     #y = 0;
     #state = 0;
+    #stuck = 0;
 
     constructor(serialized, elementArea, random, processorContext) {
         super();
@@ -90,6 +89,9 @@ export default class BirdEntity extends Entity {
             // random state by default
             this.#state = random.nextInt(this.#stateDefinition.getStatesCount());
         }
+        if (serialized.stuck !== undefined) {
+            this.#stuck = serialized.stuck;
+        }
     }
 
     serialize() {
@@ -99,6 +101,7 @@ export default class BirdEntity extends Entity {
             x: this.#x,
             y: this.#y,
             state: this.#state,
+            stuck: this.#stuck,
         };
     }
 
@@ -124,90 +127,139 @@ export default class BirdEntity extends Entity {
 
     performAfterProcessing() {
         this.#iteration++;
-        let isActive = this.#state !== -1;
+
+        let isActive = (this.#state !== -1);
+        let isFalling = false;
 
         if (isActive) {
-            // check state
-
-            const x = this.#x;
-            const y = this.#y;
-            const points = this.#stateDefinition.getStates()[this.#state];
-
-            let totalTemperature = 0;
-            for (const [dx, dy] of points) {
-                const ex = x + dx;
-                const ey = y + dy;
-
-                let elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
-                if (elementHead === null) {
-                    // lost body part / out of bounds
-                    return this.#kill();
-                }
-
-                if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
-                    // lost body part
-                    return this.#kill();
-                }
-
-                totalTemperature += ElementHead.getTemperature(elementHead);
-            }
-
-            if (totalTemperature / points.length > BirdEntity.#MAX_AVG_TEMPERATURE) {
-                // killed by temperature
-                return this.#kill();
-            }
+            const [retIsActive, retIsFalling] = this.#doCheckState();
+            isActive = retIsActive;
+            isFalling = retIsFalling;
         }
 
-        if (isActive && this.#iteration % 11 === 0) {
-            // random move
-
-            const x = this.#x;
-            const y = this.#y;
-
+        if (isActive && (isFalling || this.#iteration % 11 === 0)) {
             const xChange = this.#random.nextInt(3) - 1;
-            const yChange = this.#random.nextInt(3) - 1;
-            const [nx, ny] = this.#countNewPosition(x, y, xChange, yChange);
-
-            if (nx !== x || ny !== y) {
-                // move
-
-                this.#relocate(this.#stateDefinition.getStates()[this.#state], x, y, nx, ny);
-
-                this.#x = nx;
-                this.#y = ny;
-            }
+            const yChange = (isFalling) ? 1 : this.#random.nextInt(3) - 1;
+            this.#doTryMove(xChange, yChange, isFalling);
         }
 
         if (isActive && this.#iteration % 10 === 0) {
-            // increment state
+            this.#doIncrementState();
+        }
 
-            const x = this.#x;
-            const y = this.#y;
+        return isActive;
+    }
 
-            const transitions = this.#stateDefinition.getTransitions()[this.#state];
+    #doCheckState() {
+        const x = this.#x;
+        const y = this.#y;
+        const points = this.#stateDefinition.getStates()[this.#state];
 
-            let allowed = true;
-            for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
-                if (!this.#elementArea.isValidPosition(x + dx1, y + dy1) || !this.#checkIsSpace(x + dx2, y + dy2)) {
+        let elementAbove = false;
+        let totalTemperature = 0;
+        for (const [dx, dy] of points) {
+            const ex = x + dx;
+            const ey = y + dy;
 
-                    allowed = false;
-                    break;
-                }
+            const elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
+            if (elementHead === null) {
+                // lost body part / out of bounds
+                return [this.#kill(), false];
             }
 
-            if (allowed) {
-                for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
-                    this.#elementArea.swap(x + dx1, y + dy1, x + dx2, y + dy2);
-                }
+            if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
+                // lost body part
+                return [this.#kill(), false];
+            }
 
-                this.#state++;
-                if (this.#state === this.#stateDefinition.getStates().length) {
-                    this.#state = 0;
+            totalTemperature += ElementHead.getTemperature(elementHead);
+
+            // update
+            this.#elementArea.setElementHead(ex, ey, ElementHead.setSpecial(elementHead, 0));
+
+            // check element above
+            if (!elementAbove) {
+                const ax = ex;
+                const ay = ey - 1;
+                const elementHeadAbove = this.#elementArea.getElementHeadOrNull(ax, ay);
+                if (elementHeadAbove !== null) {
+                    if (ElementHead.getBehaviour(elementHeadAbove) === ElementHead.BEHAVIOUR_ENTITY) {
+                        continue;
+                    }
+                    const typeClass = ElementHead.getTypeClass(elementHeadAbove);
+                    if (typeClass === ElementHead.TYPE_POWDER || typeClass === ElementHead.TYPE_POWDER_WET) {
+                        elementAbove = true;
+                        continue;
+                    }
+                    if (typeClass === ElementHead.TYPE_STATIC) {
+                        if (ElementHead.getTypeModifierSolidBodyId(elementHeadAbove) > 0) {
+                            elementAbove = true;
+                            continue;
+                        }
+                    }
                 }
             }
         }
 
-        return isActive;
+        if (totalTemperature / points.length > BirdEntity.#MAX_AVG_TEMPERATURE) {
+            // killed by temperature
+            return [this.#kill(), false];
+        }
+
+        if (this.#stuck > BirdEntity.#MAX_STUCK_COUNT) {
+            // stuck to death
+            return [this.#kill(), false];
+        }
+
+        return [true, elementAbove];
+    }
+
+    #doIncrementState() {
+        const x = this.#x;
+        const y = this.#y;
+
+        const transitions = this.#stateDefinition.getTransitions()[this.#state];
+
+        let allowed = true;
+        for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
+            if (!this.#elementArea.isValidPosition(x + dx1, y + dy1) || !this.#checkIsSpace(x + dx2, y + dy2)) {
+                allowed = false;
+                break;
+            }
+        }
+
+        if (allowed) {
+            for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
+                this.#elementArea.swap(x + dx1, y + dy1, x + dx2, y + dy2);
+            }
+
+            this.#stuck = 0;
+            this.#state++;
+            if (this.#state === this.#stateDefinition.getStates().length) {
+                this.#state = 0;
+            }
+        } else {
+            // stuck
+            this.#stuck++;
+        }
+    }
+
+    #doTryMove(xChange, yChange, forced) {
+        const x = this.#x;
+        const y = this.#y;
+
+        const [nx, ny] = (forced)
+            ? this.#countNewForcedPosition(x, y, xChange, yChange)
+            : this.#countNewPosition(x, y, xChange, yChange);
+
+        if (nx !== x || ny !== y) {
+            // move
+
+            this.#relocate(this.#stateDefinition.getStates()[this.#state], x, y, nx, ny);
+
+            this.#x = nx;
+            this.#y = ny;
+        }
     }
 
     #countNewPosition(x, y, xChange, yChange) {
@@ -258,6 +310,44 @@ export default class BirdEntity extends Entity {
                 xChange = 0;
                 yChange = 0;
                 break;
+            }
+        }
+
+        return [x + xChange, y + yChange];
+    }
+
+    #countNewForcedPosition(x, y, xChange, yChange) {
+        if (x + xChange < 0 && xChange < 0) {
+            xChange = 0;
+        }
+        if (x + xChange > this.#elementArea.getWidth() && xChange > 0) {
+            xChange = 0;
+        }
+
+        if (y + yChange < 0 && yChange < 0) {
+            yChange = 0;
+        }
+        if (y + yChange > this.#elementArea.getHeight() && yChange > 0) {
+            yChange = 0;
+        }
+
+        if (xChange === 0 && yChange === 0) {
+            return [x, y];  // cannot move
+        }
+
+        // check is space
+        for (const [dx, dy] of this.#stateDefinition.getStates()[this.#state]) {
+            const ex = x + dx + xChange;
+            const ey = y + dy + yChange;
+
+            const elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
+            if (elementHead === null) {
+                return [x, y];  // cannot move
+            }
+            if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
+                if (ElementHead.getTypeClass(elementHead) > ElementHead.TYPE_FLUID) {
+                    return [x, y];  // cannot move
+                }
             }
         }
 
