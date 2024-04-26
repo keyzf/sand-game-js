@@ -6,7 +6,7 @@ import ElementTail from "../ElementTail";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-08
+ * @version 2024-04-26
  */
 export default class ProcessorModuleSolidBody {
 
@@ -211,7 +211,7 @@ export default class ProcessorModuleSolidBody {
                 if (typeClass === ElementHead.TYPE_AIR) {
                     reuseElement = true;
                 } else if (typeClass <= ElementHead.TYPE_FLUID) {
-                    reuseElement = (this.#random.nextInt(4) === 0);
+                    reuseElement = this.#reuseFluid(Math.abs(i));
                 }
             }
 
@@ -228,6 +228,11 @@ export default class ProcessorModuleSolidBody {
 
             this.triggerPowderElement(bx, by + 2);
         }
+    }
+
+    #reuseFluid(distance) {
+        let f = 1 - (1 / (1 + Math.exp(-(0.1) * (distance - 50))));  // https://en.wikipedia.org/wiki/Sigmoid_function
+        return this.#random.next() < f;
     }
 
     #bodyPush(paintId, lowerBorderStack) {
