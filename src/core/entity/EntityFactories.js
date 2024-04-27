@@ -4,7 +4,7 @@ import ElementHead from "../ElementHead";
 import ElementTail from "../ElementTail";
 import Element from "../Element";
 import Brushes from "../brush/Brushes";
-import CyclicStateDefinition from "./CyclicStateProvider";
+import StateDefinition from "./StateDefinition";
 import StateBasedBirdLikeEntity from "./StateBasedBirdLikeEntity";
 import StateBasedFishLikeEntity from "./StateBasedFishLikeEntity";
 
@@ -17,7 +17,7 @@ export default class EntityFactories {
 
     // bird
 
-    static #BIRD_STATES = CyclicStateDefinition.create([
+    static #BIRD_STATES = StateDefinition.createCyclic([
         [[0, 0], [1, -1], [-1, -1], [2, -1], [-2, -1], [3, -1], [-3, -1]],
         [[0, 0], [1, -1], [-1, -1], [2, -1], [-2, -1], [3, -2], [-3, -2]],
         [[0, 0], [1, -1], [-1, -1], [2, -2], [-2, -2], [3, -2], [-3, -2]],
@@ -45,7 +45,7 @@ export default class EntityFactories {
 
     // butterfly
 
-    static #BUTTERFLY_STATES = CyclicStateDefinition.create([
+    static #BUTTERFLY_STATES = StateDefinition.createCyclic([
         [[0, 0], [1, -1], [-1, -1]],
         [[0, 0], [1, -1], [-1, -1]],
         [[0, 0], [1,  0], [-1,  0]],
@@ -71,7 +71,7 @@ export default class EntityFactories {
 
     // fish
 
-    static #FISH_STATES = CyclicStateDefinition.create([
+    static #FISH_STATES = StateDefinition.createCyclic([
         [[0, 0], [1, 0]],
     ]);
 

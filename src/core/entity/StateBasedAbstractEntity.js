@@ -24,7 +24,7 @@ export default class StateBasedAbstractEntity extends Entity {
 
     /** @type string */
     _type;
-    /** @type CyclicStateDefinition */
+    /** @type StateDefinition */
     _stateDefinition;
     /** @type Brush */
     _brush;

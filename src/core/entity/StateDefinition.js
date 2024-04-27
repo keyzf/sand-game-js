@@ -5,7 +5,7 @@
  * @author Patrik Harag
  * @version 2024-04-21
  */
-export default class CyclicStateDefinition {
+export default class StateDefinition {
 
     static #createStateTransition(stateFrom, stateTo) {
         const transitions = [];
@@ -23,13 +23,13 @@ export default class CyclicStateDefinition {
     static #createStateTransitionTable(states) {
         const stateTransitions = [];
         for (let i = 0; i < states.length; i++) {
-            stateTransitions.push(CyclicStateDefinition.#createStateTransition(states[i], states[i + 1 < states.length ? i + 1 : 0]));
+            stateTransitions.push(StateDefinition.#createStateTransition(states[i], states[i + 1 < states.length ? i + 1 : 0]));
         }
         return stateTransitions;
     }
 
-    static create(states) {
-        const transitions = CyclicStateDefinition.#createStateTransitionTable(states);
+    static createCyclic(states) {
+        const transitions = StateDefinition.#createStateTransitionTable(states);
 
         let minX = Number.MAX_VALUE;
         let minY = Number.MAX_VALUE;
@@ -44,7 +44,7 @@ export default class CyclicStateDefinition {
             }
         }
 
-        return new CyclicStateDefinition(states, transitions, minX, maxX, minY, maxY);
+        return new StateDefinition(states, transitions, minX, maxX, minY, maxY);
     }
 
 
