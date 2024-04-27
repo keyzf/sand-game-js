@@ -5,7 +5,7 @@ import ElementHead from "../core/ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-29
+ * @version 2024-04-27
  */
 export default class PredicateDefs {
 
@@ -99,14 +99,14 @@ export default class PredicateDefs {
     };
 
     /** @type {function(elementHead:number, elementTail:number):boolean} */
-    static IS_FISH = function (elementHead, elementTail) {
-        return ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FISH;
+    static IS_SOLID_BODY = function (elementHead, elementTail) {
+        return ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_STATIC
+            && ElementHead.getTypeModifierSolidBodyId(elementHead) > 0;
     };
 
     /** @type {function(elementHead:number, elementTail:number):boolean} */
-    static IS_FISH_PART = function (elementHead, elementTail) {
-        const behaviour = ElementHead.getBehaviour(elementHead);
-        return behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY;
+    static IS_ENTITY = function (elementHead, elementTail) {
+        return ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_ENTITY;
     };
 
     /** @type {function(elementHead:number, elementTail:number):boolean} */
@@ -117,13 +117,15 @@ export default class PredicateDefs {
             || behaviour === ElementHead.BEHAVIOUR_TREE_LEAF
             || behaviour === ElementHead.BEHAVIOUR_TREE_TRUNK
             || behaviour === ElementHead.BEHAVIOUR_TREE_ROOT
-            || behaviour === ElementHead.BEHAVIOUR_FISH
-            || behaviour === ElementHead.BEHAVIOUR_FISH_BODY;
+            || behaviour === ElementHead.BEHAVIOUR_ENTITY;
     };
 
     /** @type {function(elementHead:number, elementTail:number):boolean} */
-    static IS_TREE = function (elementHead, elementTail) {
+    static IS_TREE_PART = function (elementHead, elementTail) {
         const behaviour = ElementHead.getBehaviour(elementHead);
         return behaviour === ElementHead.BEHAVIOUR_TREE
+            || behaviour === ElementHead.BEHAVIOUR_TREE_LEAF
+            || behaviour === ElementHead.BEHAVIOUR_TREE_TRUNK
+            || behaviour === ElementHead.BEHAVIOUR_TREE_ROOT;
     };
 }

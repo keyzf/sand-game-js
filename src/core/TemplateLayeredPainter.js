@@ -10,7 +10,7 @@ import ElementHead from "./ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-27
  */
 export default class TemplateLayeredPainter {
 
@@ -203,7 +203,7 @@ export default class TemplateLayeredPainter {
         return this;
     }
 
-    tree(x, type = undefined, levelsToGrow = undefined) {
+    tree(x, type = undefined, levelsToGrow = undefined, force = false) {
         if (x <= 5 || x >= this.#elementArea.getWidth() - 5) {
             return this;  // out of bounds
         }
@@ -215,9 +215,11 @@ export default class TemplateLayeredPainter {
 
         // check element under
         if (this.#elementArea.isValidPosition(x, y + 1)) {
-            const elementHeadUnder = this.#elementArea.getElementHead(x, y + 1);
-            if (ElementHead.getBehaviour(elementHeadUnder) !== ElementHead.BEHAVIOUR_SOIL) {
-                return this;
+            if (!force) {
+                const elementHeadUnder = this.#elementArea.getElementHead(x, y + 1);
+                if (ElementHead.getBehaviour(elementHeadUnder) !== ElementHead.BEHAVIOUR_SOIL) {
+                    return this;
+                }
             }
         } else {
             return this;
