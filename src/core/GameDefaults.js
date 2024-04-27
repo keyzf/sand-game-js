@@ -101,27 +101,6 @@ export default class GameDefaults {
     /**
      * @return Brush
      */
-    getBrushFishHead() {
-        throw 'Not implemented';
-    }
-
-    /**
-     * @return Brush
-     */
-    getBrushFishBody() {
-        throw 'Not implemented';
-    }
-
-    /**
-     * @return Brush
-     */
-    getBrushFishCorpse() {
-        throw 'Not implemented';
-    }
-
-    /**
-     * @return Brush
-     */
     getBrushFire() {
         throw 'Not implemented';
     }

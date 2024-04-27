@@ -42,8 +42,8 @@ export default class ElementHead {
     static BEHAVIOUR_NONE = 0x0;
     static BEHAVIOUR_SOIL = 0x1;
     static BEHAVIOUR_GRASS = 0x2;
-    static BEHAVIOUR_FISH = 0x3;
-    static BEHAVIOUR_FISH_BODY = 0x4;
+    static BEHAVIOUR_FISH = 0x3;  // unused
+    static BEHAVIOUR_FISH_BODY = 0x4;  // unused
     static BEHAVIOUR_TREE = 0x5;
     static BEHAVIOUR_TREE_ROOT = 0x6;
     static BEHAVIOUR_TREE_TRUNK = 0x7;

@@ -26,7 +26,7 @@ import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palet
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-07
+ * @version 2024-04-27
  */
 export default class BrushDefs {
 
@@ -204,28 +204,6 @@ export default class BrushDefs {
             ElementTail.of(72, 130, 70, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1))
     ]);
 
-    static FISH_HEAD = Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_FISH, 0)),
-            ElementTail.of(37, 53, 66)),
-    ]);
-
-    static FISH_BODY = Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_FISH_BODY, 0)),
-            ElementTail.of(37, 53, 66)),
-    ]);
-
-    static FISH_CORPSE = Brushes.random([
-        new Element(
-            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 2)),
-            ElementTail.of(61, 68, 74, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1)),
-    ]);
-
     static TREE = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_WOOD_DARK, Brushes.custom((x, y, random) => {
         let treeType = random.nextInt(StructureDefs.TREE_TRUNK_TEMPLATES.length);
         return new Element(
@@ -388,9 +366,6 @@ export default class BrushDefs {
         tree_leaf: BrushDefs.TREE_LEAF_LIGHTER,
         tree_leaf_dark: BrushDefs.TREE_LEAF_DARKER,
         tree_root: BrushDefs.TREE_ROOT,
-        fish_head: BrushDefs.FISH_HEAD,
-        fish_body: BrushDefs.FISH_BODY,
-        fish_corpse: BrushDefs.FISH_CORPSE,
         fire: BrushDefs.FIRE,
         meteor: BrushDefs.METEOR,
         meteor_l: BrushDefs.METEOR_FROM_LEFT,

@@ -1,7 +1,6 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 import Brushes from "../core/brush/Brushes";
-import Tool from "../core/tool/Tool.js";
 import Tools from "../core/tool/Tools";
 import BrushDefs from "./BrushDefs";
 import ToolInfo from "../core/tool/ToolInfo";
@@ -271,11 +270,6 @@ export default class ToolDefs {
         Tools.pointBrushTool(BrushDefs.TREE, new ToolInfo({
             codeName: 'tree',
             displayName: 'Tree',
-            category: ToolDefs.CATEGORY_BRUSH,
-        })),
-        Tools.multiPointBrushTool([{ dx: 0, dy: 0, brush: BrushDefs.FISH_HEAD }, { dx: 1, dy: 0, brush: BrushDefs.FISH_BODY }], new ToolInfo({
-            codeName: 'fish_old',
-            displayName: 'Fish (old)',
             category: ToolDefs.CATEGORY_BRUSH,
         })),
         ToolDefs.BIRD,

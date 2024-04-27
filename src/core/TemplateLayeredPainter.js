@@ -235,26 +235,6 @@ export default class TemplateLayeredPainter {
         return this;
     }
 
-    fish(x, relativeY = 0) {
-        if (x < 0 || x >= this.#elementArea.getWidth() - 1) {
-            return this;  // out of bounds
-        }
-
-        const lastLevelHead = this.#lastLevel[x];
-
-        const y = this.#elementArea.getHeight() - relativeY - lastLevelHead;
-        if (y < 0 || y >= this.#elementArea.getHeight()) {
-            return this;  // out of bounds
-        }
-        const brushFishHead = this.#processorContext.getDefaults().getBrushFishHead();
-        this.#elementArea.setElement(x, y, brushFishHead.apply(0, 0, this.#random, null));
-        const brushFishBody = this.#processorContext.getDefaults().getBrushFishBody();
-        this.#elementArea.setElement(x + 1, y, brushFishBody.apply(0, 0, this.#random, null));
-
-        // TODO: update lastLevel
-        return this;
-    }
-
     tool(x, relativeY, tool) {
         if (x < 0 || x >= this.#elementArea.getWidth()) {
             return this;  // out of bounds

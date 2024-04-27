@@ -29,9 +29,6 @@ export default class GameDefaultsImpl extends GameDefaults {
     /** @type Brush */ #brushTreeLeaf;
     /** @type Brush */ #brushTreeLeafDark;
     /** @type Brush */ #brushTreeRoot;
-    /** @type Brush */ #brushFishHead;
-    /** @type Brush */ #brushFishBody;
-    /** @type Brush */ #brushFishCorpse;
     /** @type Brush */ #brushFire;
     /** @type Brush */ #brushAsh;
 
@@ -73,9 +70,6 @@ export default class GameDefaultsImpl extends GameDefaults {
         this.#brushTreeLeaf = resolveBrush('tree_leaf');
         this.#brushTreeLeafDark = resolveBrush('tree_leaf_dark');
         this.#brushTreeRoot = resolveBrush('tree_root');
-        this.#brushFishHead = resolveBrush('fish_head');
-        this.#brushFishBody = resolveBrush('fish_body');
-        this.#brushFishCorpse = resolveBrush('fish_corpse');
         this.#brushFire = resolveBrush('fire');
         this.#brushAsh = resolveBrush('ash');
     }
@@ -128,18 +122,6 @@ export default class GameDefaultsImpl extends GameDefaults {
 
     getBrushTreeRoot() {
         return this.#brushTreeRoot;
-    }
-
-    getBrushFishHead() {
-        return this.#brushFishHead;
-    }
-
-    getBrushFishBody() {
-        return this.#brushFishBody;
-    }
-
-    getBrushFishCorpse() {
-        return this.#brushFishCorpse;
     }
 
     getBrushFire() {

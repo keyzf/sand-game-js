@@ -9,7 +9,7 @@ import FloodFillPainter from "../FloodFillPainter";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-24
+ * @version 2024-04-27
  */
 export default class CopyUtils {
 
@@ -19,10 +19,6 @@ export default class CopyUtils {
         function canBeCopiedAsNonSolidElement(elementHead) {
             const elementTypeClass = ElementHead.getTypeClass(elementHead);
             if (elementTypeClass > ElementHead.TYPE_AIR && elementTypeClass < ElementHead.TYPE_STATIC) {
-                return true;
-            }
-            const behaviour = ElementHead.getBehaviour(elementHead);
-            if (behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
                 return true;
             }
             return false;

@@ -139,7 +139,8 @@ export default class ResourceSnapshot {
             snapshot.metadata.formatVersion = 6;
         }
         if (snapshot.metadata.formatVersion === 6) {
-            // entities
+            // entities, fish head & fish body behaviour removed
+            ResourceSnapshot.#convertToV7(snapshot);
             snapshot.metadata.formatVersion = 7;
         }
 
@@ -235,7 +236,7 @@ export default class ResourceSnapshot {
             for (let x = 0; x < snapshot.metadata.width; x++) {
                 let elementHead = elementArea.getElementHead(x, y);
 
-                // unset tree and leaf behaviour
+                // unset tree and leaf behaviour and special
                 let behaviour = (elementHead >> 8) & 0x0000000F;
                 if (behaviour === 0x5 || behaviour === 0x8) {
                     elementHead = (elementHead & 0xFFFF00FF);
@@ -292,6 +293,35 @@ export default class ResourceSnapshot {
 
                 const newElementHead = (elementHead & 0xFF00FFFF) | (heatModIndex << 16);
                 elementArea.setElementHead(x, y, newElementHead);
+            }
+        }
+
+        snapshot.dataHeads = elementArea.getDataHeads();
+        snapshot.dataTails = elementArea.getDataTails();
+    }
+
+    static #convertToV7(snapshot) {
+        const elementArea = ElementArea.from(
+            snapshot.metadata.width, snapshot.metadata.height,
+            snapshot.dataHeads, snapshot.dataTails);
+
+        for (let y = 0; y < snapshot.metadata.height; y++) {
+            for (let x = 0; x < snapshot.metadata.width; x++) {
+                let elementHead = elementArea.getElementHead(x, y);
+
+                // map fish elements to fish entity
+                let behaviour = (elementHead >> 8) & 0x0000000F;
+                if (behaviour === 0x3) {
+                    snapshot.serializedEntities.push({ entity: 'fish', x: x, y: y });
+                }
+
+                // unset fish head & fish body behaviour and special
+                // set entity behaviour
+                if (behaviour === 0x3 || behaviour === 0x4) {
+                    elementHead = (elementHead & 0xFFFF00FF) | (0xD << 8);
+                }
+
+                elementArea.setElementHead(x, y, elementHead);
             }
         }
 

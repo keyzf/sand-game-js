@@ -10,7 +10,6 @@ import ProcessorModuleEntity from "./ProcessorModuleEntity";
 import ProcessorModuleFire from "./ProcessorModuleFire.js";
 import ProcessorModuleMeteor from "./ProcessorModuleMeteor.js";
 import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
-import ProcessorModuleFish from "./ProcessorModuleFish.js";
 import ProcessorModuleTree from "./ProcessorModuleTree.js";
 import ProcessorModuleWater from "./ProcessorModuleWater";
 
@@ -78,8 +77,6 @@ export default class Processor extends ProcessorContext {
     #moduleMeteor;
     /** @type ProcessorModuleGrass */
     #moduleGrass;
-    /** @type ProcessorModuleFish */
-    #moduleFish;
     /** @type ProcessorModuleTree */
     #moduleTree;
 
@@ -119,7 +116,6 @@ export default class Processor extends ProcessorContext {
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, this);
         this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, this);
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, this);
-        this.#moduleFish = new ProcessorModuleFish(elementArea, random, this);
         this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
 
         if (sceneMetadata) {
@@ -546,15 +542,6 @@ export default class Processor extends ProcessorContext {
                 this.#moduleMeteor.behaviourMeteor(elementHead, x, y);
                 active = true;
                 processTemperature = false;
-                break;
-            case ElementHead.BEHAVIOUR_FISH:
-                this.#moduleFish.behaviourFish(elementHead, x, y);
-                processTemperature = false;
-                active = true;
-                break;
-            case ElementHead.BEHAVIOUR_FISH_BODY:
-                this.#moduleFish.behaviourFishBody(elementHead, x, y);
-                active = true;
                 break;
             case ElementHead.BEHAVIOUR_ENTITY:
                 this.#moduleEntity.behaviourEntity(elementHead, x, y);
