@@ -249,6 +249,12 @@ export default class ToolDefs {
         category: ToolDefs.CATEGORY_ENTITY,
     }));
 
+    static BUTTERFLY = Tools.insertEntityTool(Entities.butterflyFactory, new ToolInfo({
+        codeName: 'butterfly',
+        displayName: 'Butterfly',
+        category: ToolDefs.CATEGORY_ENTITY,
+    }));
+
     static FISH = Tools.insertEntityTool(Entities.fishFactory, new ToolInfo({
         codeName: 'fish',
         displayName: 'Fish',
@@ -272,8 +278,9 @@ export default class ToolDefs {
             displayName: 'Fish (old)',
             category: ToolDefs.CATEGORY_BRUSH,
         })),
-        ToolDefs.FISH,
         ToolDefs.BIRD,
+        ToolDefs.BUTTERFLY,
+        ToolDefs.FISH,
         Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE, new ToolInfo({
             codeName: 'effect_burnt',
             displayName: 'Burnt',

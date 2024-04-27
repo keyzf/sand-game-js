@@ -104,6 +104,8 @@ export default class SceneDefs {
                 .layer(35, false, water)
                 .layer(36, false, Brushes.withIntensity(0.33, water))
                 .fish(150, -8)
+                .tool(270, 20, ToolDefs.BUTTERFLY)
+                .tool(280, 15, ToolDefs.BUTTERFLY)
                 .grass()
                 .tree(16, 6)
                 .tree(28, 3, 70)
