@@ -2,7 +2,7 @@
 
 import Entity from "./Entity";
 import EntityPositionLookup from "./EntityPositionLookup";
-import Entities from "./Entities";
+import EntityFactories from "./EntityFactories";
 
 /**
  *
@@ -58,7 +58,7 @@ export default class EntityManager {
         if (typeof serialized !== 'object') {
             throw 'Serialized entity must be an object';
         }
-        const factory = Entities.findFactoryByEntityType(serialized.entity);
+        const factory = EntityFactories.findFactoryByEntityType(serialized.entity);
         if (factory !== null) {
             return factory(serialized, this.#gameState);
         }

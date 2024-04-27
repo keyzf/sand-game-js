@@ -6,12 +6,12 @@ import Tools from "../core/tool/Tools";
 import BrushDefs from "./BrushDefs";
 import ToolInfo from "../core/tool/ToolInfo";
 import TemplateDefs from "./TemplateDefs";
-import Entities from "../core/entity/Entities";
+import EntityFactories from "../core/entity/EntityFactories";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-27
  */
 export default class ToolDefs {
 
@@ -243,19 +243,19 @@ export default class ToolDefs {
         this.EFFECT_TEMP_PLUS2
     ];
 
-    static BIRD = Tools.insertEntityTool(Entities.birdFactory, new ToolInfo({
+    static BIRD = Tools.insertEntityTool(EntityFactories.birdFactory, new ToolInfo({
         codeName: 'bird',
         displayName: 'Bird',
         category: ToolDefs.CATEGORY_ENTITY,
     }));
 
-    static BUTTERFLY = Tools.insertEntityTool(Entities.butterflyFactory, new ToolInfo({
+    static BUTTERFLY = Tools.insertEntityTool(EntityFactories.butterflyFactory, new ToolInfo({
         codeName: 'butterfly',
         displayName: 'Butterfly',
         category: ToolDefs.CATEGORY_ENTITY,
     }));
 
-    static FISH = Tools.insertEntityTool(Entities.fishFactory, new ToolInfo({
+    static FISH = Tools.insertEntityTool(EntityFactories.fishFactory, new ToolInfo({
         codeName: 'fish',
         displayName: 'Fish',
         category: ToolDefs.CATEGORY_ENTITY,
