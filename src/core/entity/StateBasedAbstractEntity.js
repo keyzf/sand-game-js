@@ -22,14 +22,14 @@ export default class StateBasedAbstractEntity extends Entity {
     /** @type ProcessorContext */
     _processorContext;
 
-    /** @type string */
-    _type;
     /** @type StateDefinition */
     _stateDefinition;
     /** @type Brush */
     _brush;
     _areaBoundary;
 
+    /** @type string */
+    _type;
     _iteration = 0;
     _x = 0;
     _y = 0;
@@ -87,6 +87,10 @@ export default class StateBasedAbstractEntity extends Entity {
             state: this._state,
             stuck: this._stuck,
         };
+    }
+
+    getType() {
+        return this._type;
     }
 
     getX() {

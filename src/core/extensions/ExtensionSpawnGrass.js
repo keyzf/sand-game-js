@@ -1,14 +1,14 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
+import Extension from "./Extension";
+import ProcessorModuleGrass from "../processing/ProcessorModuleGrass.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2024-04-27
  */
-export default class ProcessorExtensionSpawnGrass {
-    static MAX_COUNTER_VALUE = 2;
+export default class ExtensionSpawnGrass extends Extension {
 
     /** @type ElementArea */
     #elementArea;
@@ -17,17 +17,19 @@ export default class ProcessorExtensionSpawnGrass {
     /** @type ProcessorContext */
     #processorContext;
 
-    #counter = ProcessorExtensionSpawnGrass.MAX_COUNTER_VALUE;
-
-    constructor(elementArea, random, processorContext) {
-        this.#elementArea = elementArea;
-        this.#random = random;
-        this.#processorContext = processorContext;
+    /**
+     *
+     * @param gameState {GameState}
+     */
+    constructor(gameState) {
+        super();
+        this.#elementArea = gameState.elementArea;
+        this.#random = gameState.random;
+        this.#processorContext = gameState.processorContext;
     }
 
     run() {
-        if (this.#counter-- === 0) {
-            this.#counter = ProcessorExtensionSpawnGrass.MAX_COUNTER_VALUE;
+        if (this.#processorContext.getIteration() % 3 === 0) {
 
             const x = this.#random.nextInt(this.#elementArea.getWidth());
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 3) + 2;

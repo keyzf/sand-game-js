@@ -3,7 +3,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-26
+ * @version 2024-04-27
  */
 export default class GameState {
 
@@ -13,10 +13,13 @@ export default class GameState {
     random;
     /** @type ProcessorContext */
     processorContext;
+    /** @type EntityManager */
+    entityManager;
 
-    constructor(elementArea, random, processorContext) {
+    constructor(elementArea, random, processorContext, entityManager) {
         this.elementArea = elementArea;
         this.random = random;
         this.processorContext = processorContext;
+        this.entityManager = entityManager;
     }
 }

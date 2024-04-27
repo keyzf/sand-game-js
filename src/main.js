@@ -29,7 +29,10 @@ import ActionIOExport from "./gui/action/ActionIOExport";
 import ServiceToolManager from "./gui/ServiceToolManager";
 import ComponentButtonReport from "./gui/component/ComponentButtonReport";
 import Resources from "./io/Resources";
-import ProcessorDefaultsImpl from "./def/ProcessorDefaultsImpl";
+import GameDefaultsImpl from "./def/GameDefaultsImpl";
+import ExtensionSpawnGrass from "./core/extensions/ExtensionSpawnGrass";
+import ExtensionSpawnFish from "./core/extensions/ExtensionSpawnFish";
+import ExtensionSpawnTree from "./core/extensions/ExtensionSpawnTree";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -78,7 +81,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-04-19
+ * @version 2024-04-27
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -109,16 +112,26 @@ export function init(root, config) {
 
     const errorReporter = config.errorReporter;
 
-    // resolve processor defaults (brushes)
+    // resolve processor defaults - brushes & extensions
 
-    let processorDefaults;
+    let brushes;
     if (typeof config.brushes === 'object') {
-        processorDefaults = new ProcessorDefaultsImpl(config.brushes);
+        brushes = config.brushes;
     } else if (config.brushes === undefined) {
-        processorDefaults = new ProcessorDefaultsImpl();
+        brushes = undefined
     } else {
         throw "config.brushes - wrong type, expected object";
     }
+
+    const extensionsFactory = (gameState) => {
+        return [
+            new ExtensionSpawnFish(gameState),
+            new ExtensionSpawnGrass(gameState),
+            new ExtensionSpawnTree(gameState),
+        ];
+    };
+
+    const defaults = new GameDefaultsImpl(brushes, extensionsFactory);
 
     // resolve scene list
 
@@ -227,7 +240,7 @@ export function init(root, config) {
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
     document.body.prepend(dialogAnchorNode);
     const toolManager = new ServiceToolManager(primaryTool, secondaryTool, tertiaryTool);
-    controller = new Controller(init, dialogAnchorNode, toolManager, processorDefaults);
+    controller = new Controller(init, dialogAnchorNode, toolManager, defaults);
 
     // init error reporting
 

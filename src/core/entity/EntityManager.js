@@ -26,7 +26,7 @@ export default class EntityManager {
         this.#gameState = gameState;
 
         for (let serializedEntity of serializedEntities) {
-            this.addSerializedEntity(serializedEntity);
+            this.addSerializedEntity(serializedEntity, false);
         }
     }
 
@@ -38,10 +38,13 @@ export default class EntityManager {
         }
     }
 
-    addSerializedEntity(serializedEntity) {
+    addSerializedEntity(serializedEntity, autoInitialize = true) {
         try {
             const entity = this.#deserialize(serializedEntity);
             this.#entities.push(entity);
+            if (autoInitialize) {
+                entity.initialize();
+            }
             return entity;
         } catch (e) {
             console.warn('Cannot deserialize entity', e);
@@ -104,5 +107,16 @@ export default class EntityManager {
 
     createPositionLookup(width, height) {
         return new EntityPositionLookup(this.#entities, width, height);
+    }
+
+    countEntities(type) {
+        let count = 0;
+        for (let i = 0; i < this.#entities.length; i++) {
+            const entity = this.#entities[i];
+            if (type === entity.getType()) {
+                count++;
+            }
+        }
+        return count;
     }
 }

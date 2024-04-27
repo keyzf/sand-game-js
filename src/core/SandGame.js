@@ -13,7 +13,7 @@ import RendererInitializer from "./rendering/RendererInitializer.js";
 import SandGameGraphics from "./SandGameGraphics.js";
 import SandGameOverlay from "./SandGameOverlay";
 import SandGameScenario from "./SandGameScenario";
-import GameState from "./processing/GameState";
+import GameState from "./GameState";
 import Snapshot from "./Snapshot.js";
 import SnapshotMetadata from "./SnapshotMetadata.js";
 import TemplateBlockPainter from "./TemplateBlockPainter.js";
@@ -22,7 +22,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-26
+ * @version 2024-04-27
  */
 export default class SandGame {
 
@@ -81,11 +81,11 @@ export default class SandGame {
      * @param elementArea {ElementArea}
      * @param serializedEntities {object[]}
      * @param sceneMetadata {SnapshotMetadata|null}
-     * @param processorDefaults {ProcessorDefaults}
+     * @param gameDefaults {GameDefaults}
      * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
      */
-    constructor(elementArea, serializedEntities, sceneMetadata, processorDefaults,
+    constructor(elementArea, serializedEntities, sceneMetadata, gameDefaults,
             context, rendererInitializer) {
 
         this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
@@ -94,16 +94,17 @@ export default class SandGame {
         this.#height = elementArea.getHeight();
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
-        this.#processor = new Processor(this.#elementArea, 16, this.#random, processorDefaults, sceneMetadata);
+        this.#processor = new Processor(this.#elementArea, 16, this.#random, gameDefaults, sceneMetadata);
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
-        this.#entityManager = new EntityManager(serializedEntities, new GameState(elementArea, this.#random, this.#processor));
-        this.#graphics = new SandGameGraphics(this.#elementArea, this.#entityManager, this.#random, processorDefaults, (x, y) => {
+        this.#entityManager = new EntityManager(serializedEntities, new GameState(elementArea, this.#random, this.#processor, null));
+        this.#graphics = new SandGameGraphics(this.#elementArea, this.#entityManager, this.#random, gameDefaults, (x, y) => {
             this.#processor.trigger(x, y);
             this.#renderer.trigger(x, y);
         });
         this.#overlay = new SandGameOverlay(elementArea.getWidth(), elementArea.getHeight());
         this.#scenario = new SandGameScenario();
 
+        this.#initExtensions(gameDefaults);
         this.#initObjectives();
     }
 
@@ -125,6 +126,15 @@ export default class SandGame {
                 objective.getConfig().checkHandler(this.#processor.getIteration() - 1);
             }
         });
+    }
+
+    #initExtensions(gameDefaults) {
+        const gameState = new GameState(this.#elementArea, this.#random, this.#processor, this.#entityManager);
+        const extensionsFactory = gameDefaults.getExtensionsFactory();
+        const extensions = extensionsFactory(gameState);
+        for (const extension of extensions) {
+            this.#processor.addExtension(extension);
+        }
     }
 
     getBrushCollection() {

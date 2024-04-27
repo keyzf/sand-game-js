@@ -19,7 +19,7 @@ export default class ProcessorContext {
     }
 
     /**
-     * @returns ProcessorDefaults
+     * @returns GameDefaults
      */
     getDefaults() {
         throw 'Not implemented';

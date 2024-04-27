@@ -5,7 +5,7 @@ import CursorDefinitionElementArea from "./CursorDefinitionElementArea";
 import ElementArea from "../ElementArea";
 import DeterministicRandom from "../DeterministicRandom";
 import ProcessorContext from "../processing/ProcessorContext";
-import GameState from "../processing/GameState";
+import GameState from "../GameState";
 
 /**
  *

@@ -4,9 +4,16 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2024-04-24
+ * @version 2024-04-27
  */
 export default class Entity {
+
+    /**
+     * @return {string}
+     */
+    getType() {
+        throw 'Not implemented';
+    }
 
     /**
      * @return {number}

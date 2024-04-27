@@ -4,7 +4,7 @@ import ElementHead from "../ElementHead.js";
 import ElementTail from "../ElementTail";
 import DeterministicRandom from "../DeterministicRandom.js";
 import ProcessorContext from "./ProcessorContext.js";
-import ProcessorDefaults from "./ProcessorDefaults.js";
+import GameDefaults from "../GameDefaults";
 import ProcessorModuleSolidBody from "./ProcessorModuleSolidBody";
 import ProcessorModuleEntity from "./ProcessorModuleEntity";
 import ProcessorModuleFire from "./ProcessorModuleFire.js";
@@ -13,14 +13,11 @@ import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
 import ProcessorModuleFish from "./ProcessorModuleFish.js";
 import ProcessorModuleTree from "./ProcessorModuleTree.js";
 import ProcessorModuleWater from "./ProcessorModuleWater";
-import ProcessorExtensionSpawnGrass from "./ProcessorExtensionSpawnGrass";
-import ProcessorExtensionSpawnTree from "./ProcessorExtensionSpawnTree";
-import ProcessorExtensionSpawnFish from "./ProcessorExtensionSpawnFish";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-25
+ * @version 2024-04-27
  */
 export default class Processor extends ProcessorContext {
 
@@ -57,8 +54,8 @@ export default class Processor extends ProcessorContext {
     /** @type boolean */
     #erasingEnabled = false;
 
-    /** @type ProcessorDefaults */
-    #processorDefaults;
+    /** @type GameDefaults */
+    #defaults;
 
     static RANDOM_DATA_COUNT = 32;
 
@@ -86,14 +83,10 @@ export default class Processor extends ProcessorContext {
     /** @type ProcessorModuleTree */
     #moduleTree;
 
-    /** @type ProcessorExtensionSpawnGrass */
-    #spawningExtensionGrass;
-    /** @type ProcessorExtensionSpawnTree */
-    #spawningExtensionTree;
-    /** @type ProcessorExtensionSpawnFish */
-    #spawningExtensionFish;
+    /** @type Extension[] */
+    #extensions = [];
 
-    constructor(elementArea, chunkSize, random, processorDefaults, sceneMetadata) {
+    constructor(elementArea, chunkSize, random, defaults, sceneMetadata) {
         super();
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
@@ -118,7 +111,7 @@ export default class Processor extends ProcessorContext {
             Processor.RANDOM_DATA_COUNT, this.#chunkSize, rndDataRandom);
 
         this.#random = random;
-        this.#processorDefaults = processorDefaults;
+        this.#defaults = defaults;
 
         this.#moduleSolidBody = new ProcessorModuleSolidBody(elementArea, random, this);
         this.#moduleEntity = new ProcessorModuleEntity(elementArea, random, this);
@@ -128,10 +121,6 @@ export default class Processor extends ProcessorContext {
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, this);
         this.#moduleFish = new ProcessorModuleFish(elementArea, random, this);
         this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
-
-        this.#spawningExtensionGrass = new ProcessorExtensionSpawnGrass(elementArea, random, this);
-        this.#spawningExtensionTree = new ProcessorExtensionSpawnTree(elementArea, random, this);
-        this.#spawningExtensionFish = new ProcessorExtensionSpawnFish(elementArea, random, this);
 
         if (sceneMetadata) {
             this.#iteration = sceneMetadata.iteration;
@@ -189,7 +178,7 @@ export default class Processor extends ProcessorContext {
     }
 
     getDefaults() {
-        return this.#processorDefaults;
+        return this.#defaults;
     }
 
     setFallThroughEnabled(enabled) {
@@ -206,6 +195,14 @@ export default class Processor extends ProcessorContext {
 
     isErasingEnabled() {
         return this.#erasingEnabled;
+    }
+
+    /**
+     *
+     * @param extension {Extension}
+     */
+    addExtension(extension) {
+        this.#extensions.push(extension);
     }
 
     trigger(x, y) {
@@ -319,7 +316,7 @@ export default class Processor extends ProcessorContext {
 
         // erasing mode
         if (this.#erasingEnabled) {
-            const defaultElement = this.#processorDefaults.getDefaultElement();
+            const defaultElement = this.#defaults.getDefaultElement();
             for (let x = 0; x < this.#width; x++) {
                 this.#elementArea.setElement(x, 0, defaultElement);
                 this.#elementArea.setElement(x, this.#height - 1, defaultElement);
@@ -339,10 +336,10 @@ export default class Processor extends ProcessorContext {
             }
         }
 
-        // run spawning extensions
-        this.#spawningExtensionFish.run();
-        this.#spawningExtensionGrass.run();
-        this.#spawningExtensionTree.run();
+        // run extensions
+        for (let extension of this.#extensions) {
+            extension.run();
+        }
 
         this.#iteration++;
     }
@@ -923,7 +920,7 @@ export default class Processor extends ProcessorContext {
 
                 // sometimes element2 will not be covered - it looks better
                 if (this.#random.nextInt(100) > 9) {
-                    this.#elementArea.setElement(x, y, this.#processorDefaults.getDefaultElement());
+                    this.#elementArea.setElement(x, y, this.#defaults.getDefaultElement());
                 } else {
                     const elementTail2 = this.#elementArea.getElementTail(x2, y2);
                     this.#elementArea.setElementHead(x, y, elementHead2);

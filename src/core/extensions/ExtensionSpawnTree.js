@@ -1,15 +1,14 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
+import Extension from "./Extension";
 import ElementHead from "../ElementHead.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-17
+ * @version 2024-04-27
  */
-export default class ProcessorExtensionSpawnTree {
-    static STARTING_COUNTER_VALUE = 1000;
-    static MAX_COUNTER_VALUE = 4;
+export default class ExtensionSpawnTree extends Extension {
 
     /** @type ElementArea */
     #elementArea;
@@ -18,22 +17,25 @@ export default class ProcessorExtensionSpawnTree {
     /** @type ProcessorContext */
     #processorContext;
 
-    #counter = ProcessorExtensionSpawnTree.STARTING_COUNTER_VALUE;
-
-    constructor(elementArea, random, processorContext) {
-        this.#elementArea = elementArea;
-        this.#random = random;
-        this.#processorContext = processorContext;
+    /**
+     *
+     * @param gameState {GameState}
+     */
+    constructor(gameState) {
+        super();
+        this.#elementArea = gameState.elementArea;
+        this.#random = gameState.random;
+        this.#processorContext = gameState.processorContext;
     }
 
     run() {
-        if (this.#counter-- === 0) {
-            this.#counter = ProcessorExtensionSpawnTree.MAX_COUNTER_VALUE;
+        const iteration = this.#processorContext.getIteration();
+        if (iteration > 1000 && iteration % 4 === 0) {
 
             const x = this.#random.nextInt(this.#elementArea.getWidth() - 12) + 6;
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 16) + 15;
 
-            if (ProcessorExtensionSpawnTree.couldGrowUpHere(this.#elementArea, x, y)) {
+            if (ExtensionSpawnTree.couldGrowUpHere(this.#elementArea, x, y)) {
                 const brush = this.#processorContext.getDefaults().getBrushTree();
                 this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
                 this.#processorContext.trigger(x, y);
@@ -65,24 +67,24 @@ export default class ProcessorExtensionSpawnTree {
 
         // check space directly above
         for (let dy = 1; dy < 18; dy++) {
-            if (!ProcessorExtensionSpawnTree.#isSpaceHere(elementArea, x, y - dy)) {
+            if (!ExtensionSpawnTree.#isSpaceHere(elementArea, x, y - dy)) {
                 return false;
             }
         }
 
         // check trees around
         for (let dx = -15; dx < 15; dx++) {
-            if (ProcessorExtensionSpawnTree.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
+            if (ExtensionSpawnTree.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
                 return false;
             }
         }
 
         // check space above - left & right
         for (let dy = 10; dy < 15; dy++) {
-            if (!ProcessorExtensionSpawnTree.#isSpaceHere(elementArea, x - 8, y - dy)) {
+            if (!ExtensionSpawnTree.#isSpaceHere(elementArea, x - 8, y - dy)) {
                 return false;
             }
-            if (!ProcessorExtensionSpawnTree.#isSpaceHere(elementArea, x + 8, y - dy)) {
+            if (!ExtensionSpawnTree.#isSpaceHere(elementArea, x + 8, y - dy)) {
                 return false;
             }
         }

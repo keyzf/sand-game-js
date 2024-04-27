@@ -1,6 +1,6 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import ProcessorDefaults from "../core/processing/ProcessorDefaults";
+import GameDefaults from "../core/GameDefaults";
 import Element from "../core/Element";
 import Brush from "../core/brush/Brush";
 import BrushDefs from "./BrushDefs";
@@ -10,9 +10,11 @@ import BrushCollectionImpl from "./BrushCollectionImpl";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-27
  */
-export default class ProcessorDefaultsImpl extends ProcessorDefaults {
+export default class GameDefaultsImpl extends GameDefaults {
+
+    /** @type function(GameState):Extension[] */ #extensionsFactory;
 
     /** @type BrushCollection */ #brushCollection;
 
@@ -36,10 +38,12 @@ export default class ProcessorDefaultsImpl extends ProcessorDefaults {
     /**
      *
      * @param extraBrushes {Object.<string, Brush>}
+     * @param extensionsFactory {function(GameState):Extension[]}
      */
-    constructor(extraBrushes = {}) {
+    constructor(extraBrushes = {}, extensionsFactory = () => []) {
         super();
 
+        this.#extensionsFactory = extensionsFactory;
         this.#brushCollection = new BrushCollectionImpl(extraBrushes);
 
         function resolveBrush(codeName) {
@@ -74,6 +78,10 @@ export default class ProcessorDefaultsImpl extends ProcessorDefaults {
         this.#brushFishCorpse = resolveBrush('fish_corpse');
         this.#brushFire = resolveBrush('fire');
         this.#brushAsh = resolveBrush('ash');
+    }
+
+    getExtensionsFactory() {
+        return this.#extensionsFactory;
     }
 
     getBrushCollection() {

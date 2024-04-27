@@ -1,15 +1,22 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import Element from "../Element.js";
-import Brush from "../brush/Brush.js";
+import Element from "./Element.js";
+import Brush from "./brush/Brush.js";
 
 /**
  * @interface
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-04-27
  */
-export default class ProcessorDefaults {
+export default class GameDefaults {
+
+    /**
+     * @returns function(GameState):Extension[]
+     */
+    getExtensionsFactory() {
+        throw 'Not implemented';
+    }
 
     /**
      *

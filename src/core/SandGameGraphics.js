@@ -24,7 +24,7 @@ export default class SandGameGraphics {
     /** @type DeterministicRandom */
     #random;
 
-    /** @type ProcessorDefaults */
+    /** @type GameDefaults */
     #defaults;
 
     /** @type {function(number,number)} */
@@ -253,8 +253,7 @@ export default class SandGameGraphics {
             }
         }
 
-        const entity = this.#entityManager.addSerializedEntity(serializedEntity);
-        entity.initialize();
+        this.#entityManager.addSerializedEntity(serializedEntity);
 
         if (typeof serializedEntity.x === 'number' && typeof serializedEntity.y === 'number') {
             this.#triggerFunction(serializedEntity.x, serializedEntity.y);
