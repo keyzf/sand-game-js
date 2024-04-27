@@ -7,7 +7,6 @@ import BrushDefs from "./BrushDefs";
 import ToolInfo from "../core/tool/ToolInfo";
 import TemplateDefs from "./TemplateDefs";
 import Entities from "../core/entity/Entities";
-import BirdEntity from "../core/entity/BirdEntity";
 
 /**
  *
@@ -244,9 +243,15 @@ export default class ToolDefs {
         this.EFFECT_TEMP_PLUS2
     ];
 
-    static BIRD = Tools.insertEntityTool(Entities.birdEntity, new ToolInfo({
+    static BIRD = Tools.insertEntityTool(Entities.birdFactory, new ToolInfo({
         codeName: 'bird',
         displayName: 'Bird',
+        category: ToolDefs.CATEGORY_ENTITY,
+    }));
+
+    static FISH = Tools.insertEntityTool(Entities.fishFactory, new ToolInfo({
+        codeName: 'fish',
+        displayName: 'Fish',
         category: ToolDefs.CATEGORY_ENTITY,
     }));
 
@@ -263,10 +268,11 @@ export default class ToolDefs {
             category: ToolDefs.CATEGORY_BRUSH,
         })),
         Tools.multiPointBrushTool([{ dx: 0, dy: 0, brush: BrushDefs.FISH_HEAD }, { dx: 1, dy: 0, brush: BrushDefs.FISH_BODY }], new ToolInfo({
-            codeName: 'fish',
-            displayName: 'Fish',
+            codeName: 'fish_old',
+            displayName: 'Fish (old)',
             category: ToolDefs.CATEGORY_BRUSH,
         })),
+        ToolDefs.FISH,
         ToolDefs.BIRD,
         Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE, new ToolInfo({
             codeName: 'effect_burnt',

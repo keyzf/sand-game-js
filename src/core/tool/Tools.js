@@ -149,7 +149,7 @@ export default class Tools {
 
     /**
      *
-     * @param entityFactory {function(x:number, y:number, elementArea:ElementArea, random:DeterministicRandom, processorContext:ProcessorContext):object}
+     * @param entityFactory {function(serialized:object, gameState:GameState):Entity}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
      */

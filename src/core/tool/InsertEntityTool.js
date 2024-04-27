@@ -5,15 +5,16 @@ import CursorDefinitionElementArea from "./CursorDefinitionElementArea";
 import ElementArea from "../ElementArea";
 import DeterministicRandom from "../DeterministicRandom";
 import ProcessorContext from "../processing/ProcessorContext";
+import GameState from "../processing/GameState";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-24
+ * @version 2024-04-26
  */
 export default class InsertEntityTool extends Tool {
 
-    /** @type {function:Entity} */
+    /** @type {function(object, GameState):Entity} */
     #entityFactory;
 
     /** @type {Entity} */
@@ -30,7 +31,8 @@ export default class InsertEntityTool extends Tool {
         const tmpElementArea = ElementArea.create(1, 1, ElementArea.TRANSPARENT_ELEMENT);
         const tmpRandom = DeterministicRandom.DEFAULT;
         const tmpProcessorContext = new ProcessorContext();
-        this.#nextEntity = this.#entityFactory(0, 0, tmpElementArea, tmpRandom, tmpProcessorContext);
+        const gameState = new GameState(tmpElementArea, tmpRandom, tmpProcessorContext);
+        this.#nextEntity = this.#entityFactory({}, gameState);
     }
 
     applyPoint(x, y, graphics, aldModifier) {

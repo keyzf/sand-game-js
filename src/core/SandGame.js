@@ -13,6 +13,7 @@ import RendererInitializer from "./rendering/RendererInitializer.js";
 import SandGameGraphics from "./SandGameGraphics.js";
 import SandGameOverlay from "./SandGameOverlay";
 import SandGameScenario from "./SandGameScenario";
+import GameState from "./processing/GameState";
 import Snapshot from "./Snapshot.js";
 import SnapshotMetadata from "./SnapshotMetadata.js";
 import TemplateBlockPainter from "./TemplateBlockPainter.js";
@@ -21,7 +22,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-04-26
  */
 export default class SandGame {
 
@@ -95,7 +96,7 @@ export default class SandGame {
         this.#iterationsCounter = new Counter();
         this.#processor = new Processor(this.#elementArea, 16, this.#random, processorDefaults, sceneMetadata);
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
-        this.#entityManager = new EntityManager(serializedEntities, elementArea, this.#random, this.#processor);
+        this.#entityManager = new EntityManager(serializedEntities, new GameState(elementArea, this.#random, this.#processor));
         this.#graphics = new SandGameGraphics(this.#elementArea, this.#entityManager, this.#random, processorDefaults, (x, y) => {
             this.#processor.trigger(x, y);
             this.#renderer.trigger(x, y);

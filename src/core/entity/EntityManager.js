@@ -2,21 +2,17 @@
 
 import Entity from "./Entity";
 import EntityPositionLookup from "./EntityPositionLookup";
-import BirdEntity from "./BirdEntity";
+import Entities from "./Entities";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-24
+ * @version 2024-04-27
  */
 export default class EntityManager {
 
-    /** @type ElementArea */
-    #elementArea;
-    /** @type DeterministicRandom */
-    #random;
-    /** @type ProcessorContext */
-    #processorContext;
+    /** @type GameState */
+    #gameState;
 
     /** @type Entity[] */
     #entities = [];
@@ -24,14 +20,10 @@ export default class EntityManager {
     /**
      *
      * @param serializedEntities {object[]}
-     * @param elementArea
-     * @param random
-     * @param processorContext
+     * @param gameState {GameState}
      */
-    constructor(serializedEntities, elementArea, random, processorContext) {
-        this.#elementArea = elementArea;
-        this.#random = random;
-        this.#processorContext = processorContext;
+    constructor(serializedEntities, gameState) {
+        this.#gameState = gameState;
 
         for (let serializedEntity of serializedEntities) {
             this.addSerializedEntity(serializedEntity);
@@ -66,9 +58,9 @@ export default class EntityManager {
         if (typeof serialized !== 'object') {
             throw 'Serialized entity must be an object';
         }
-        switch (serialized.entity) {
-            case 'bird':
-                return new BirdEntity(serialized, this.#elementArea, this.#random, this.#processorContext);
+        const factory = Entities.findFactoryByEntityType(serialized.entity);
+        if (factory !== null) {
+            return factory(serialized, this.#gameState);
         }
         throw 'Entity not recognized';
     }
