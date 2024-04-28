@@ -32,7 +32,7 @@ import Resources from "./io/Resources";
 import GameDefaultsImpl from "./def/GameDefaultsImpl";
 import ExtensionSpawnGrass from "./core/extensions/ExtensionSpawnGrass";
 import ExtensionSpawnFish from "./core/extensions/ExtensionSpawnFish";
-import ExtensionSpawnTree from "./core/extensions/ExtensionSpawnTree";
+import ExtensionSpawnTrees from "./core/extensions/ExtensionSpawnTrees";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -64,6 +64,7 @@ export const tools = ToolDefs._LIST;
  *     autoStart: undefined|boolean,
  *     scene: undefined|string|{init:(function(SandGame, Controller):Promise<any>|any)},
  *     scenes: undefined|Scene[]|Object.<string,Scene>,
+ *     extensions: undefined|Object.<string,boolean>,
  *     brushes: undefined|Object.<string,Brush>,
  *     tools: undefined|(string|Tool)[],
  *     primaryTool: undefined|string|Tool,
@@ -81,7 +82,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-04-28
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -123,12 +124,31 @@ export function init(root, config) {
         throw "config.brushes - wrong type, expected object";
     }
 
+    let extensions;
+    if (typeof config.extensions === 'object') {
+        extensions = config.extensions;
+    } else if (config.extensions === undefined) {
+        extensions = {
+            spawnFish: true,
+            spawnGrass: true,
+            spawnTrees: true,
+        };
+    } else {
+        throw "config.extensions - wrong type, expected object";
+    }
+
     const extensionsFactory = (gameState) => {
-        return [
-            new ExtensionSpawnFish(gameState),
-            new ExtensionSpawnGrass(gameState),
-            new ExtensionSpawnTree(gameState),
-        ];
+        const array = [];
+        if (extensions.spawnFish === true) {
+            array.push(new ExtensionSpawnFish(gameState));
+        }
+        if (extensions.spawnGrass === true) {
+            array.push(new ExtensionSpawnGrass(gameState));
+        }
+        if (extensions.spawnTrees === true) {
+            array.push(new ExtensionSpawnTrees(gameState));
+        }
+        return array;
     };
 
     const defaults = new GameDefaultsImpl(brushes, extensionsFactory);

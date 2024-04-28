@@ -8,7 +8,7 @@ import ElementHead from "../ElementHead.js";
  * @author Patrik Harag
  * @version 2024-04-27
  */
-export default class ExtensionSpawnTree extends Extension {
+export default class ExtensionSpawnTrees extends Extension {
 
     /** @type ElementArea */
     #elementArea;
@@ -35,7 +35,7 @@ export default class ExtensionSpawnTree extends Extension {
             const x = this.#random.nextInt(this.#elementArea.getWidth() - 12) + 6;
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 16) + 15;
 
-            if (ExtensionSpawnTree.couldGrowUpHere(this.#elementArea, x, y)) {
+            if (ExtensionSpawnTrees.couldGrowUpHere(this.#elementArea, x, y)) {
                 const brush = this.#processorContext.getDefaults().getBrushTree();
                 this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
                 this.#processorContext.trigger(x, y);
@@ -67,24 +67,24 @@ export default class ExtensionSpawnTree extends Extension {
 
         // check space directly above
         for (let dy = 1; dy < 18; dy++) {
-            if (!ExtensionSpawnTree.#isSpaceHere(elementArea, x, y - dy)) {
+            if (!ExtensionSpawnTrees.#isSpaceHere(elementArea, x, y - dy)) {
                 return false;
             }
         }
 
         // check trees around
         for (let dx = -15; dx < 15; dx++) {
-            if (ExtensionSpawnTree.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
+            if (ExtensionSpawnTrees.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
                 return false;
             }
         }
 
         // check space above - left & right
         for (let dy = 10; dy < 15; dy++) {
-            if (!ExtensionSpawnTree.#isSpaceHere(elementArea, x - 8, y - dy)) {
+            if (!ExtensionSpawnTrees.#isSpaceHere(elementArea, x - 8, y - dy)) {
                 return false;
             }
-            if (!ExtensionSpawnTree.#isSpaceHere(elementArea, x + 8, y - dy)) {
+            if (!ExtensionSpawnTrees.#isSpaceHere(elementArea, x + 8, y - dy)) {
                 return false;
             }
         }
