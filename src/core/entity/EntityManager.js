@@ -7,7 +7,7 @@ import EntityFactories from "./EntityFactories";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-04-28
  */
 export default class EntityManager {
 
@@ -80,7 +80,18 @@ export default class EntityManager {
 
         for (let i = 0; i < this.#entities.length; i++) {
             const entity = this.#entities[i];
-            const active = entity.performAfterProcessing();
+
+            let active;
+            try {
+                active = entity.performAfterProcessing();
+            } catch (e) {
+                // some entities are very complex...
+                // log error and remove broken entity
+                console.error('Entity error', e);
+                // TODO: rethrow + error reporting (when stable)
+                active = false;
+            }
+
             if (active === false) {
                 if (toDelete === null) {
                     toDelete = [];

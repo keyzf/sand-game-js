@@ -172,6 +172,8 @@ export default class SandGame {
     }
 
     doProcessing() {
+        // TODO: error reporting
+
         this.#entityManager.performBeforeProcessing();
         this.#processor.next();
         this.#entityManager.performAfterProcessing();
