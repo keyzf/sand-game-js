@@ -13,7 +13,7 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
 
     static #MAX_AVG_TEMPERATURE = 10;
 
-    static #MAX_STUCK_COUNT = 15;
+    static #MAX_STUCK_COUNT = 1000;
 
     constructor(type, serialized, stateDefinition, brush, gameState) {
         super(type, serialized, stateDefinition, brush, gameState);
@@ -46,7 +46,7 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
             if (isFalling) {
                 this._moveForced(0, 1);
             } else {
-                this._moveRandom(1);
+                this._moveRandom(0);
             }
         }
 
@@ -62,9 +62,15 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
         const y = this._y;
         const points = this._stateDefinition.getStates()[this._state];
 
-        let heavyElementsAbove = false;
-        let lightElementsBelow = true;
+        let heavyElementAbove = false;  // at least one
+        let lightElementsAbove = true;  // all
+        let waterElementsAbove = true;  // all
+
+        let lightElementsBelow = true;  // all
+        let waterElementsBelow = true;  // all
+
         let totalTemperature = 0;
+
         for (const [dx, dy] of points) {
             const ex = x + dx;
             const ey = y + dy;
@@ -86,12 +92,28 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
             this._elementArea.setElementHead(ex, ey, ElementHead.setSpecial(elementHead, 0));
 
             // check element above
-            if (!heavyElementsAbove) {
-                heavyElementsAbove = EntityUtils.isElementFallingHeavyAt(this._elementArea, ex, ey - 1);
+            if (!heavyElementAbove || lightElementsAbove || waterElementsAbove) {
+                const elementHeadOrNull = this._elementArea.getElementHeadOrNull(ex, ey - 1);
+                if (!heavyElementAbove) {
+                    heavyElementAbove = EntityUtils.isElementFallingHeavy(elementHeadOrNull);
+                }
+                if (lightElementsAbove) {
+                    lightElementsAbove = EntityUtils.isElementLight(elementHeadOrNull);
+                }
+                if (waterElementsAbove) {
+                    waterElementsAbove = EntityUtils.isElementWater(elementHeadOrNull);
+                }
             }
+
             // check element below
-            if (lightElementsBelow) {
-                lightElementsBelow = EntityUtils.isElementLightAt(this._elementArea, ex, ey + 1);
+            if (lightElementsBelow || waterElementsBelow) {
+                const elementHeadOrNull = this._elementArea.getElementHeadOrNull(ex, ey + 1);
+                if (lightElementsBelow) {
+                    lightElementsBelow = EntityUtils.isElementLight(elementHeadOrNull);
+                }
+                if (waterElementsBelow) {
+                    waterElementsBelow = EntityUtils.isElementWater(elementHeadOrNull);
+                }
             }
         }
 
@@ -100,11 +122,20 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
             return [this._kill(), false];
         }
 
+        if (!waterElementsAbove || !waterElementsBelow) {
+            // not enough water
+            this._stuck++;
+        }
+
         if (this._stuck > StateBasedFishLikeEntity.#MAX_STUCK_COUNT) {
             // stuck to death
             return [this._kill(), false];
         }
 
-        return [true, heavyElementsAbove || lightElementsBelow];
+        const falling = heavyElementAbove  // dragged
+            || lightElementsBelow  // falling
+            || (lightElementsAbove && waterElementsBelow);  // force submerge
+
+        return [true, falling];
     }
 }

@@ -5,12 +5,11 @@ import ElementHead from "../ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-26
+ * @version 2024-04-28
  */
 export default class EntityUtils {
 
-    static isElementFallingHeavyAt(elementArea, x, y) {
-        const elementHead = elementArea.getElementHeadOrNull(x, y);
+    static isElementFallingHeavy(elementHead) {
         if (elementHead === null) {
             return false;
         }
@@ -29,13 +28,23 @@ export default class EntityUtils {
         return false;
     }
 
-    static isElementLightAt(elementArea, x, y) {
-        const elementHead = elementArea.getElementHeadOrNull(x, y);
+    static isElementLight(elementHead) {
         if (elementHead === null) {
             return false;
         }
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass <= ElementHead.TYPE_GAS) {
+            return true;
+        }
+        return false;
+    }
+
+    static isElementWater(elementHead) {
+        if (elementHead === null) {
+            return false;
+        }
+        const typeClass = ElementHead.getTypeClass(elementHead);
+        if (typeClass === ElementHead.TYPE_FLUID) {
             return true;
         }
         return false;

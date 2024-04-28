@@ -148,11 +148,16 @@ export default class StateBasedAbstractEntity extends Entity {
     }
 
     _moveRandom(visionExtra) {
+        const xChange = this._random.nextInt(3) - 1;
+        const yChange = this._random.nextInt(3) - 1;
+
+        return this._move(xChange, yChange, visionExtra);
+    }
+
+    _move(xChange, yChange, visionExtra) {
         const x = this._x;
         const y = this._y;
 
-        const xChange = this._random.nextInt(3) - 1;
-        const yChange = this._random.nextInt(3) - 1;
         const newPos = this.#countNewPosition(x, y, xChange, yChange, visionExtra);
 
         if (newPos !== null) {

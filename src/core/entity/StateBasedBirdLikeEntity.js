@@ -91,7 +91,7 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
 
             // check element above
             if (!heavyElementsAbove) {
-                heavyElementsAbove = EntityUtils.isElementFallingHeavyAt(this._elementArea, ex, ey - 1);
+                heavyElementsAbove = EntityUtils.isElementFallingHeavy(this._elementArea.getElementHeadOrNull(ex, ey - 1));
             }
         }
 
