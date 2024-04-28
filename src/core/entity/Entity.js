@@ -73,6 +73,7 @@ export default class Entity {
      * @param defaultElement {Element}
      * @param rx {number} relative x
      * @param ry {number} relative y
+     * @returns {[object, PositionedElement[]]}
      */
     extract(defaultElement, rx, ry) {
         throw 'Not implemented';

@@ -46,13 +46,17 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
         }
 
         if (isActive && (isFalling || this._iteration % 11 === 0)) {
-            const xChange = this._random.nextInt(3) - 1;
-            const yChange = (isFalling) ? 1 : this._random.nextInt(3) - 1;
-            this._doTryMove(xChange, yChange, isFalling);
+            if (isFalling) {
+                const xChange = this._random.nextInt(3) - 1;
+                const yChange = 1;
+                this._moveForced(xChange, yChange);
+            } else {
+                this._moveRandom(2);
+            }
         }
 
         if (isActive && this._stateDefinition.getStatesCount() > 1 && this._iteration % 10 === 0) {
-            this._doIncrementState();
+            this._incrementState();
         }
 
         return isActive;

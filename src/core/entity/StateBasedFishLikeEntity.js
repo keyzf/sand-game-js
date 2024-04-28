@@ -43,13 +43,15 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
         }
 
         if (isActive && (isFalling || this._iteration % 11 === 0)) {
-            const xChange = (isFalling) ? 0 : this._random.nextInt(3) - 1;
-            const yChange = (isFalling) ? 1 : this._random.nextInt(3) - 1;
-            this._doTryMove(xChange, yChange, isFalling);
+            if (isFalling) {
+                this._moveForced(0, 1);
+            } else {
+                this._moveRandom(1);
+            }
         }
 
         if (isActive && this._stateDefinition.getStatesCount() > 1 && this._iteration % 10 === 0) {
-            this._doIncrementState();
+            this._incrementState();
         }
 
         return isActive;

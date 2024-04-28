@@ -11,7 +11,7 @@ import PositionedElement from "../PositionedElement";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-04-28
  */
 export default class StateBasedAbstractEntity extends Entity {
 
@@ -117,7 +117,7 @@ export default class StateBasedAbstractEntity extends Entity {
         return this._state !== -1;
     }
 
-    _doIncrementState() {
+    _incrementState() {
         const x = this._x;
         const y = this._y;
 
@@ -147,25 +147,28 @@ export default class StateBasedAbstractEntity extends Entity {
         }
     }
 
-    _doTryMove(xChange, yChange, forced) {
+    _moveRandom(visionExtra) {
         const x = this._x;
         const y = this._y;
 
-        const [nx, ny] = (forced)
-            ? this.#countNewForcedPosition(x, y, xChange, yChange)
-            : this.#countNewPosition(x, y, xChange, yChange);
+        const xChange = this._random.nextInt(3) - 1;
+        const yChange = this._random.nextInt(3) - 1;
+        const newPos = this.#countNewPosition(x, y, xChange, yChange, visionExtra);
 
-        if (nx !== x || ny !== y) {
-            // move
+        if (newPos !== null) {
+            const [nx, ny] = newPos;
 
             this.#relocate(this._stateDefinition.getStates()[this._state], x, y, nx, ny);
 
             this._x = nx;
             this._y = ny;
+
+            return true;
         }
+        return false;
     }
 
-    #countNewPosition(x, y, xChange, yChange) {
+    #countNewPosition(x, y, xChange, yChange, visionExtra) {
         // check boundaries
 
         if (x + xChange < this._areaBoundary && xChange < 0) {
@@ -184,11 +187,13 @@ export default class StateBasedAbstractEntity extends Entity {
 
         // check further obstacles
 
-        const EXTRA = 2;
+        if (xChange === 0 && yChange === 0) {
+            return null;
+        }
 
         // test right | right
         if (xChange > 0 || xChange < 0) {
-            for (let yy = this._stateDefinition.getMinY() - EXTRA; yy <= this._stateDefinition.getMaxY() + EXTRA; yy++) {
+            for (let yy = this._stateDefinition.getMinY() - visionExtra; yy <= this._stateDefinition.getMaxY() + visionExtra; yy++) {
                 if (!this._checkIsSpace(x + (xChange * 5), y + yChange + yy)) {
                     xChange = 0;
                     break;
@@ -198,7 +203,7 @@ export default class StateBasedAbstractEntity extends Entity {
 
         // test above | below
         if (yChange > 0 || yChange < 0) {
-            for (let xx = this._stateDefinition.getMinX() - EXTRA; xx <= this._stateDefinition.getMaxX() + EXTRA; xx++) {
+            for (let xx = this._stateDefinition.getMinX() - visionExtra; xx <= this._stateDefinition.getMaxX() + visionExtra; xx++) {
                 if (!this._checkIsSpace(x + xChange + xx, y + (yChange * 5))) {
                     yChange = 0;
                     break;
@@ -208,15 +213,36 @@ export default class StateBasedAbstractEntity extends Entity {
 
         // check close obstacles
 
+        if (xChange === 0 && yChange === 0) {
+            return null;
+        }
+
         for (const [dx, dy] of this._stateDefinition.getStates()[this._state]) {
             if (!this._checkIsSpace(x + xChange + dx, y + yChange + dy)) {
-                xChange = 0;
-                yChange = 0;
-                break;
+                return null;
             }
         }
 
         return [x + xChange, y + yChange];
+    }
+
+    _moveForced(xChange, yChange) {
+        const x = this._x;
+        const y = this._y;
+
+        const newPos = this.#countNewForcedPosition(x, y, xChange, yChange);
+
+        if (newPos !== null) {
+            const [nx, ny] = newPos;
+
+            this.#relocate(this._stateDefinition.getStates()[this._state], x, y, nx, ny);
+
+            this._x = nx;
+            this._y = ny;
+
+            return true;
+        }
+        return false;
     }
 
     #countNewForcedPosition(x, y, xChange, yChange) {
@@ -235,7 +261,7 @@ export default class StateBasedAbstractEntity extends Entity {
         }
 
         if (xChange === 0 && yChange === 0) {
-            return [x, y];  // cannot move
+            return null;  // cannot move
         }
 
         // check is space
@@ -245,11 +271,11 @@ export default class StateBasedAbstractEntity extends Entity {
 
             const elementHead = this._elementArea.getElementHeadOrNull(ex, ey);
             if (elementHead === null) {
-                return [x, y];  // cannot move
+                return null;  // cannot move
             }
             if (ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_ENTITY) {
                 if (ElementHead.getTypeClass(elementHead) > ElementHead.TYPE_FLUID) {
-                    return [x, y];  // cannot move
+                    return null;  // cannot move
                 }
             }
         }
