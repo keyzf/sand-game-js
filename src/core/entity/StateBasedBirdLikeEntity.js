@@ -7,11 +7,11 @@ import StateBasedAbstractEntity from "./StateBasedAbstractEntity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-04-28
  */
 export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
 
-    static #MAX_AVG_TEMPERATURE = 50;
+    static #MAX_AVG_TEMPERATURE = 10;
 
     static #MAX_STUCK_COUNT = 15;
 
