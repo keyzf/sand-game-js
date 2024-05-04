@@ -16,7 +16,7 @@ import InsertEntityTool from "./InsertEntityTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-05-04
  */
 export default class Tools {
 
@@ -108,7 +108,7 @@ export default class Tools {
 
     /**
      *
-     * @param handler
+     * @param handler {function(x: number, y: number, graphics: SandGameGraphics, aldModifier: boolean)}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
      */
@@ -118,7 +118,7 @@ export default class Tools {
 
     /**
      *
-     * @param handler {function(SandGame|null)}
+     * @param handler {function(SandGame)}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
      */

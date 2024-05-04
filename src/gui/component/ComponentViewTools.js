@@ -10,7 +10,7 @@ import GlobalActionTool from "../../core/tool/GlobalActionTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-13
+ * @version 2024-05-04
  */
 export default class ComponentViewTools extends Component {
 
@@ -81,7 +81,10 @@ export default class ComponentViewTools extends Component {
             action.performAction(controller);
         } else if (tool instanceof GlobalActionTool) {
             const handler = tool.getHandler();
-            handler(controller.getSandGame());
+            const sandGame = controller.getSandGame();
+            if (sandGame !== null) {
+                handler(sandGame);
+            }
         } else {
             controller.getToolManager().setPrimaryTool(tool);
             controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);

@@ -5,11 +5,11 @@ import Tool from "./Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-13
+ * @version 2024-05-04
  */
 export default class GlobalActionTool extends Tool {
 
-    /** @type function(SandGame|null) */
+    /** @type function(SandGame) */
     #handler;
 
     constructor(info, handler) {
@@ -19,7 +19,7 @@ export default class GlobalActionTool extends Tool {
 
     /**
      *
-     * @return {function((SandGame|null))}
+     * @return {function((SandGame))}
      */
     getHandler() {
         return this.#handler;

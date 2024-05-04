@@ -49,9 +49,7 @@ export default class ToolDefs {
     }));
 
     static FLIP_VERTICALLY = Tools.globalActionTool(sandGame => {
-        if (sandGame !== null) {
-            sandGame.graphics().flipVertically();
-        }
+        sandGame.graphics().flipVertically();
     }, new ToolInfo({
         codeName: 'flip_vertically',
         displayName: 'Flip Vertically',

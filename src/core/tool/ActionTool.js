@@ -5,7 +5,7 @@ import Tool from "./Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-05-04
  */
 export default class ActionTool extends Tool {
 
@@ -18,6 +18,6 @@ export default class ActionTool extends Tool {
     }
 
     applyPoint(x, y, graphics, aldModifier) {
-        this.#handler();
+        this.#handler(x, y, graphics, aldModifier);
     }
 }
