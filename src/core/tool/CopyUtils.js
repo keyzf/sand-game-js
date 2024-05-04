@@ -98,7 +98,7 @@ export default class CopyUtils {
 
     static trimmed(elements, entities) {
         if (elements.length === 0) {
-            return null;
+            return [null, null];
         }
 
         let minX = Number.MAX_VALUE;
