@@ -33,6 +33,7 @@ import GameDefaultsImpl from "./def/GameDefaultsImpl";
 import ExtensionSpawnGrass from "./core/extensions/ExtensionSpawnGrass";
 import ExtensionSpawnFish from "./core/extensions/ExtensionSpawnFish";
 import ExtensionSpawnTrees from "./core/extensions/ExtensionSpawnTrees";
+import ExtensionSpawnButterflies from "./core/extensions/ExtensionSpawnButterflies";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -82,7 +83,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-04-28
+ * @version 2024-05-05
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -132,6 +133,7 @@ export function init(root, config) {
             spawnFish: true,
             spawnGrass: true,
             spawnTrees: true,
+            spawnButterflies: true,
         };
     } else {
         throw "config.extensions - wrong type, expected object";
@@ -147,6 +149,9 @@ export function init(root, config) {
         }
         if (extensions.spawnTrees === true) {
             array.push(new ExtensionSpawnTrees(gameState));
+        }
+        if (extensions.spawnButterflies === true) {
+            array.push(new ExtensionSpawnButterflies(gameState));
         }
         return array;
     };
