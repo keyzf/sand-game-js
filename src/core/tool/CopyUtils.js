@@ -78,10 +78,8 @@ export default class CopyUtils {
         const elements = [];
         const entities = [];
 
-        const entityLookup = graphics.createEntityPositionLookup();
-
         const brush = Brushes.custom((tx, ty, r, element) => {
-            for (const entity of entityLookup.getAt(tx, ty)) {
+            for (const entity of graphics.entities().getAt(tx, ty)) {
                 if (entity.isActive()) {
                     const [extractedSerializedEntity, extractedElements] = entity.extract(defaultElement, 0, 0);
                     entities.push(extractedSerializedEntity);

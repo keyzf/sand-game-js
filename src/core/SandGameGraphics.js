@@ -6,20 +6,19 @@ import ElementArea from "./ElementArea.js";
 import Brush from "./brush/Brush.js";
 import CircleIterator from "./CircleIterator.js";
 import Marker from "./Marker";
-import Entity from "./entity/Entity";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-24
+ * @version 2024-05-04
  */
 export default class SandGameGraphics {
 
     /** @type ElementArea */
     #elementArea;
 
-    /** @type EntityManager */
-    #entityManager;
+    /** @type SandGameEntities */
+    #entities;
 
     /** @type DeterministicRandom */
     #random;
@@ -30,9 +29,9 @@ export default class SandGameGraphics {
     /** @type {function(number,number)} */
     #triggerFunction;
 
-    constructor(elementArea, entityManager, random, defaults, triggerFunction) {
+    constructor(elementArea, entities, random, defaults, triggerFunction) {
         this.#elementArea = elementArea;
-        this.#entityManager = entityManager;
+        this.#entities = entities;
         this.#random = random;
         this.#defaults = defaults;
         this.#triggerFunction = triggerFunction;
@@ -236,30 +235,6 @@ export default class SandGameGraphics {
         }
     }
 
-    insertEntity(serializedEntity) {
-        if (serializedEntity instanceof Entity) {
-            throw 'Entity instance not supported here';
-        }
-
-        // check is not out of bounds
-        if (typeof serializedEntity.y === 'number') {
-            if (serializedEntity.y < 0 || serializedEntity.y >= this.getHeight()) {
-                return;  // out of bounds
-            }
-        }
-        if (typeof serializedEntity.x === 'number') {
-            if (serializedEntity.x < 0 || serializedEntity.x >= this.getWidth()) {
-                return;  // out of bounds
-            }
-        }
-
-        this.#entityManager.addSerializedEntity(serializedEntity);
-
-        if (typeof serializedEntity.x === 'number' && typeof serializedEntity.y === 'number') {
-            this.#triggerFunction(serializedEntity.x, serializedEntity.y);
-        }
-    }
-
     insertElementArea(elementArea, offsetX = 0, offsetY = 0) {
         for (let y = 0; y < elementArea.getHeight(); y++) {
             for (let x = 0; x < elementArea.getWidth(); x++) {
@@ -273,16 +248,16 @@ export default class SandGameGraphics {
         }
     }
 
-    createEntityPositionLookup() {
-        return this.#entityManager.createPositionLookup(this.#elementArea.getWidth(), this.#elementArea.getHeight());
-    }
-
     getWidth() {
         return this.#elementArea.getWidth();
     }
 
     getHeight() {
         return this.#elementArea.getHeight();
+    }
+
+    entities() {
+        return this.#entities;
     }
 
     getDefaults() {

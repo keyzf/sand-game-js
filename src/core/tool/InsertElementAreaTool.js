@@ -80,7 +80,7 @@ export default class InsertElementAreaTool extends Tool {
             if (typeof serializedClone.y === 'number') {
                 serializedClone.y += offsetY;
             }
-            graphics.insertEntity(serializedClone);
+            graphics.entities().insertEntity(serializedClone);
         }
 
         if (this.#onInsertHandler !== undefined) {

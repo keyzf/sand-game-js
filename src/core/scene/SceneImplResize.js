@@ -56,7 +56,7 @@ export default class SceneImplTmpResize extends Scene {
                     serializedClone.y += offsetY;
                 }
             }
-            newSandGame.graphics().insertEntity(serializedClone);
+            newSandGame.entities().insertEntity(serializedClone);
         }
 
         return newSandGame;

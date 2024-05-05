@@ -7,7 +7,7 @@ import EntityFactories from "./EntityFactories";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-28
+ * @version 2024-05-04
  */
 export default class EntityManager {
 
@@ -16,6 +16,9 @@ export default class EntityManager {
 
     /** @type Entity[] */
     #entities = [];
+
+    /** @type {EntityPositionLookup} */
+    #positionLookupCache = null;
 
     /**
      *
@@ -27,14 +30,6 @@ export default class EntityManager {
 
         for (let serializedEntity of serializedEntities) {
             this.addSerializedEntity(serializedEntity, false);
-        }
-    }
-
-    addEntity(entity) {
-        if (entity instanceof Entity) {
-            this.#entities.push(entity);
-        } else {
-            throw 'Entity instance expected';
         }
     }
 
@@ -73,6 +68,8 @@ export default class EntityManager {
             const entity = this.#entities[i];
             entity.performBeforeProcessing();
         }
+
+        this.#positionLookupCache = null;
     }
 
     performAfterProcessing() {
@@ -106,6 +103,8 @@ export default class EntityManager {
                 this.#entities.splice(j, 1);
             }
         }
+
+        this.#positionLookupCache = null;
     }
 
     serializeEntities() {
@@ -116,8 +115,20 @@ export default class EntityManager {
         return list;
     }
 
-    createPositionLookup(width, height) {
-        return new EntityPositionLookup(this.#entities, width, height);
+    /**
+     *
+     * @param x
+     * @param y
+     * @returns {Entity[]}
+     */
+    getAt(x, y) {
+        if (this.#positionLookupCache === null) {
+            const width = this.#gameState.elementArea.getWidth();
+            const height = this.#gameState.elementArea.getHeight();
+            this.#positionLookupCache = new EntityPositionLookup(this.#entities, width, height);
+        }
+
+        return this.#positionLookupCache.getAt(x, y);
     }
 
     countEntities(type) {
@@ -129,5 +140,9 @@ export default class EntityManager {
             }
         }
         return count;
+    }
+
+    getEntities() {
+        return this.#entities;
     }
 }

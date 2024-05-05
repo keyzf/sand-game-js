@@ -39,7 +39,7 @@ export default class EntityPositionLookup {
      *
      * @param x {number}
      * @param y {number}
-     * @return {Entity[]|null}
+     * @return {Entity[]}
      */
     getAt(x, y) {
         if (x < 0 || y < 0) {

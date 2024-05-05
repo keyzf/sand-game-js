@@ -3,7 +3,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-21
+ * @version 2024-05-05
  */
 export default class StateDefinition {
 
@@ -44,19 +44,26 @@ export default class StateDefinition {
             }
         }
 
-        return new StateDefinition(states, transitions, minX, maxX, minY, maxY);
+        const masks = [];
+        for (let state of states) {
+            masks.push(new StateMask(state, minX, maxX, minY, maxY));
+        }
+
+        return new StateDefinition(states, masks, transitions, minX, maxX, minY, maxY);
     }
 
 
     #states;
+    #masks;
     #transitions;
     #minX;
     #maxX;
     #minY;
     #maxY;
 
-    constructor(states, transitions, minX, maxX, minY, maxY) {
+    constructor(states, masks, transitions, minX, maxX, minY, maxY) {
         this.#states = states;
+        this.#masks = masks;
         this.#transitions = transitions;
         this.#minX = minX;
         this.#maxX = maxX;
@@ -70,6 +77,10 @@ export default class StateDefinition {
 
     getStatesCount() {
         return this.#states.length;
+    }
+
+    getMasks() {
+        return this.#masks;
     }
 
     getTransitions() {
@@ -90,5 +101,49 @@ export default class StateDefinition {
 
     getMaxY() {
         return this.#maxY;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2024-05-05
+ */
+class StateMask {
+
+    #minX;
+    #maxX;
+    #minY;
+    #maxY;
+    #array
+
+    constructor(state, minX, maxX, minY, maxY) {
+        this.#minX = minX;
+        this.#maxX = maxX;
+        this.#minY = minY;
+        this.#maxY = maxY;
+
+        const w = Math.abs(minX) + 1 + maxX;
+        const h = Math.abs(minY) + 1 + maxY;
+        const array = new Uint8Array(w * h);
+        for (const [dx, dy] of state) {
+            const x = dx - this.#minX;
+            const y = dy - this.#minY;
+            const i = x + (w * y);
+            array[i] = 1;
+        }
+        this.#array = array;
+    }
+
+    matches(dx, dy) {
+        if (dx < this.#minX || dy < this.#minY || dx > this.#maxX || dy > this.#maxY) {
+            // out of bounds
+            return false;
+        }
+        const w = Math.abs(this.#minX) + 1 + this.#maxX;
+        const x = dx - this.#minX;
+        const y = dy - this.#minY;
+        const i = x + (w * y);
+        return this.#array[i] === 1;
     }
 }

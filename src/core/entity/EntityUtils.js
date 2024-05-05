@@ -5,7 +5,7 @@ import ElementHead from "../ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-28
+ * @version 2024-05-05
  */
 export default class EntityUtils {
 
@@ -33,10 +33,8 @@ export default class EntityUtils {
             return false;
         }
         const typeClass = ElementHead.getTypeClass(elementHead);
-        if (typeClass <= ElementHead.TYPE_GAS) {
-            return true;
-        }
-        return false;
+        return typeClass <= ElementHead.TYPE_GAS;
+
     }
 
     static isElementWater(elementHead) {
@@ -44,9 +42,15 @@ export default class EntityUtils {
             return false;
         }
         const typeClass = ElementHead.getTypeClass(elementHead);
-        if (typeClass === ElementHead.TYPE_FLUID) {
-            return true;
+        return typeClass === ElementHead.TYPE_FLUID;
+
+    }
+
+    static isElementEntity(elementHead) {
+        if (elementHead === null) {
+            return false;
         }
-        return false;
+        const behaviour = ElementHead.getBehaviour(elementHead);
+        return behaviour === ElementHead.BEHAVIOUR_ENTITY
     }
 }

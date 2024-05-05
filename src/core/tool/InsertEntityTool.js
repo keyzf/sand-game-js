@@ -40,7 +40,7 @@ export default class InsertEntityTool extends Tool {
         serialized.x = x;
         serialized.y = y;
 
-        graphics.insertEntity(serialized);
+        graphics.entities().insertEntity(serialized);
 
         this.#createEntity();
     }

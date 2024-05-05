@@ -273,6 +273,13 @@ export default class ToolDefs {
         ToolDefs.BIRD,
         ToolDefs.BUTTERFLY,
         ToolDefs.FISH,
+        Tools.actionTool((x, y, graphics) => {
+            graphics.entities().assignWaypoint(x, y);
+        }, new ToolInfo({
+            codeName: 'entity_waypoint',
+            displayName: 'Waypoint',
+            category: ToolDefs.CATEGORY_ENTITY,
+        })),
         Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE, new ToolInfo({
             codeName: 'effect_burnt',
             displayName: 'Burnt',

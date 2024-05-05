@@ -4,14 +4,13 @@ import ElementHead from "../ElementHead";
 import Entity from "./Entity";
 import PositionedElement from "../PositionedElement";
 
-// TODO: waypoint(x, y)
 // TODO: support collisions/interleaving with other entities
 // TODO: support flammability
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-28
+ * @version 2024-05-05
  */
 export default class StateBasedAbstractEntity extends Entity {
 
@@ -33,6 +32,7 @@ export default class StateBasedAbstractEntity extends Entity {
     _iteration = 0;
     _x = 0;
     _y = 0;
+    _waypoint = null;
     _state = 0;
     _stuck = 0;
 
@@ -72,8 +72,16 @@ export default class StateBasedAbstractEntity extends Entity {
 
     // abstract methods
 
-    _checkIsSpace(tx, ty) {
+    _checkIsSpace(elementHead) {
         throw 'Not implemented';
+    }
+
+    performBeforeProcessing() {
+        return this._state !== -1;
+    }
+
+    performAfterProcessing() {
+        return this._state !== -1;
     }
 
     // methods
@@ -101,20 +109,24 @@ export default class StateBasedAbstractEntity extends Entity {
         return this._y;
     }
 
+    assignWaypoint(x, y) {
+        this._waypoint = {
+            x: x,
+            y: y,
+            stuck: 0
+        }
+    }
+
+    unassignWaypoint() {
+        this._waypoint = null;
+    }
+
     isActive() {
         return this._state !== -1;
     }
 
     initialize() {
         this.paint(this._x, this._y, this._elementArea, this._random);
-    }
-
-    performBeforeProcessing() {
-        return this._state !== -1;
-    }
-
-    performAfterProcessing() {
-        return this._state !== -1;
     }
 
     _incrementState() {
@@ -125,7 +137,7 @@ export default class StateBasedAbstractEntity extends Entity {
 
         let allowed = true;
         for (const [[dx1, dy1], [dx2, dy2]] of transitions) {
-            if (!this._elementArea.isValidPosition(x + dx1, y + dy1) || !this._checkIsSpace(x + dx2, y + dy2)) {
+            if (!this._elementArea.isValidPosition(x + dx1, y + dy1) || !this._checkIsSpaceAt(x + dx2, y + dy2)) {
                 allowed = false;
                 break;
             }
@@ -152,6 +164,35 @@ export default class StateBasedAbstractEntity extends Entity {
         const yChange = this._random.nextInt(3) - 1;
 
         return this._move(xChange, yChange, visionExtra);
+    }
+
+    _moveInWaypointDirection(visionExtra) {
+        let dx = this._waypoint.x - this._x;
+        let xChange = 0;
+        if (dx > 0) {
+            // move right
+            xChange += 1;
+        } else if (dx < 0) {
+            // move left
+            xChange -= 1;
+        }
+
+        let dy = this._waypoint.y - this._y;
+        let yChange = 0;
+        if (dy > 0) {
+            // move up
+            yChange += 1;
+        } else if (dy < 0) {
+            // move down
+            yChange -= 1;
+        }
+
+        const moved = this._move(xChange, yChange, visionExtra);
+        if (moved) {
+            this._waypoint.stuck = 0;
+        } else {
+            this._waypoint.stuck++;
+        }
     }
 
     _move(xChange, yChange, visionExtra) {
@@ -199,7 +240,7 @@ export default class StateBasedAbstractEntity extends Entity {
         // test right | right
         if (xChange > 0 || xChange < 0) {
             for (let yy = this._stateDefinition.getMinY() - visionExtra; yy <= this._stateDefinition.getMaxY() + visionExtra; yy++) {
-                if (!this._checkIsSpace(x + (xChange * 5), y + yChange + yy)) {
+                if (!this._checkIsSpaceAt(x + (xChange * 5), y + yChange + yy)) {
                     xChange = 0;
                     break;
                 }
@@ -209,7 +250,7 @@ export default class StateBasedAbstractEntity extends Entity {
         // test above | below
         if (yChange > 0 || yChange < 0) {
             for (let xx = this._stateDefinition.getMinX() - visionExtra; xx <= this._stateDefinition.getMaxX() + visionExtra; xx++) {
-                if (!this._checkIsSpace(x + xChange + xx, y + (yChange * 5))) {
+                if (!this._checkIsSpaceAt(x + xChange + xx, y + (yChange * 5))) {
                     yChange = 0;
                     break;
                 }
@@ -222,8 +263,11 @@ export default class StateBasedAbstractEntity extends Entity {
             return null;
         }
 
+        const mask = this._stateDefinition.getMasks()[this._state];
         for (const [dx, dy] of this._stateDefinition.getStates()[this._state]) {
-            if (!this._checkIsSpace(x + xChange + dx, y + yChange + dy)) {
+            if (mask.matches(xChange + dx, yChange + dy)) {
+                // its own part
+            } else if (!this._checkIsSpaceAt(x + xChange + dx, y + yChange + dy)) {
                 return null;
             }
         }
@@ -286,6 +330,14 @@ export default class StateBasedAbstractEntity extends Entity {
         }
 
         return [x + xChange, y + yChange];
+    }
+
+    _checkIsSpaceAt(tx, ty) {
+        const targetElementHead = this._elementArea.getElementHeadOrNull(tx, ty);
+        if (targetElementHead === null) {
+            return false;
+        }
+        return this._checkIsSpace(targetElementHead);
     }
 
     #relocate(state, x, y, nx, ny) {

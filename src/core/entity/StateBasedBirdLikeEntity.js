@@ -19,15 +19,11 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
         super(type, serialized, stateDefinition, brush, gameState);
     }
 
-    _checkIsSpace(tx, ty) {
-        const targetElementHead = this._elementArea.getElementHeadOrNull(tx, ty);
-        if (targetElementHead === null) {
+    _checkIsSpace(elementHead) {
+        if (ElementHead.getTypeClass(elementHead) > ElementHead.TYPE_GAS) {
             return false;
         }
-        if (ElementHead.getTypeClass(targetElementHead) > ElementHead.TYPE_GAS) {
-            return false;
-        }
-        if (ElementHead.getBehaviour(targetElementHead) === ElementHead.BEHAVIOUR_FIRE) {
+        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE) {
             return false;
         }
         return true;
@@ -45,13 +41,25 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
             isFalling = retIsFalling;
         }
 
-        if (isActive && (isFalling || this._iteration % 11 === 0)) {
+        if (isActive) {
             if (isFalling) {
                 const xChange = this._random.nextInt(3) - 1;
                 const yChange = 1;
                 this._moveForced(xChange, yChange);
-            } else {
-                this._moveRandom(2);
+            } else if (this._iteration % 11 === 0) {
+                if (this._waypoint !== null) {
+                    if (this._waypoint.stuck === 10) {
+                        this._waypoint.stuck = -20;  // try random walk now...
+                    }
+                    if (this._waypoint.stuck >= 0) {
+                        this._moveInWaypointDirection(2);
+                    } else {
+                        this._waypoint.stuck++;
+                        this._moveRandom(2);
+                    }
+                } else {
+                    this._moveRandom(2);
+                }
             }
         }
 

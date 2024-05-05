@@ -7,7 +7,7 @@ import StateBasedAbstractEntity from "./StateBasedAbstractEntity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-28
+ * @version 2024-05-05
  */
 export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
 
@@ -19,12 +19,8 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
         super(type, serialized, stateDefinition, brush, gameState);
     }
 
-    _checkIsSpace(tx, ty) {
-        const targetElementHead = this._elementArea.getElementHeadOrNull(tx, ty);
-        if (targetElementHead === null) {
-            return false;
-        }
-        if (ElementHead.getTypeClass(targetElementHead) !== ElementHead.TYPE_FLUID) {
+    _checkIsSpace(elementHead) {
+        if (ElementHead.getTypeClass(elementHead) !== ElementHead.TYPE_FLUID) {
             return false;
         }
         return true;
@@ -42,11 +38,23 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
             isFalling = retIsFalling;
         }
 
-        if (isActive && (isFalling || this._iteration % 11 === 0)) {
+        if (isActive) {
             if (isFalling) {
                 this._moveForced(0, 1);
-            } else {
-                this._moveRandom(0);
+            } else if (this._iteration % 14 === 0) {
+                if (this._waypoint !== null) {
+                    if (this._waypoint.stuck === 3) {
+                        this._waypoint.stuck = -10;  // try random walk now...
+                    }
+                    if (this._waypoint.stuck >= 0) {
+                        this._moveInWaypointDirection(1);
+                    } else {
+                        this._waypoint.stuck++;
+                        this._moveRandom(1);
+                    }
+                } else {
+                    this._moveRandom(1);
+                }
             }
         }
 
@@ -101,7 +109,8 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
                     lightElementsAbove = EntityUtils.isElementLight(elementHeadOrNull);
                 }
                 if (waterElementsAbove) {
-                    waterElementsAbove = EntityUtils.isElementWater(elementHeadOrNull);
+                    waterElementsAbove = EntityUtils.isElementWater(elementHeadOrNull)
+                            || EntityUtils.isElementEntity(elementHeadOrNull);
                 }
             }
 
@@ -112,7 +121,8 @@ export default class StateBasedFishLikeEntity extends StateBasedAbstractEntity {
                     lightElementsBelow = EntityUtils.isElementLight(elementHeadOrNull);
                 }
                 if (waterElementsBelow) {
-                    waterElementsBelow = EntityUtils.isElementWater(elementHeadOrNull);
+                    waterElementsBelow = EntityUtils.isElementWater(elementHeadOrNull)
+                            || EntityUtils.isElementEntity(elementHeadOrNull);
                 }
             }
         }

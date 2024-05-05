@@ -11,6 +11,7 @@ import Processor from "./processing/Processor.js";
 import Renderer from "./rendering/Renderer.js";
 import RendererInitializer from "./rendering/RendererInitializer.js";
 import SandGameGraphics from "./SandGameGraphics.js";
+import SandGameEntities from "./SandGameEntities";
 import SandGameOverlay from "./SandGameOverlay";
 import SandGameScenario from "./SandGameScenario";
 import GameState from "./GameState";
@@ -22,7 +23,7 @@ import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-05-04
  */
 export default class SandGame {
 
@@ -70,6 +71,9 @@ export default class SandGame {
     /** @type SandGameGraphics */
     #graphics;
 
+    /** @type SandGameEntities */
+    #entities;
+
     /** @type SandGameOverlay */
     #overlay;
 
@@ -97,10 +101,12 @@ export default class SandGame {
         this.#processor = new Processor(this.#elementArea, 16, this.#random, gameDefaults, sceneMetadata);
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
         this.#entityManager = new EntityManager(serializedEntities, new GameState(elementArea, this.#random, this.#processor, null));
-        this.#graphics = new SandGameGraphics(this.#elementArea, this.#entityManager, this.#random, gameDefaults, (x, y) => {
+        const triggerFunction = (x, y) => {
             this.#processor.trigger(x, y);
             this.#renderer.trigger(x, y);
-        });
+        };
+        this.#entities = new SandGameEntities(elementArea.getWidth(), elementArea.getHeight(), this.#entityManager, triggerFunction);
+        this.#graphics = new SandGameGraphics(this.#elementArea, this.#entities, this.#random, gameDefaults, triggerFunction);
         this.#overlay = new SandGameOverlay(elementArea.getWidth(), elementArea.getHeight());
         this.#scenario = new SandGameScenario();
 
@@ -210,6 +216,14 @@ export default class SandGame {
      */
     graphics() {
         return this.#graphics;
+    }
+
+    /**
+     *
+     * @returns {SandGameEntities}
+     */
+    entities() {
+        return this.#entities;
     }
 
     /**

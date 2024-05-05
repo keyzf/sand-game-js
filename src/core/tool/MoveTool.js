@@ -99,13 +99,12 @@ export default class MoveTool extends Tool {
         const elementArea = ElementArea.create(w, h, ElementArea.TRANSPARENT_ELEMENT);
         const entities = [];
 
-        const entityLookup = graphics.createEntityPositionLookup();
         const defaultElement = graphics.getDefaults().getDefaultElement();
         let empty = true;
         const brush = Brushes.custom((tx, ty, r, element) => {
 
             // process entities
-            for (const entity of entityLookup.getAt(tx, ty)) {
+            for (const entity of graphics.entities().getAt(tx, ty)) {
                 if (entity.isActive()) {
                     const [serializedEntity] = entity.extract(defaultElement, x1, y1);
                     entities.push(serializedEntity);
