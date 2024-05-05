@@ -7,7 +7,7 @@ import Entities from "../entity/Entities";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-05-05
  */
 export default class ExtensionSpawnFish extends Extension {
 
@@ -33,66 +33,60 @@ export default class ExtensionSpawnFish extends Extension {
     }
 
     run() {
-        if (this.#processorContext.getIteration() % 9 === 0) {
+        if ((this.#processorContext.getIteration() + 200) % 1000 === 0) {
             const fishCount = this.#entityManager.countEntities('fish');
 
-            if (fishCount > 4) {
+            if (fishCount > 5) {
                 return;
             }
 
-            const x = this.#random.nextInt(this.#elementArea.getWidth() - 2) + 1;
-            const y = this.#random.nextInt(this.#elementArea.getHeight() - 2) + 1;
-
-            if (this.#couldSpawnHere(this.#elementArea, x, y)) {
+            const x = this.#random.nextInt(this.#elementArea.getWidth() - 20) + 10;
+            const y = this.#findSpawnY(this.#elementArea, x);
+            if (y !== null) {
                 this.#entityManager.addSerializedEntity(Entities.fish(x, y));
                 this.#processorContext.trigger(x, y);
             }
         }
     }
 
-    #couldSpawnHere(elementArea, x, y) {
-        // space around
-        if (x < 1 || y < 1) {
-            return false;
-        }
-        if (x + 1 >= elementArea.getWidth() || y + 1 >= elementArea.getHeight()) {
-            return false;
+    #findSpawnY(elementArea, x) {
+        let waterCount = 0;
+
+        for (let y = 0; y < elementArea.getHeight(); y++) {
+            const elementHead = elementArea.getElementHead(x, y);
+            const typeClass = ElementHead.getTypeClass(elementHead);
+            if (typeClass === ElementHead.TYPE_AIR) {
+                waterCount = 0;
+            } else if (typeClass === ElementHead.TYPE_FLUID) {
+                waterCount++;
+            } else if (typeClass === ElementHead.TYPE_POWDER || typeClass === ElementHead.TYPE_POWDER_WET) {
+                if (waterCount > 7 && this.#isSpaceAround(x, y - 1)) {
+                    return y - 1;
+                }
+                break;
+            }
         }
 
-        // check temperature
-        const elementHead = elementArea.getElementHead(x, y);
-        if (ElementHead.getTemperature(elementHead) > 0) {
-            return false;
-        }
-
-        // water around
-        if (!this.#isWater(elementArea, x, y) || !this.#isWater(elementArea, x - 1, y)
-            || !this.#isWater(elementArea, x + 1, y) || !this.#isWater(elementArea, x + 2, y)
-            || !this.#isWater(elementArea, x + 1, y + 1) || !this.#isWater(elementArea, x + 2, y + 1)
-            || !this.#isWater(elementArea, x + 1, y - 1) || !this.#isWater(elementArea, x + 2, y - 1)) {
-            return false;
-        }
-
-        // sand around
-        return this.#isSand(elementArea, x, y + 2)
-            || this.#isSand(elementArea, x + 1, y + 2);
+        return null;
     }
 
-    #isWater(elementArea, x, y) {
-        if (!elementArea.isValidPosition(x, y)) {
-            return false;
+    #isSpaceAround(x, y) {
+        for (let dy = 0; dy < 6; dy++) {
+            for (let dx = -(dy + 1); dx < dy + 1; dx++) {
+                const ex = x + dx;
+                const ey = y - dy;
+                const elementHead = this.#elementArea.getElementHeadOrNull(ex, ey);
+                if (elementHead === null) {
+                    return false;
+                }
+                if (ElementHead.getTypeClass(elementHead) !== ElementHead.TYPE_FLUID) {
+                    return false;
+                }
+                if (ElementHead.getTemperature(elementHead) > 0) {
+                    return false;
+                }
+            }
         }
-        const targetElementHead = elementArea.getElementHead(x, y);
-        const type = ElementHead.getTypeClass(targetElementHead);
-        return type === ElementHead.TYPE_FLUID;
-    }
-
-    #isSand(elementArea, x, y) {
-        if (!elementArea.isValidPosition(x, y)) {
-            return false;
-        }
-        const targetElementHead = elementArea.getElementHead(x, y);
-        const type = ElementHead.getTypeClass(targetElementHead);
-        return type === ElementHead.TYPE_POWDER || type === ElementHead.TYPE_POWDER_WET;
+        return true;
     }
 }
