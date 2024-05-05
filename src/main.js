@@ -34,6 +34,7 @@ import ExtensionSpawnGrass from "./core/extensions/ExtensionSpawnGrass";
 import ExtensionSpawnFish from "./core/extensions/ExtensionSpawnFish";
 import ExtensionSpawnTrees from "./core/extensions/ExtensionSpawnTrees";
 import ExtensionSpawnButterflies from "./core/extensions/ExtensionSpawnButterflies";
+import ExtensionSpawnBirds from "./core/extensions/ExtensionSpawnBirds";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -134,6 +135,7 @@ export function init(root, config) {
             spawnGrass: true,
             spawnTrees: true,
             spawnButterflies: true,
+            spawnBirds: true,
         };
     } else {
         throw "config.extensions - wrong type, expected object";
@@ -152,6 +154,9 @@ export function init(root, config) {
         }
         if (extensions.spawnButterflies === true) {
             array.push(new ExtensionSpawnButterflies(gameState));
+        }
+        if (extensions.spawnBirds === true) {
+            array.push(new ExtensionSpawnBirds(gameState));
         }
         return array;
     };
