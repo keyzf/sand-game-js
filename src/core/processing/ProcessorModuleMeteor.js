@@ -7,7 +7,7 @@ import VisualEffects from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-06
+ * @version 2024-05-05
  */
 export default class ProcessorModuleMeteor {
 
@@ -115,7 +115,7 @@ export default class ProcessorModuleMeteor {
             const ty = y + dy;
             if (this.#elementArea.isValidPosition(tx, ty)) {
                 let targetElementHead = this.#elementArea.getElementHead(tx, ty);
-                if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_EFFECT) {
+                if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_GAS) {
                     const brush = this.#processorContext.getDefaults().getBrushFire();
                     this.#elementArea.setElement(tx, ty, brush.apply(tx, ty, this.#random));
                 } else {
