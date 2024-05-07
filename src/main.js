@@ -249,6 +249,7 @@ export function init(root, config) {
     } else {
         tools = ToolDefs.DEFAULT_TOOLS;
     }
+    // tools = Tools.grouping(ToolDefs.DEFAULT_TOOLS, ToolDefs.DEFAULT_CATEGORY_DEFINITIONS);
 
     let primaryTool;
     if (config.primaryTool === undefined || (primaryTool = resolveTool(config.primaryTool)) === null) {

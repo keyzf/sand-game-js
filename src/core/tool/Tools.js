@@ -9,6 +9,7 @@ import InsertElementAreaTool from "./InsertElementAreaTool";
 import InsertRandomSceneTool from "./InsertRandomSceneTool";
 import ActionTool from "./ActionTool";
 import MoveTool from "./MoveTool";
+import SelectionFakeTool from "./SelectionFakeTool";
 import TemplateSelectionFakeTool from "./TemplateSelectionFakeTool";
 import GlobalActionTool from "./GlobalActionTool";
 import InsertEntityTool from "./InsertEntityTool";
@@ -16,7 +17,7 @@ import InsertEntityTool from "./InsertEntityTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-04
+ * @version 2024-05-07
  */
 export default class Tools {
 
@@ -149,6 +150,16 @@ export default class Tools {
 
     /**
      *
+     * @param tools {Tool[]}
+     * @param info {ToolInfo|object|undefined}
+     * @return {Tool}
+     */
+    static selectionTool(tools, info) {
+        return new SelectionFakeTool(Tools.#info(info), tools);
+    }
+
+    /**
+     *
      * @param entityFactory {function(serialized:object, gameState:GameState):Entity}
      * @param info {ToolInfo|object|undefined}
      * @return {Tool}
@@ -156,4 +167,48 @@ export default class Tools {
     static insertEntityTool(entityFactory, info) {
         return new InsertEntityTool(Tools.#info(info), entityFactory);
     }
+
+    // ---
+
+    /**
+     *
+     * @param tools {Tool[]}
+     * @param categoryDefinitions {Object<string, {displayName: string, badgeStyle: object}>}
+     * @returns {Tool[]}
+     */
+    static grouping(tools, categoryDefinitions) {
+        const groups = [];
+        const selections = {};
+        for (const tool of tools) {
+            const category = tool.getInfo().getCategory();
+            if (category !== undefined && categoryDefinitions[category] !== undefined) {
+                let selection = selections[category];
+                if (selection === undefined) {
+                    selection = [];
+                    selections[category] = selection;
+                    groups.push(selection);
+                }
+                selection.push(tool);
+            } else {
+                groups.push(tool);
+            }
+        }
+
+        const groupedTools = [];
+        for (const group of groups) {
+            if (Array.isArray(group)) {
+                const category = group[0].getInfo().getCategory();
+                const categoryDefinition = categoryDefinitions[category];
+                groupedTools.push(Tools.selectionTool(group, Tools.#info({
+                    displayName: categoryDefinition.displayName,
+                    codeName: 'category_' + category,
+                    badgeStyle: categoryDefinition.badgeStyle
+                })));
+            } else {
+                groupedTools.push(group);
+            }
+        }
+        return groupedTools;
+    }
+
 }

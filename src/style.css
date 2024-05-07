@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-04-07
+ * @version 2024-05-07
  */
 
 .sand-game-component {
@@ -113,6 +113,14 @@
 .sand-game-component .sand-game-tools {
     display: inline-block;
     user-select: none;
+}
+
+.sand-game-component .sand-game-tools .dropdown {
+    display: inline;
+}
+
+.sand-game-component .sand-game-tools .dropdown .selected {
+    outline: red solid 1px;
 }
 
 .sand-game-component .btn-sand-game-tool {

@@ -6,11 +6,12 @@ import ActionDialogTemplateSelection from "../action/ActionDialogTemplateSelecti
 import ToolDefs from "../../def/ToolDefs";
 import TemplateSelectionFakeTool from "../../core/tool/TemplateSelectionFakeTool";
 import GlobalActionTool from "../../core/tool/GlobalActionTool";
+import SelectionFakeTool from "../../core/tool/SelectionFakeTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-04
+ * @version 2024-05-07
  */
 export default class ComponentViewTools extends Component {
 
@@ -32,16 +33,8 @@ export default class ComponentViewTools extends Component {
     createNode(controller) {
         let buttons = [];
 
-        for (let tool of this.#tools) {
-            let cssName = tool.getInfo().getCodeName();
-            let displayName = tool.getInfo().getDisplayName();
-            let badgeStyle = tool.getInfo().getBadgeStyle();
-
-            let attributes = {
-                class: 'btn btn-secondary btn-sand-game-tool ' + cssName,
-                style: badgeStyle
-            };
-            let button = DomBuilder.button(displayName, attributes, () => {
+        const initButton = (button, tool) => {
+            button.addEventListener('click', () => {
                 this.#selectTool(tool, controller);
             });
 
@@ -61,8 +54,56 @@ export default class ComponentViewTools extends Component {
             controller.getToolManager().addOnInputDisabledChanged(disabled => {
                 button.disabled = disabled;
             });
+        }
 
-            buttons.push(button);
+        for (let tool of this.#tools) {
+            let codeName = tool.getInfo().getCodeName();
+            let displayName = tool.getInfo().getDisplayName();
+            let badgeStyle = tool.getInfo().getBadgeStyle();
+
+            if (tool instanceof SelectionFakeTool) {
+
+                const ulContent = [];
+                for (const innerTool of tool.getTools()) {
+                    let innerCodeName = innerTool.getInfo().getCodeName();
+                    let innerDisplayName = innerTool.getInfo().getDisplayName();
+                    let innerBadgeStyle = innerTool.getInfo().getBadgeStyle();
+
+                    const innerLabel = DomBuilder.span(innerDisplayName, {
+                        class: 'btn btn-secondary btn-sand-game-tool ' + codeName,
+                        style: innerBadgeStyle,
+                    })
+                    const innerToolAttributes = {
+                        class: 'dropdown-item',
+                    };
+                    const innerButton = DomBuilder.button(innerLabel, innerToolAttributes);
+                    initButton(innerButton, innerTool);
+                    ulContent.push(DomBuilder.element('li', null, innerButton));
+                }
+
+                const button = DomBuilder.div({ class: 'dropdown' }, [
+                    DomBuilder.button(displayName, {
+                        class: 'btn btn-secondary btn-sand-game-tool dropdown-toggle ' + codeName,
+                        style: badgeStyle,
+                        'data-bs-toggle': 'dropdown',
+                        'aria-expanded': 'false'
+                    }),
+                    DomBuilder.element('ul', {
+                        class: 'dropdown-menu'
+                    }, ulContent)
+                ]);
+
+                buttons.push(button);
+
+            } else {
+                const attributes = {
+                    class: 'btn btn-secondary btn-sand-game-tool ' + codeName,
+                    style: badgeStyle
+                };
+                const button = DomBuilder.button(displayName, attributes);
+                initButton(button, tool);
+                buttons.push(button);
+            }
         }
 
         return DomBuilder.div({ class: 'sand-game-tools' }, buttons);
