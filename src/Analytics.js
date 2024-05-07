@@ -1,10 +1,13 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 import ToolDefs from "./def/ToolDefs.js";
+import InsertElementAreaTool from "./core/tool/InsertElementAreaTool";
+import InsertRandomSceneTool from "./core/tool/InsertRandomSceneTool";
+import InsertEntityTool from "./core/tool/InsertEntityTool";
 
 /**
  *
- * @version 2024-04-20
+ * @version 2024-05-07
  * @author Patrik Harag
  */
 export default class Analytics {
@@ -41,12 +44,17 @@ export default class Analytics {
     static triggerToolUsed(tool) {
         // Note: better feature name would be tool_xxx, but we will keep backward compatibility
 
-        const category = tool.getInfo().getCategory();
-        if (category === ToolDefs.CATEGORY_BRUSH || category === ToolDefs.CATEGORY_ENTITY) {
-            const feature = 'brush_' + tool.getInfo().getCodeName();
+        let name = tool.getInfo().getCodeName();
+        if (name === undefined) {
+            if (tool instanceof InsertElementAreaTool || tool instanceof InsertRandomSceneTool) {
+                name = 'template';
+            } else if (tool instanceof InsertEntityTool) {
+                name = 'entity';
+            }
+        }
+        if (name !== undefined) {
+            const feature = 'brush_' + name;
             Analytics.triggerFeatureUsed(feature);
-        } else if (category === ToolDefs.CATEGORY_TEMPLATE) {
-            Analytics.triggerFeatureUsed('brush_template');
         }
     }
 
