@@ -36,7 +36,7 @@ export default class ExtensionSpawnFish extends Extension {
         if ((this.#processorContext.getIteration() + 200) % 1000 === 0) {
             const fishCount = this.#entityManager.countEntities('fish');
 
-            if (fishCount > 5) {
+            if (fishCount >= 8) {
                 return;
             }
 
