@@ -75,7 +75,7 @@ class BenchmarkProvider {
 
     start() {
         let scene = new SceneImplHardcoded({
-            apply: (sandGame) => this.#benchmarkScene(sandGame)
+            onCreated: (sandGame) => this.#benchmarkScene(sandGame)
         });
 
         this.#controller.openScene(scene);

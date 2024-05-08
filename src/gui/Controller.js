@@ -17,7 +17,7 @@ import Analytics from "../Analytics";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-12
+ * @version 2024-05-08
  */
 export default class Controller {
 
@@ -156,6 +156,11 @@ export default class Controller {
         promise.then(sandGame => {
             this.#sandGame = sandGame;
             this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, this.#gameDefaults.getDefaultElement());
+
+            // call on opened
+            if (this.#initialScene !== null) {
+                this.#initialScene.executeOnOpened(this.#sandGame);
+            }
 
             // handlers
             this.#onInitialized.forEach(f => f(this.#sandGame));

@@ -4,7 +4,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-05-08
  */
 export default class Scene {
 
@@ -45,5 +45,9 @@ export default class Scene {
      */
     createEntities() {
         return null;
+    }
+
+    executeOnOpened(sandGame) {
+        // no action by default
     }
 }

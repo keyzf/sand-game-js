@@ -5,19 +5,21 @@ import SceneImplHardcoded from "./SceneImplHardcoded";
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-24
+ * @version 2024-05-08
  */
 export default class Scenes {
 
     /**
      *
      * @param name {string}
-     * @param func {function(SandGame):Promise<any>|any}
+     * @param onCreated {function(SandGame):Promise<any>|any}
+     * @param onOpened {(function(SandGame):void)|undefined}
      */
-    static custom(name, func) {
+    static custom(name, onCreated, onOpened = undefined) {
         return new SceneImplHardcoded({
             name: name,
-            apply: func
+            onCreated: onCreated,
+            onOpened: onOpened
         });
     }
 }

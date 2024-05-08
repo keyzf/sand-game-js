@@ -18,7 +18,7 @@ export default class SceneDefs {
     static SCENE_EMPTY = new SceneImplHardcoded({
         name: 'Empty',
         description: 'Boxed mode',
-        apply: function (sandGame) {
+        onCreated: function (sandGame) {
             sandGame.setBoxedMode();
             // empty
         }
@@ -28,7 +28,7 @@ export default class SceneDefs {
     static SCENE_LANDSCAPE_1 = new SceneImplHardcoded({
         name: 'Landscape 1',
         description: 'Boxed mode',
-        apply: async function (sandGame) {
+        onCreated: async function (sandGame) {
             sandGame.setBoxedMode();
 
             const soil = sandGame.getBrushCollection().byCodeName('soil');
@@ -85,7 +85,7 @@ export default class SceneDefs {
     static SCENE_LANDSCAPE_2 = new SceneImplHardcoded({
         name: 'Landscape 2',
         description: 'Boxed mode',
-        apply: function (sandGame) {
+        onCreated: function (sandGame) {
             sandGame.setBoxedMode();
 
             const water = sandGame.getBrushCollection().byCodeName('water');
@@ -120,7 +120,7 @@ export default class SceneDefs {
     static SCENE_FALLTHROUGH = new SceneImplHardcoded({
         name: 'Fall-through',
         description: 'Fall-through mode',
-        apply: function (sandGame) {
+        onCreated: function (sandGame) {
             sandGame.setFallThroughMode();
 
             const wall = sandGame.getBrushCollection().byCodeName('wall');
@@ -147,7 +147,7 @@ export default class SceneDefs {
     static SCENE_PLATFORM = new SceneImplHardcoded({
         name: 'Platform',
         description: 'Erasing mode',
-        apply: function (sandGame) {
+        onCreated: function (sandGame) {
             sandGame.setErasingMode();
 
             const sand = sandGame.getBrushCollection().byCodeName('sand');

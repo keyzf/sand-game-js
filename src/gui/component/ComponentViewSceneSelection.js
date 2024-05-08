@@ -10,7 +10,7 @@ import SceneImplSnapshot from "../../core/scene/SceneImplSnapshot";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-04
+ * @version 2024-05-08
  */
 export default class ComponentViewSceneSelection extends Component {
 
@@ -33,7 +33,7 @@ export default class ComponentViewSceneSelection extends Component {
 
     /**
      * @param controller {Controller}
-     * @param scenes
+     * @param scenes {Object<string,Scene>}}
      * @param initialSceneId
      */
     constructor(controller, scenes, initialSceneId) {
@@ -119,10 +119,12 @@ export default class ComponentViewSceneSelection extends Component {
             this.#closedScenes.delete(id);
 
             this.#ignoreOnBeforeNewSceneLoaded = true;
+            this.#controller.setInitialScene(scene);
             this.#controller.openScene(new SceneImplSnapshot(snapshot));
             this.#ignoreOnBeforeNewSceneLoaded = false;
         } else {
             this.#ignoreOnBeforeNewSceneLoaded = true;
+            this.#controller.setInitialScene(scene);
             this.#controller.openScene(scene);
             this.#ignoreOnBeforeNewSceneLoaded = false;
         }

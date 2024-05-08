@@ -7,7 +7,7 @@ import ElementArea from "../ElementArea.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-05-08
  */
 export default class SceneImplHardcoded extends Scene {
 
@@ -15,11 +15,15 @@ export default class SceneImplHardcoded extends Scene {
     description;
 
     /** @type function(SandGame):Promise<any>|any */
-    #apply;
+    #onCreated;
 
-    constructor({name, description, apply}) {
+    /** @type function(SandGame) */
+    #onOpened;
+
+    constructor({name, description, onCreated, onOpened}) {
         super();
-        this.#apply = apply;
+        this.#onCreated = onCreated;
+        this.#onOpened = onOpened;
         this.name = name;
         this.description = description;
     }
@@ -31,11 +35,17 @@ export default class SceneImplHardcoded extends Scene {
     async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
         let sandGame = new SandGame(elementArea, [], null, defaults, context, rendererInitializer);
-        await this.#apply(sandGame);
+        await this.#onCreated(sandGame);
         return sandGame;
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {
         return ElementArea.create(prefWidth, prefHeight, defaultElement);
+    }
+
+    executeOnOpened(sandGame) {
+        if (this.#onOpened !== undefined) {
+            this.#onOpened(sandGame);
+        }
     }
 }
