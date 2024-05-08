@@ -87,7 +87,7 @@ export default class ComponentViewTools extends Component {
                     ulContent.push(DomBuilder.element('li', null, innerButton));
                 }
 
-                const button = DomBuilder.div({ class: 'dropdown' }, [
+                const button = DomBuilder.div({ class: 'btn-group' }, [
                     DomBuilder.button(displayName, {
                         class: 'btn btn-secondary dropdown-toggle ' + buttonType + ' ' + codeName,
                         style: badgeStyle,

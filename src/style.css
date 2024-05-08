@@ -115,13 +115,6 @@
     user-select: none;
 }
 
-.sand-game-component .sand-game-tools .dropdown {
-    display: inline;
-}
-
-.sand-game-component .sand-game-tools .dropdown .selected {
-    outline: red solid 1px;
-}
 
 .sand-game-component .btn-sand-game-tool {
     margin-right: 3pt;
@@ -144,8 +137,9 @@
     margin-left: 0.4em;
 }
 
-.sand-game-component .btn-sand-game-tool.selected,
-.sand-game-component .btn-sand-game-tool-big.selected {
+.sand-game-component .sand-game-tools .btn-sand-game-tool.selected,
+.sand-game-component .sand-game-tools .btn-sand-game-tool-big.selected,
+.sand-game-component .sand-game-tools .dropdown-item.selected {
     outline: red solid 1px;
 }
 
