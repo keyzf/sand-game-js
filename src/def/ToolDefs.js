@@ -10,7 +10,7 @@ import EntityFactories from "../core/entity/EntityFactories";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-07
+ * @version 2024-05-08
  */
 export default class ToolDefs {
 
@@ -78,11 +78,19 @@ export default class ToolDefs {
         }
     }));
 
-    static FLIP_VERTICALLY = Tools.globalActionTool(sandGame => {
-        sandGame.graphics().flipVertically();
-    }, new ToolInfo({
+    static FLIP_VERTICALLY = Tools.globalActionTool(sg => sg.graphics().flipVertically(), new ToolInfo({
         codeName: 'flip_vertically',
-        displayName: 'Flip Vertically',
+        displayName: 'Flip \u2195',
+        category: ToolDefs.CATEGORY_NONE,
+        badgeStyle: {
+            backgroundColor: '#e6e6e6',
+            color: 'black'
+        }
+    }));
+
+    static FLIP_HORIZONTALLY = Tools.globalActionTool(sg => sg.graphics().flipHorizontally(), new ToolInfo({
+        codeName: 'flip_horizontally',
+        displayName: 'Flip \u2194',
         category: ToolDefs.CATEGORY_NONE,
         badgeStyle: {
             backgroundColor: '#e6e6e6',

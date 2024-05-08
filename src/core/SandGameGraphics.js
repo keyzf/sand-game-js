@@ -10,7 +10,7 @@ import Marker from "./Marker";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-04
+ * @version 2024-05-08
  */
 export default class SandGameGraphics {
 
@@ -231,6 +231,17 @@ export default class SandGameGraphics {
         for (let x = 0; x < width; x++) {
             for (let yd = 0; yd < halfHeight; yd++) {
                 this.swap(x, yd, x, height - yd - 1);
+            }
+        }
+    }
+
+    flipHorizontally() {
+        const width = this.getWidth();
+        const height = this.getHeight();
+        const halfWidth = Math.trunc(width / 2);
+        for (let y = 0; y < height; y++) {
+            for (let xd = 0; xd < halfWidth; xd++) {
+                this.swap(xd, y, width - xd - 1, y);
             }
         }
     }
