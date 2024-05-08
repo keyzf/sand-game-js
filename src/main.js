@@ -35,6 +35,7 @@ import ExtensionSpawnFish from "./core/extensions/ExtensionSpawnFish";
 import ExtensionSpawnTrees from "./core/extensions/ExtensionSpawnTrees";
 import ExtensionSpawnButterflies from "./core/extensions/ExtensionSpawnButterflies";
 import ExtensionSpawnBirds from "./core/extensions/ExtensionSpawnBirds";
+import ExtensionGenWaypoints from "./core/extensions/ExtensionGenWaypoints";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -138,6 +139,7 @@ export function init(root, config) {
             spawnTrees: true,
             spawnButterflies: true,
             spawnBirds: true,
+            generateWaypoints: true,
         };
     } else {
         throw "config.extensions - wrong type, expected object";
@@ -159,6 +161,9 @@ export function init(root, config) {
         }
         if (extensions.spawnBirds === true) {
             array.push(new ExtensionSpawnBirds(gameState));
+        }
+        if (extensions.generateWaypoints === true) {
+            array.push(new ExtensionGenWaypoints(gameState));
         }
         return array;
     };
