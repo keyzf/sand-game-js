@@ -11,7 +11,7 @@ import SelectionFakeTool from "../../core/tool/SelectionFakeTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-07
+ * @version 2024-05-08
  */
 export default class ComponentViewTools extends Component {
 
@@ -19,19 +19,25 @@ export default class ComponentViewTools extends Component {
     #tools;
     /** @type boolean */
     #importEnabled;
+    /** @type boolean */
+    #enableBigButtons;
 
     /**
      * @param tools {Tool[]}
      * @param importEnabled {boolean}
+     * @param enableBigButtons {boolean}
      */
-    constructor(tools, importEnabled = false) {
+    constructor(tools, importEnabled = false, enableBigButtons = false) {
         super();
         this.#tools = tools;
         this.#importEnabled = importEnabled;
+        this.#enableBigButtons = enableBigButtons;
     }
 
     createNode(controller) {
         let buttons = [];
+
+        const buttonType = this.#enableBigButtons ? ' btn-sand-game-tool-big' : ' btn-sand-game-tool';
 
         const initButton = (button, tool) => {
             button.addEventListener('click', () => {
@@ -70,7 +76,7 @@ export default class ComponentViewTools extends Component {
                     let innerBadgeStyle = innerTool.getInfo().getBadgeStyle();
 
                     const innerLabel = DomBuilder.span(innerDisplayName, {
-                        class: 'btn btn-secondary btn-sand-game-tool ' + codeName,
+                        class: 'btn btn-secondary' + buttonType + ' ' + codeName,
                         style: innerBadgeStyle,
                     })
                     const innerToolAttributes = {
@@ -83,7 +89,7 @@ export default class ComponentViewTools extends Component {
 
                 const button = DomBuilder.div({ class: 'dropdown' }, [
                     DomBuilder.button(displayName, {
-                        class: 'btn btn-secondary btn-sand-game-tool dropdown-toggle ' + codeName,
+                        class: 'btn btn-secondary dropdown-toggle ' + buttonType + ' ' + codeName,
                         style: badgeStyle,
                         'data-bs-toggle': 'dropdown',
                         'aria-expanded': 'false'
@@ -97,7 +103,7 @@ export default class ComponentViewTools extends Component {
 
             } else {
                 const attributes = {
-                    class: 'btn btn-secondary btn-sand-game-tool ' + codeName,
+                    class: 'btn btn-secondary ' + buttonType + ' ' + codeName,
                     style: badgeStyle
                 };
                 const button = DomBuilder.button(displayName, attributes);

@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-05-07
+ * @version 2024-05-08
  */
 
 .sand-game-component {
@@ -133,12 +133,19 @@
     margin-bottom: 4pt
 }
 
+.sand-game-component .btn-sand-game-tool-big {
+    margin-right: 3pt;
+    margin-bottom: 4pt;
+    border: none;
+}
+
 .sand-game-component .sand-game-tools .btn-sand-game-tool.sand,
 .sand-game-component .sand-game-tools .btn-sand-game-tool.effect_temp_minus {
     margin-left: 0.4em;
 }
 
-.sand-game-component .btn-sand-game-tool.selected {
+.sand-game-component .btn-sand-game-tool.selected,
+.sand-game-component .btn-sand-game-tool-big.selected {
     outline: red solid 1px;
 }
 
