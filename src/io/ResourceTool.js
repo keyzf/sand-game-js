@@ -2,7 +2,6 @@
 
 import Tool from "../core/tool/Tool";
 import Tools from "../core/tool/Tools";
-import ToolInfo from "../core/tool/ToolInfo";
 import Brush from "../core/brush/Brush";
 import BrushDefs from "../def/BrushDefs";
 import ElementArea from "../core/ElementArea";
@@ -12,7 +11,7 @@ import ResourceUtils from "./ResourceUtils";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-22
+ * @version 2024-05-11
  */
 export default class ResourceTool {
 
@@ -28,34 +27,17 @@ export default class ResourceTool {
         const info = metadataJson.info;
         const action = metadataJson.action;
 
-        if (info === undefined) {
-            throw 'Tool definition: info not set';
-        }
-        const parsedInfo = new ToolInfo(info);
-
         if (action === undefined) {
             throw 'Tool definition: action not set';
         }
-
-        return ResourceTool.#parseAction(parsedInfo, action, zip);
-    }
-
-    /**
-     *
-     * @param info {ToolInfo}
-     * @param json
-     * @param zip {{[path: string]: Uint8Array}|null}
-     * @returns {Promise<Tool>}
-     */
-    static async #parseAction(info, json, zip) {
-        const type = json.type;
+        const type = action.type;
 
         if (type === 'image-template') {
-            const scenes = await this.parseImageTemplate(json, zip);
+            const scenes = await this.#parseImageTemplate(action, zip);
             return Tools.insertScenesTool(scenes, undefined, info);
 
         } else if (type === 'random-template') {
-            const scenes = await this.parseRandomTemplate(json, zip);
+            const scenes = await this.#parseRandomTemplate(action, zip);
             return Tools.insertScenesTool(scenes, undefined, info);
 
         } else {
@@ -63,7 +45,7 @@ export default class ResourceTool {
         }
     }
 
-    static async parseRandomTemplate(json, zip) {
+    static async #parseRandomTemplate(json, zip) {
         const actions = json.actions;
         if (actions === undefined || actions.length === undefined || actions.length === 0) {
             throw 'Image template: actions not set';
@@ -74,7 +56,7 @@ export default class ResourceTool {
             const action = actions[i];
             const type = action.type;
             if (type === 'image-template') {
-                const items = await this.parseImageTemplate(action, zip);
+                const items = await this.#parseImageTemplate(action, zip);
                 scenes.push(...items);
             } else {
                 throw 'Tool action not supported: ' + type;
@@ -83,7 +65,7 @@ export default class ResourceTool {
         return scenes;
     }
 
-    static async parseImageTemplate(json, zip) {
+    static async #parseImageTemplate(json, zip) {
         let imageData = await this.#parseImageData(json, zip);
 
         const thresholdPar = json.threshold;
