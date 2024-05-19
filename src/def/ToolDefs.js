@@ -227,6 +227,15 @@ export default class ToolDefs {
         }
     }));
 
+    static OIL = Tools.roundBrushTool(BrushDefs.OIL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'oil',
+        displayName: 'Oil',
+        category: ToolDefs.CATEGORY_FLUIDS,
+        badgeStyle: {
+            backgroundColor: 'rgb(36,26,1)',
+        }
+    }));
+
     static FIRE = Tools.roundBrushTool(Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE, new ToolInfo({
         codeName: 'fire',
         displayName: 'Fire',
@@ -283,10 +292,11 @@ export default class ToolDefs {
         this.GRAVEL,
         this.COAL,
         this.THERMITE,
-        this.ROCK_TEMPLATES,
         this.WALL,
+        this.ROCK_TEMPLATES,
         this.METAL,
         this.WATER,
+        this.OIL,
         this.METAL_MOLTEN,
         this.FIRE,
         this.METEOR,

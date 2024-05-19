@@ -206,7 +206,7 @@ export default class ProcessorModuleFire {
 
         if (this.#random.nextInt(10000) < burnDownChange) {
             // burned down
-            if (this.#random.nextInt(100) < 8) {
+            if (ElementHead.getTypeClass(elementHead) >= ElementHead.TYPE_POWDER && this.#random.nextInt(100) < 8) {
                 // turn into ash
                 const oldTemperature = ElementHead.getTemperature(elementHead);
                 const ashElement = this.#processorContext.getDefaults().getBrushAsh().apply(x, y, this.#random);

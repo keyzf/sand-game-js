@@ -16,6 +16,7 @@ import _ASSET_PALETTE_COAL from './assets/brushes/coal.palette.csv';
 import _ASSET_PALETTE_ASH from './assets/brushes/ash.palette.csv';
 import _ASSET_PALETTE_WATER from './assets/brushes/water.palette.csv';
 import _ASSET_PALETTE_STEAM from './assets/brushes/steam.palette.csv';
+import _ASSET_PALETTE_OIL from './assets/brushes/oil.palette.csv';
 import _ASSET_PALETTE_WALL from './assets/brushes/wall.palette.csv';
 import _ASSET_PALETTE_TREE_WOOD_LIGHT from './assets/brushes/tree-wood-light.palette.csv';
 import _ASSET_PALETTE_TREE_WOOD_DARK from './assets/brushes/tree-wood-dark.palette.csv';
@@ -26,7 +27,7 @@ import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palet
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-05-19
  */
 export default class BrushDefs {
 
@@ -180,6 +181,15 @@ export default class BrushDefs {
                 ElementHead.type8Fluid(ElementHead.TYPE_GAS),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
+    ]));
+
+    static OIL = Brushes.colorPaletteRandom(_ASSET_PALETTE_OIL, Brushes.random([
+        new Element(
+            ElementHead.of(
+                ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_NONE),
+                ElementHead.modifiers8(ElementHead.HMI_OIL)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
 
@@ -359,6 +369,7 @@ export default class BrushDefs {
         wood: BrushDefs.TREE_WOOD,
         water: BrushDefs.WATER,
         steam: BrushDefs.STEAM,
+        oil: BrushDefs.OIL,
         grass: BrushDefs.GRASS,
         tree: BrushDefs.TREE,
         tree_wood: BrushDefs.TREE_WOOD,

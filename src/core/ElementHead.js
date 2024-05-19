@@ -22,7 +22,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-05-19
  */
 export default class ElementHead {
 
@@ -301,6 +301,16 @@ export default class ElementHead {
         flammableChanceTo10000: 8000,
         selfIgnitionChanceTo10000: 500,
         flameHeat: 250,
+        burnDownChanceTo10000: 1000
+    });
+
+    static HMI_OIL = ElementHead.#defHeatMods({
+        i: 11,
+        conductiveIndex: 0.45,
+        heatLossChanceTo10000: 10,
+        flammableChanceTo10000: 1000,
+        selfIgnitionChanceTo10000: 500,
+        flameHeat: 220,
         burnDownChanceTo10000: 1000
     });
 
