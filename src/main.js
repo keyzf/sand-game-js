@@ -81,12 +81,13 @@ export const tools = ToolDefs._LIST;
  *     disableSizeChange: undefined|boolean,
  *     disableSceneSelection: undefined|boolean,
  *     disableGlobalShortcuts: undefined|boolean,
+ *     disableBigButtons: undefined|boolean,
  *     errorReporter: undefined|function(type:string,message:string,controller:Controller),
  * }}
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-05-08
+ * @version 2024-05-19
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -114,7 +115,7 @@ export function init(root, config) {
     const enableSceneSelection = !(config.disableSceneSelection === true);
     const enableGlobalShortcuts = !(config.disableGlobalShortcuts === true);
     const enableUserErrorReporting = config.errorReporter !== undefined;
-    const enableBigButtons = config.disableBigButtons !== undefined && config.disableBigButtons === false;
+    const enableBigButtons = !(config.disableBigButtons === true);
 
     const errorReporter = config.errorReporter;
 
@@ -254,9 +255,8 @@ export function init(root, config) {
             }
         }
     } else {
-        tools = ToolDefs.DEFAULT_TOOLS;
+        tools = Tools.grouping(ToolDefs.DEFAULT_TOOLS, ToolDefs.DEFAULT_CATEGORY_DEFINITIONS);
     }
-    // tools = Tools.grouping(ToolDefs.DEFAULT_TOOLS, ToolDefs.DEFAULT_CATEGORY_DEFINITIONS);
 
     let primaryTool;
     if (config.primaryTool === undefined || (primaryTool = resolveTool(config.primaryTool)) === null) {

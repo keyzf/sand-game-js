@@ -200,9 +200,8 @@ export default class Tools {
                 const category = group[0].getInfo().getCategory();
                 const categoryDefinition = categoryDefinitions[category];
                 groupedTools.push(Tools.selectionTool(group, Tools.#info({
-                    displayName: categoryDefinition.displayName,
+                    ...categoryDefinition,
                     codeName: 'category_' + category,
-                    badgeStyle: categoryDefinition.badgeStyle
                 })));
             } else {
                 groupedTools.push(group);

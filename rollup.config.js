@@ -27,6 +27,7 @@ const PLUGINS_COMMON = [
             "**/assets/*.svg",
             "**/assets/*.csv",
             "**/assets/brushes/*.csv",
+            "**/assets/tools/*.svg",
         ],
         exclude: []
     }),

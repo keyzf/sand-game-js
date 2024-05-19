@@ -3,7 +3,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-05-19
  */
 export default class ToolInfo {
 
@@ -18,6 +18,7 @@ export default class ToolInfo {
      *     displayName: string|undefined,
      *     category: string|undefined,
      *     badgeStyle: CSSStyleDeclaration|undefined,
+     *     icon: {svg: string|undefined}|undefined,
      * }}
      */
     constructor(info = {}) {
@@ -61,5 +62,13 @@ export default class ToolInfo {
      */
     getBadgeStyle() {
         return this.#info.badgeStyle;
+    }
+
+    /**
+     *
+     * @returns {string|undefined}
+     */
+    getSvgIcon() {
+        return this.#info.icon?.svg;
     }
 }

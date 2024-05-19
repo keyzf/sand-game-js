@@ -11,7 +11,7 @@ import SelectionFakeTool from "../../core/tool/SelectionFakeTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-08
+ * @version 2024-05-19
  */
 export default class ComponentViewTools extends Component {
 
@@ -63,17 +63,18 @@ export default class ComponentViewTools extends Component {
         }
 
         for (let tool of this.#tools) {
-            let codeName = tool.getInfo().getCodeName();
-            let displayName = tool.getInfo().getDisplayName();
-            let badgeStyle = tool.getInfo().getBadgeStyle();
+            const info = tool.getInfo();
+            let codeName = info.getCodeName();
+            let badgeStyle = info.getBadgeStyle();
 
             if (tool instanceof SelectionFakeTool) {
 
                 const ulContent = [];
                 for (const innerTool of tool.getTools()) {
-                    let innerCodeName = innerTool.getInfo().getCodeName();
-                    let innerDisplayName = innerTool.getInfo().getDisplayName();
-                    let innerBadgeStyle = innerTool.getInfo().getBadgeStyle();
+                    const innerInfo = innerTool.getInfo();
+                    let innerCodeName = innerInfo.getCodeName();
+                    let innerDisplayName = innerInfo.getDisplayName();
+                    let innerBadgeStyle = innerInfo.getBadgeStyle();
 
                     const innerLabel = DomBuilder.span(innerDisplayName, {
                         class: 'btn btn-secondary' + buttonType + ' ' + codeName,
@@ -87,8 +88,9 @@ export default class ComponentViewTools extends Component {
                     ulContent.push(DomBuilder.element('li', null, innerButton));
                 }
 
+                const buttonContent = this.#createButtonContent(info);
                 const button = DomBuilder.div({ class: 'btn-group' }, [
-                    DomBuilder.button(displayName, {
+                    DomBuilder.button(buttonContent, {
                         class: 'btn btn-secondary dropdown-toggle ' + buttonType + ' ' + codeName,
                         style: badgeStyle,
                         'data-bs-toggle': 'dropdown',
@@ -106,7 +108,8 @@ export default class ComponentViewTools extends Component {
                     class: 'btn btn-secondary ' + buttonType + ' ' + codeName,
                     style: badgeStyle
                 };
-                const button = DomBuilder.button(displayName, attributes);
+                const buttonContent = this.#createButtonContent(info);
+                const button = DomBuilder.button(buttonContent, attributes);
                 initButton(button, tool);
                 buttons.push(button);
             }
@@ -135,6 +138,16 @@ export default class ComponentViewTools extends Component {
         } else {
             controller.getToolManager().setPrimaryTool(tool);
             controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);
+        }
+    }
+
+    #createButtonContent(info) {
+        let displayName = info.getDisplayName();
+        const svgIcon = info.getSvgIcon();
+        if (svgIcon !== undefined) {
+            return [ DomBuilder.create(svgIcon),  displayName ];
+        } else {
+            return displayName;
         }
     }
 }

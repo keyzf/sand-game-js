@@ -7,10 +7,15 @@ import ToolInfo from "../core/tool/ToolInfo";
 import TemplateDefs from "./TemplateDefs";
 import EntityFactories from "../core/entity/EntityFactories";
 
+import _ASSET_ICON_POWDERS from './assets/tools/powder.svg'
+import _ASSET_ICON_SOLID from './assets/tools/square-fill.svg'
+import _ASSET_ICON_EFFECTS from './assets/tools/fire.svg'
+import _ASSET_ICON_FLUIDS from './assets/tools/droplet-fill.svg'
+
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-08
+ * @version 2024-05-19
  */
 export default class ToolDefs {
 
@@ -27,26 +32,38 @@ export default class ToolDefs {
     static {
         ToolDefs.DEFAULT_CATEGORY_DEFINITIONS[ToolDefs.CATEGORY_POWDER] = {
             displayName: 'Powders',
+            icon: {
+                svg: _ASSET_ICON_POWDERS
+            },
             badgeStyle: {
-                backgroundColor: '#b7a643',
+                backgroundColor: '#d9bc7a',
             }
         };
         ToolDefs.DEFAULT_CATEGORY_DEFINITIONS[ToolDefs.CATEGORY_FLUIDS] = {
             displayName: 'Fluids',
+            icon: {
+                svg: _ASSET_ICON_FLUIDS
+            },
             badgeStyle: {
-                backgroundColor: '#0487ba',
+                backgroundColor: '#6aa6bd',
             }
         };
         ToolDefs.DEFAULT_CATEGORY_DEFINITIONS[ToolDefs.CATEGORY_SOLIDS] = {
             displayName: 'Solids',
+            icon: {
+                svg: _ASSET_ICON_SOLID
+            },
             badgeStyle: {
-                backgroundColor: '#656565',
+                backgroundColor: '#adadad',
             }
         };
         ToolDefs.DEFAULT_CATEGORY_DEFINITIONS[ToolDefs.CATEGORY_EFFECTS] = {
             displayName: 'Effects',
+            icon: {
+                svg: _ASSET_ICON_EFFECTS
+            },
             badgeStyle: {
-                backgroundColor: '#ff5900',
+                backgroundColor: '#ff945b',
             }
         };
     }
@@ -266,10 +283,10 @@ export default class ToolDefs {
         this.GRAVEL,
         this.COAL,
         this.THERMITE,
-        this.WATER,
         this.ROCK_TEMPLATES,
         this.WALL,
         this.METAL,
+        this.WATER,
         this.METAL_MOLTEN,
         this.FIRE,
         this.METEOR,

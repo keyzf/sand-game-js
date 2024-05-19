@@ -1,10 +1,14 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-05-08
+ * @version 2024-05-19
  */
 
 .sand-game-component {
+}
+
+.sand-game-component .bi {
+    vertical-align: -0.125em;
 }
 
 .sand-game-component.drag-and-drop-highlight {
@@ -132,6 +136,24 @@
     border: none;
 }
 
+.sand-game-component .btn-sand-game-tool-big:hover {
+    filter: brightness(103%);
+}
+
+.sand-game-component .dropdown-menu .btn-sand-game-tool,
+.sand-game-component .dropdown-menu .btn-sand-game-tool-big {
+    margin-bottom: 0;
+}
+
+.sand-game-component .dropdown-menu .btn-sand-game-tool-big:hover {
+    filter: none;
+}
+
+.sand-game-component .btn-sand-game-tool .bi,
+.sand-game-component .btn-sand-game-tool-big .bi {
+    margin-right: 0.25em;
+}
+
 .sand-game-component .sand-game-tools .btn-sand-game-tool.sand,
 .sand-game-component .sand-game-tools .btn-sand-game-tool.effect_temp_minus {
     margin-left: 0.4em;
@@ -178,7 +200,6 @@
 .sand-game-component .sand-game-options .btn .bi {
     width: 12px;
     height: 12px;
-    vertical-align: -1px;
 }
 
 .sand-game-component .sand-game-options .dropdown-menu .btn {
