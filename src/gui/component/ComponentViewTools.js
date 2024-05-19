@@ -19,25 +19,21 @@ export default class ComponentViewTools extends Component {
     #tools;
     /** @type boolean */
     #importEnabled;
-    /** @type boolean */
-    #enableBigButtons;
 
     /**
      * @param tools {Tool[]}
      * @param importEnabled {boolean}
-     * @param enableBigButtons {boolean}
      */
-    constructor(tools, importEnabled = false, enableBigButtons = false) {
+    constructor(tools, importEnabled = false) {
         super();
         this.#tools = tools;
         this.#importEnabled = importEnabled;
-        this.#enableBigButtons = enableBigButtons;
     }
 
     createNode(controller) {
         let buttons = [];
 
-        const buttonType = this.#enableBigButtons ? ' btn-sand-game-tool-big' : ' btn-sand-game-tool';
+        const buttonType = 'btn-sand-game-tool';
 
         const initButton = (button, tool) => {
             button.addEventListener('click', () => {
@@ -77,7 +73,7 @@ export default class ComponentViewTools extends Component {
                     let innerBadgeStyle = innerInfo.getBadgeStyle();
 
                     const innerLabel = DomBuilder.span(innerDisplayName, {
-                        class: 'btn btn-secondary' + buttonType + ' ' + codeName,
+                        class: 'btn btn-secondary ' + buttonType + ' ' + codeName,
                         style: innerBadgeStyle,
                     })
                     const innerToolAttributes = {
@@ -97,7 +93,7 @@ export default class ComponentViewTools extends Component {
                         'aria-expanded': 'false'
                     }),
                     DomBuilder.element('ul', {
-                        class: 'dropdown-menu'
+                        class: 'dropdown-menu ' + (ulContent.length > 10 ? 'sand-game-column-count-2' : '')
                     }, ulContent)
                 ]);
 

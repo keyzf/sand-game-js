@@ -9,7 +9,7 @@ import Component from "./Component";
  * Creates template form and remembers last values.
  *
  * @author Patrik Harag
- * @version 2024-02-09
+ * @version 2024-05-19
  */
 export default class ComponentFormTemplate extends Component {
 
@@ -115,26 +115,26 @@ export default class ComponentFormTemplate extends Component {
     }
 
     #creatMaterialFormGroup(brush, toolInfo) {
-        const value = toolInfo.getCodeName();
+        const codename = toolInfo.getCodeName();
 
-        const checked = (this.#materialValue === value);
-        const id = 'image-template_checkbox-material-' + value;
+        const checked = (this.#materialValue === codename);
+        const id = 'image-template_checkbox-material-' + codename;
 
         const input = DomBuilder.element('input', {
             class: 'form-check-input',
             type: 'radio',
             name: 'template-material',
             id: id,
-            value: value,
+            value: codename,
             checked: (checked) ? checked : null
         });
         input.addEventListener('click', () => {
             this.#materialBrush = brush;
-            this.#materialValue = value;
+            this.#materialValue = codename;
         });
 
         const labelAttributes = {
-            class: 'form-check-label btn btn-secondary btn-sand-game-tool ' + value,
+            class: 'form-check-label btn btn-secondary btn-sm',
             'for': id,
             style: toolInfo.getBadgeStyle()
         };

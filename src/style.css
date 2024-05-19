@@ -119,55 +119,35 @@
     user-select: none;
 }
 
-
-.sand-game-component .btn-sand-game-tool {
-    margin-right: 3pt;
-    line-height: 2;
-    font-weight: 700;
-    padding: 0 0.4em 0 0.4em;
-    font-size: 75%;
-    border: none;
-    margin-bottom: 4pt
-}
-
-.sand-game-component .btn-sand-game-tool-big {
+.sand-game-component .sand-game-tools .btn-sand-game-tool {
     margin-right: 3pt;
     margin-bottom: 4pt;
     border: none;
 }
 
-.sand-game-component .btn-sand-game-tool-big:hover {
+.sand-game-component .sand-game-tools .btn-sand-game-tool:hover {
     filter: brightness(103%);
 }
 
-.sand-game-component .dropdown-menu .btn-sand-game-tool,
-.sand-game-component .dropdown-menu .btn-sand-game-tool-big {
+.sand-game-component .sand-game-tools .dropdown-menu.show.sand-game-column-count-2 {
+    column-count: 2;
+}
+
+.sand-game-component .sand-game-tools .dropdown-menu .btn-sand-game-tool {
     margin-bottom: 0;
 }
 
-.sand-game-component .dropdown-menu .btn-sand-game-tool-big:hover {
+.sand-game-component .sand-game-tools .dropdown-menu .btn-sand-game-tool:hover {
     filter: none;
 }
 
-.sand-game-component .btn-sand-game-tool .bi,
-.sand-game-component .btn-sand-game-tool-big .bi {
+.sand-game-component .sand-game-tools .btn-sand-game-tool .bi {
     margin-right: 0.25em;
 }
 
-.sand-game-component .sand-game-tools .btn-sand-game-tool.sand,
-.sand-game-component .sand-game-tools .btn-sand-game-tool.effect_temp_minus {
-    margin-left: 0.4em;
-}
-
 .sand-game-component .sand-game-tools .btn-sand-game-tool.selected,
-.sand-game-component .sand-game-tools .btn-sand-game-tool-big.selected,
 .sand-game-component .sand-game-tools .dropdown-item.selected {
     outline: red solid 1px;
-}
-
-.sand-game-component .btn-sand-game-tool.fire.selected,
-.sand-game-component .btn-sand-game-tool.meteor.selected {
-    outline: black solid 1px;
 }
 
 .sand-game-component .sand-game-options {

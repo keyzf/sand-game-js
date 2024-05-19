@@ -73,7 +73,6 @@ export const tools = ToolDefs._LIST;
  *     primaryTool: undefined|string|Tool,
  *     secondaryTool: undefined|string|Tool,
  *     tertiaryTool: undefined|string|Tool,
- *     disableBigButtons: undefined|boolean,
  *     disableRestart: undefined|boolean,
  *     disableStartStop: undefined|boolean,
  *     disableImport: undefined|boolean,
@@ -81,7 +80,6 @@ export const tools = ToolDefs._LIST;
  *     disableSizeChange: undefined|boolean,
  *     disableSceneSelection: undefined|boolean,
  *     disableGlobalShortcuts: undefined|boolean,
- *     disableBigButtons: undefined|boolean,
  *     errorReporter: undefined|function(type:string,message:string,controller:Controller),
  * }}
  * @returns {Controller}
@@ -115,7 +113,6 @@ export function init(root, config) {
     const enableSceneSelection = !(config.disableSceneSelection === true);
     const enableGlobalShortcuts = !(config.disableGlobalShortcuts === true);
     const enableUserErrorReporting = config.errorReporter !== undefined;
-    const enableBigButtons = !(config.disableBigButtons === true);
 
     const errorReporter = config.errorReporter;
 
@@ -289,7 +286,7 @@ export function init(root, config) {
     // init components
 
     const mainComponent = new ComponentContainer('sand-game-component', [
-        new ComponentViewTools(tools, enableImport, enableBigButtons),
+        new ComponentViewTools(tools, enableImport),
         new ComponentViewCanvas(),
         new ComponentContainer('sand-game-options', [
             new ComponentContainer('sand-game-options-left', [
